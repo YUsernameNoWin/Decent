@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="sbbi/src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="lib" path="C:/Users/Quinn/workspace/webserver/naga-debug-2_1-r42.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Quinn/workspace/webserver/sbbi/libs/commons-jxpath-1.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Quinn/workspace/webserver/sbbi/libs/commons-logging.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Quinn/workspace/webserver/sbbi/libs/commons-logging-api.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Quinn/workspace/webserver/sbbi/libs/mx4j-impl.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Quinn/workspace/webserver/sbbi/libs/mx4j-jmx.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Quinn/workspace/webserver/sbbi/libs/mx4j-remote.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Quinn/workspace/webserver/sbbi/libs/mx4j-tools.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Quinn/workspace/webserver/sbbi/libs/sbbi-jmx-1.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Quinn/workspace/webserver/sbbi/libs/sbbi-upnplib-1.0.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Quinn/workspace/webserver/bcprov-jdk16-146.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
