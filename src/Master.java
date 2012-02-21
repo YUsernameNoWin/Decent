@@ -26,19 +26,14 @@ import naga.NIOServerSocket;
 import naga.NIOService;
 import naga.NIOSocket;
 import naga.SocketObserver;
+import naga.packetreader.AsciiLinePacketReader;
 import naga.packetreader.RawPacketReader;
 import naga.packetwriter.RawPacketWriter;
 
 //TODO FIX UUID ADDING AND ADJUST STRING LENGTHS.
 public class Master extends Thread{
     Encryption encryption  =  new Encryption();
-	class Hole{
-		Hole(int x, int y){
-			this.x = x;
-			this.y  =y;
-		}
-		int x,y;
-	}
+
 	public ArrayList<UUID> leftList = new ArrayList<UUID>();
 	public ArrayList<UUID> downList = new ArrayList<UUID>();
 	public ArrayList<UUID> rightList = new ArrayList<UUID>();
@@ -49,7 +44,8 @@ public class Master extends Thread{
 	public PrivateKey privateKey = null;
 	public NIOService service;
 	public InetAddress leftAd,rightAd,downAd;
-	public NIOServerSocket left,down,right;
+	public NIOServerSocket leftServer, rightServer, downServer;
+
 	public int peerNum = 0;
 	public final int MAX_PEER =10;
 	String clearText;
@@ -61,10 +57,7 @@ public class Master extends Thread{
 	    
 	}
 
-	public byte[] formatPacket(String input,int type,int col){
-		input = type + col + UUID.randomUUID().toString()+"C"+input;
-		return input.getBytes();
-	}
+
 	
 	
 
@@ -83,23 +76,23 @@ public class Master extends Thread{
         getKey();
         try {
             service = new NIOService();
-            addBasePeer(map.get(0),0);
-            addBasePeer(map.get(1),1);
-            addBasePeer(map.get(2),2);
-            //addBasePeer(map.get(3),0);
+           leftServer = service.openServerSocket(510);
+           leftServer.listen(new ServerAdapter(this,510));
+           leftServer.setConnectionAcceptor(ConnectionAcceptor.ALLOW);
+           
+           rightServer = service.openServerSocket(511);
+           rightServer.listen(new ServerAdapter(this,511));
+           rightServer.setConnectionAcceptor(ConnectionAcceptor.ALLOW);
+           
+           downServer = service.openServerSocket(512);
+           downServer.listen(new ServerAdapter(this,512));
+           downServer.setConnectionAcceptor(ConnectionAcceptor.ALLOW);
+
 
 
                   // Handle IO until we quit the program.
                   while (true)
                   {
-                  /*  for(int i = 0;i<map.size();i++)
-                    {
-                        for(int a = 0;a<map.size();a++)
-                        {
-                        System.out.print(map.get(i).get(a).port);
-                        }
-                        System.out.println();
-                    }*/
     
                         service.selectBlocking();
             
@@ -124,7 +117,7 @@ public class Master extends Thread{
         }
 	   
 	}
-	public JSONObject getPeers(Peer peer){
+	public JSONObject getPeerKeyList(Peer peer){
 		HashMap <String,Peer>temp = new HashMap<String,Peer>();
 		//System.out.println("Server: " + peer.port);
 		//printMap();
@@ -250,7 +243,125 @@ public class Master extends Thread{
 		return output;		
 	}
 	
-	
+	public JSONObject<String,Peer> getPeers(Peer peer){
+        HashMap <String,Peer>temp = new HashMap<String,Peer>();
+        //System.out.println("Server: " + peer.port);
+        //printMap();
+        if(peer.col == 0)
+            {
+
+                //check if first row
+                if(peer.row==0)
+                {
+                    temp.put("right",map.get(0).get(peer.row+1));
+                    temp.put("left",map.get(map.size()-1).get(peer.row));
+                    temp.put("downLeft",map.get(map.size()-1).get(peer.row+1));
+                    temp.put("downRight",map.get(1).get(peer.row+1));
+                    temp.put("down",map.get(1).get(peer.row));
+                }
+                else if(peer.row >= map.get(col).activeSize()-1)
+                {
+                    temp.put("up",map.get(0).get(peer.row-1));
+                    temp.put("right",map.get(map.size()-1).get(peer.row));
+                    temp.put("upLeft",map.get(map.size()-1).get(peer.row-1));
+                    temp.put("downRight",map.get(1).get(peer.row-1));
+                    temp.put("right",map.get(1).get(peer.row));
+                }
+                //any other rows
+                else
+                {
+                    temp.put("up",map.get(0).get(peer.row-1));
+                    temp.put("down",map.get(0).get(peer.row+1));
+                    temp.put("upRight",map.get(1).get(peer.row-1));
+                    temp.put("right",map.get(1).get(peer.row));
+                    temp.put("downRight",map.get(1).get(peer.row+1));
+                    temp.put("left",map.get(map.size()-1).get(peer.row));
+                    temp.put("upLeft",map.get(map.size()-1).get(peer.row-1));
+                    temp.put("downLeft",map.get(map.size()-1).get(peer.row+1));
+                }
+            }
+            else if(peer.col == map.size()-1)
+            {
+                if(peer.row==0)
+                {
+                    temp.put("downLeft",map.get(map.size()-2).get(peer.row+1));
+                    temp.put("left",map.get(map.size()-2).get(peer.row));
+                    temp.put("right",map.get(0).get(peer.row));
+                    temp.put("downRight",map.get(0).get(peer.row+1));
+                    temp.put("down",map.get(map.size()-1).get(peer.row+1));
+                }
+                else if(peer.row ==map.get(col).activeSize()-1)
+                {
+                    temp.put("up",map.get(map.size()-1).get(peer.row-1));
+                    temp.put("left",map.get(peer.col-1).get(peer.row));
+                    temp.put("upLeft",map.get(peer.col-1).get(peer.row-1));
+                    temp.put("upRight",map.get(0).get(peer.row-1));
+                    temp.put("right",map.get(0).get(peer.row));
+    
+                }
+                else
+                {
+                    temp.put("down",map.get(map.size()-1).get(peer.row+1));
+                    temp.put("up",map.get(map.size()-1).get(peer.row-1));
+                    temp.put("left",map.get(peer.col-1).get(peer.row));
+                    temp.put("downLeft",map.get(peer.col-1).get(peer.row+1));
+                    temp.put("upLeft",map.get(peer.col-1).get(peer.row-1));
+                    temp.put("right",map.get(0).get(peer.row));
+                    temp.put("downRight",map.get(0).get(peer.row+1));
+                    temp.put("upRight",map.get(0).get(peer.row-1));
+    
+                }
+                
+            }
+            else
+            {   
+                if(peer.row==0)
+                {
+                    temp.put("downLeft",map.get(peer.col-1).get(peer.row+1));
+                    temp.put("left",map.get(peer.col-1).get(peer.row));
+                    temp.put("down",map.get(peer.col).get(peer.row+1));
+                    temp.put("downRight",map.get(peer.col+1).get(peer.row+1));
+                    temp.put("right",map.get(peer.col+1).get(peer.row));
+                }
+
+                else if(peer.row == map.get(col).activeSize()-1)
+                {
+                    temp.put("upLeft",map.get(peer.col-1).get(peer.row-1));
+                    temp.put("left",map.get(peer.col-1).get(peer.row));
+                    temp.put("up",map.get(peer.col).get(peer.row-1));
+                    temp.put("upRight",map.get(peer.col+1).get(peer.row-1));
+                    temp.put("right",map.get(peer.col+1).get(peer.row));
+                }
+                else
+                {
+                    temp.put("upLeft",map.get(peer.col-1).get(peer.row-1));
+                    temp.put("left",map.get(peer.col-1).get(peer.row));
+                    temp.put("downLeft",map.get(peer.col-1).get(peer.row+1));
+                    temp.put("down",map.get(peer.col).get(peer.row+1));
+                    temp.put("up",map.get(peer.col).get(peer.row-1));
+                    temp.put("upRight",map.get(peer.col+1).get(peer.row-1));
+                    temp.put("right",map.get(peer.col+1).get(peer.row));
+                    temp.put("downRight",map.get(peer.col+1).get(peer.row+1));
+                }
+            }
+        Iterator<String> iterate = temp.keySet().iterator();
+        JSONObject<String,Peer> output = new JSONObject<String,Peer>();
+        while(iterate.hasNext())
+        {
+            String  current = iterate.next();
+            Peer value = temp.get(current);
+            if(value != null && value.active)
+            {
+                try {
+                    output.put(current, value);
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }
+        return output;      
+    }
 	public String get(String a){
 		NIOSocket temp;
 		try {
@@ -327,17 +438,15 @@ public class Master extends Thread{
 			peer.col = map.indexOf(list);
 			peer.row = ((CountableArrayList<Peer>) list).activeSize();
 			peer.active = true;
-			System.out.println(peer.col + " " + (map.size()-1));
-			if(peer.col == (map.size()-1))
-			    addBasePeer(list,peer.col);
-			if(list.get(peer.row).serverSock != null) {
-			    peer.serverSock = list.get(peer.row).serverSock;
+			//System.out.println(peer.col + " " + (map.size()-1));
+			if(list.get(0).socket != null) {
+			    peer.socket = list.get(0).socket;
 			}
 			list.set(peer.row,peer);
 			peerNum++;
 		}
 		IDMap.put(peer.ID,peer);
-	     printMap();
+	     //printMap();
 		return peer.col;
 	}
 	public List<Peer> findShortest()
@@ -406,7 +515,7 @@ public class Master extends Thread{
 		  try
 		  {
 			  // Create file 
-				  FileWriter fstream = new FileWriter("out.txt");
+				  FileWriter fstream = new FileWriter("out.txt",true);
 				  BufferedWriter out = new BufferedWriter(fstream);
 				  
 				  out.write(encryption.getKeyAsString(publicKey));
@@ -444,19 +553,29 @@ public class Master extends Thread{
 		}
 	
 	}
-	public boolean forwardMessage(String content, Socket dest){
-		try {
-			PrintWriter out = new PrintWriter(dest.getOutputStream(),true);
-			out.write(content);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			return false;
-			
-		}
-		return true;
-	}
+    public boolean forwardMessage(NIOSocket dest,String content){
+        try {
+            if(content.equals("{}"))
+                throw new Exception();
+            return dest.write((content + "\n").getBytes());
+        }catch(Exception e) {
+            System.out.println(content + " " + dest);
+            e.printStackTrace();
+            return false;
+        }
+    }
+    public boolean forwardMessage(Peer dest,String content){
+        try {
+            
+            return dest.socket.write((content+"\n").getBytes());
 
-
+        } catch (NullPointerException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return false;
+    }
+   
     public void removePeer(Peer hashed) {
        map.get(hashed.col).set(hashed.row, new Peer());
         IDMap.remove(hashed.ID);

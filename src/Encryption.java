@@ -21,24 +21,53 @@ public class Encryption {
 	 * @throws Exception 
 	 */
 
-    public JSONObject AESdecryptJSON(JSONObject encrypted, byte[] AESkey) throws Exception
+    public JSONObject AESdecryptJSON(JSONObject encrypted, byte[] AESkey)
     {  
         JSONObject clearPacket = new JSONObject();
+        /*try {
+
             clearPacket.putOpt("id", encrypted.remove("id"));
             clearPacket.putOpt("type", encrypted.remove("type"));
             clearPacket.putOpt("col", encrypted.remove("col"));
             JSONArray names = encrypted.names();
+            if(names == null)
+                return clearPacket;
             for(int i =0;i<names.length();i++)
             {
-
+                try {
               String decryptedName = new String(decryptAES(AESkey, names.getString(i).getBytes()));
               String decryptedContent = new String(decryptAES(AESkey, encrypted.getString(names.getString(i)).getBytes()));
               clearPacket.put(decryptedName, decryptedContent);
+                }catch(Exception e) {
+                    e.printStackTrace();
+                    writeToFile(names.getString(i));
+                }
+
 
 
             }
+        }
+        catch(Exception e)
+        {
+            writeToFile(new String (AESkey)  + " " + encrypted.toString());
+        }*/
         return clearPacket;
         
+    }
+    public void writeToFile(String input)
+    {
+        try
+        {
+            // Create file 
+                FileWriter fstream = new FileWriter("test.txt",true);
+                BufferedWriter out = new BufferedWriter(fstream);
+                
+                out.write(input);
+                out.newLine();
+                out.close();
+        }catch (Exception e) {//Catch exception if any
+            System.err.println("Error: " + e.getMessage());
+        }
     }
     public JSONObject RSAdecryptJSON(JSONObject encrypted, PrivateKey privKey)
     {  
@@ -187,6 +216,7 @@ public class Encryption {
         cipher.init(Cipher.ENCRYPT_MODE, key);
         dectyptedText = Base64.encodeBytesToBytes(cipher.doFinal(text.getBytes()));
         return dectyptedText;
+   
     }
 
 
@@ -200,12 +230,12 @@ public class Encryption {
 
 	public  byte[] decryptRSA( PrivateKey key, byte[] text) throws Exception
     { 
-        byte[] dectyptedText = null;
+        byte[] decryptedText = null;
 
         Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         cipher.init(Cipher.DECRYPT_MODE, key);
-        dectyptedText = cipher.doFinal(Base64.decode(text));
-        return dectyptedText;
+        decryptedText = cipher.doFinal(Base64.decode(text));
+        return decryptedText;
     }
 	public  byte[] decryptRSA( PrivateKey key, String text) throws Exception
     { 
@@ -214,7 +244,7 @@ public class Encryption {
         Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         cipher.init(Cipher.DECRYPT_MODE, key);
         dectyptedText = cipher.doFinal(Base64.decode(text.getBytes()));
-        return dectyptedText;
+        return text.getBytes();
     }
 	   public  byte[] encryptAES(byte[] key, byte[] text) throws Exception {   
 
@@ -229,7 +259,7 @@ public class Encryption {
 	          cipher.init(Cipher.ENCRYPT_MODE, skeySpec, ivSpec);
 
 	          byte[] encrypted = cipher.doFinal(text);   
-	          return Base64.encodeBytesToBytes(encrypted);   
+	          return text;
 	     }
 	public  byte[] decryptAES(byte[] key, byte[] text) throws Exception {   
 
@@ -243,7 +273,7 @@ public class Encryption {
           cipher.init(Cipher.DECRYPT_MODE, skeySpec, ivSpec);
 
           byte[] decrypted = cipher.doFinal(Base64.decode(text));   
-          return decrypted;   
+          return text;   
      }
 
 	private  byte[] GetKey(byte[] suggestedKey)

@@ -88,7 +88,7 @@ import java.util.ResourceBundle;
  * @author JSON.org
  * @version 2011-11-24
  */
-public class JSONObject {
+public class JSONObject<T, A> {
 
     /**
      * JSONObject.NULL is equivalent to the value that JavaScript calls null,
@@ -145,7 +145,7 @@ public class JSONObject {
      * Construct an empty JSONObject.
      */
     public JSONObject() {
-        this.map = new HashMap();
+        this.map = new HashMap<String, Object>();
     }
 
 
@@ -453,7 +453,7 @@ public class JSONObject {
         Object object = this.opt(key);
         if (object == null) {
             throw new JSONException("JSONObject[" + quote(key) +
-                    "] not found.");
+                    "] not found. " + toString());
         }
         return object;
     }

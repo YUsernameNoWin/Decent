@@ -12,6 +12,7 @@ import org.JSON.JSONArray;
 import org.JSON.JSONException;
 import org.JSON.JSONObject;
 
+
 import naga.NIOSocket;
 import naga.ServerSocketObserverAdapter;
 import naga.SocketObserverAdapter;
@@ -21,11 +22,12 @@ import naga.packetwriter.RawPacketWriter;
 
 public class ServerAdapter extends ServerSocketObserverAdapter {
 	public Master master;
+	
 	Encryption encryption  =  new Encryption();
-	int col;
+	int port;
 	public ServerAdapter(Master master2,int col) {
 		master = master2;
-		this.col = col;
+		this.port = col;
 	}
 
     public void writeToFile(String text)
@@ -55,15 +57,16 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 		{
 			public void packetReceived(NIOSocket socket, byte[] packet)
 			{
-				System.out.println("Server recieved: "+new String(packet));
+
 				try {
 					
 					JSONObject encryptedPacket =  new JSONObject(new String(packet));
 					JSONObject outPacket =  new JSONObject();
 					JSONObject clearPacket =  new JSONObject();
+					System.out.println(new String(packet));
 					if(UUID.fromString(encryptedPacket.getString("id")) == null)
 					    return;
-					String id =encryptedPacket.getString("id");
+					String id = encryptedPacket.getString("id");
 					Peer hashed = master.IDMap.get(encryptedPacket.getString("id"));
 					
 					if(hashed == null)
@@ -72,17 +75,37 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 
 						if(clearPacket.has("aeskey"))
 						{
-						   byte[] key =Base64.decode(clearPacket.getString("aeskey"));
-			
-    						int added = master.addPeer(new Peer(key,clearPacket.getString("id")));
+						   byte[] key = Base64.decode(clearPacket.getString("aeskey"));
+						   Peer newPeer = new Peer(key,clearPacket.getString("id"));
+						   newPeer.socket = socket;
+    						int added = master.addPeer(newPeer);
     						hashed = master.IDMap.get(id);
-    						if(added !=  col)
+    						JSONObject<String,Peer> peers = master.getPeers(hashed);
+    						//Notify peers of incoming connection
+    						if(peers.has("downleft"))
+    						{
+    						    outPacket.put("connect",true);
+    						    outPacket = encryption.AESencryptJSON(outPacket, ((Peer)peers.get("downleft")).aesKey);
+    						    outPacket  = master.addHeader(outPacket, 2, (Peer) peers.get("downleft"));
+    						    master.forwardMessage((Peer)peers.get("downleft"),outPacket.toString());
+    						}
+                            if(peers.has("downright"))
+                            {
+                                outPacket.put("connect",true);
+                                outPacket = encryption.AESencryptJSON(outPacket, ((Peer)peers.get("downright")).aesKey);
+                                outPacket  = master.addHeader(outPacket, 2, (Peer) peers.get("downright"));
+                                master.forwardMessage((Peer)peers.get("downright"),outPacket.toString());
+                            }
+                            //wrong column. Make the peer reconnect
+    						if(added !=  port)
     						{
     						     outPacket
-    						    .put("cont", "repair")
+    						    .put("repair",true)
     						    .put("port", added + 510);
+                                // System.out.println(outPacket.toString());
     						     outPacket = master.addHeader(master.encryption.AESencryptJSON(outPacket,key),2,hashed);
-    	                         socket.write(outPacket.toString().getBytes());
+
+    	                         master.forwardMessage(socket, outPacket.toString());
     						}
 
 						return;
@@ -96,50 +119,61 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 					   // System.out.println(new String(encryption.decryptAES(hashed.aesKey, encryptedPacket.getString("publickey").getBytes())));
 
 					    clearPacket = encryption.AESdecryptJSON(encryptedPacket,hashed.aesKey);
+			              //System.out.println("Server: " + clearPacket.toString());
 						
-						
-						if(clearPacket.has("cont") && clearPacket.getString("cont").equals("needkeylist"))
+						if(clearPacket.has("needkeylist"))
 						{
-							outPacket = master.getPeers(hashed);
+							outPacket = master.getPeerKeyList(hashed);
 							outPacket = master.addHeader(master.encryption.AESencryptJSON(outPacket,hashed.aesKey),2,hashed);
+							master.forwardMessage(socket,outPacket.toString());
 						}
 						
-						if(clearPacket.has("dc"))
+						else if(clearPacket.has("dc"))
 						{
+						   master.holes.add(new Hole(hashed.col,hashed.row));
 						   master.removePeer(hashed);
 						}
-						if(clearPacket.has("publickey"))
+						else if(clearPacket.has("publickey"))
 						{
 							hashed.publicKey = encryption.getPublicKeyFromString(clearPacket.getString("publickey"));
-							outPacket.put("cont", "keylist");
+							outPacket.put("keylist",true);
 							outPacket = master.addHeader(master.encryption.AESencryptJSON(outPacket, hashed.aesKey), 2, hashed);
+							master.forwardMessage(socket,outPacket.toString());
 						}
-						if(clearPacket.has("get"))
+						else if(clearPacket.has("get"))
 						{
-						    outPacket.put("cont", "get");
+						    outPacket.put("get",true);
 						    outPacket = master.addHeader(master.encryption.AESencryptJSON(outPacket, hashed.aesKey), 2, hashed);
 						}
-						if(clearPacket.has("rightip") && clearPacket.has("rightport"))
+						if(clearPacket.has("uprightip") && clearPacket.has("uprightport"))
 						{
 						    JSONObject peers = master.getPeers(hashed);
-						    if(peers.has("right"))
+						    if(peers.has("upRight"))
 						    {
-						        Peer right = (Peer)peers.get("right");
-						        outPacket.put("ip",clearPacket.getString("rightip"));
-						        outPacket.put("port", clearPacket.getInt("rightport"));
-						        
+						        Peer right =(Peer) peers.get("upRight");
+						        outPacket.put("connect", "downleft");
+						        outPacket.put("ip",clearPacket.getString("uprightip"));
+						        outPacket.put("port", clearPacket.get("uprightport"));
+						        outPacket.put("publickey", hashed.publicKey);
+						        outPacket = encryption.AESencryptJSON(outPacket, right.aesKey);
+						        outPacket  = master.addHeader(outPacket, 2, right);
+						        master.forwardMessage(right.socket,outPacket.toString());
 						        
 						    }
 						}
-						if(clearPacket.has("leftip") && clearPacket.has("leftport"))
+						if(clearPacket.has("downleftip") && clearPacket.has("downleftport"))
 						{
 	                          JSONObject peers = master.getPeers(hashed);
-	                            if(peers.has("left"))
+	                            if(peers.has("downLeft"))
 	                            {
-	                                Peer left = (Peer)peers.get("left");
-	                                outPacket.put("ip",clearPacket.getString("rightip"));
-	                                outPacket.put("port", clearPacket.getInt("rightport"));
-	                                
+	                                Peer left = (Peer)peers.get("downLeft");
+	                                outPacket.put("connect", "downright");
+	                                outPacket.put("ip",clearPacket.getString("upleftip"));
+	                                outPacket.put("port", clearPacket.get("upleftport"));
+	                                outPacket.put("publickey", hashed.publicKey);
+	                                outPacket = encryption.AESencryptJSON(outPacket, left.aesKey);
+	                                outPacket  = master.addHeader(outPacket, 2, left);
+	                                master.forwardMessage(left.socket,outPacket.toString());
 	                                
 	                            }
 						}
@@ -147,7 +181,6 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 						
 					}
 					//System.out.println("Server: "+"SENT PACKET " + outPacket.toString());
-					socket.write((outPacket.toString()+"\n").getBytes());
 				} catch (JSONException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();

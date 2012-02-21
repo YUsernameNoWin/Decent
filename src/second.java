@@ -16,7 +16,8 @@ public class second {
 
 	   Master master =new Master();
 	    ArrayList<NetworkThread> peers = new ArrayList<NetworkThread>();
-	    for(int i=1;i<50;i++)
+	       master.start();
+	    for(int i=1;i<=10;i++)
 	    {
 	       peers.add(new NetworkThread(i*10+500));
 	      peers.add(new NetworkThread(i*10+501));
@@ -24,7 +25,7 @@ public class second {
 	    }
 	    
         
-		master.start();
+
 		for(NetworkThread a:peers)
 		{
 		    a.start();
