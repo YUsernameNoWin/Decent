@@ -51,7 +51,7 @@ public class Encryption {
         {
             writeToFile(new String (AESkey)  + " " + encrypted.toString());
         }*/
-        return clearPacket;
+        return encrypted;
         
     }
     public void writeToFile(String input)
@@ -76,11 +76,14 @@ public class Encryption {
             clearPacket.putOpt("id", encrypted.remove("id"));
             clearPacket.putOpt("type", encrypted.remove("type"));
             clearPacket.putOpt("col", encrypted.remove("col"));
+            clearPacket.putOpt("debug", encrypted.remove("debug"));
+            clearPacket.putOpt("exchange", encrypted.remove("exchange"));
             for(int i =0;i<encrypted.names().length();i++)
             {
                 String decryptedName = new String(decryptRSA(privKey,encrypted.names().getString(i).getBytes()));
-                String decryptedContent = new String(decryptRSA(privKey,encrypted.getString(encrypted.names().getString(i))));
-                    clearPacket.put(decryptedName,decryptedContent);
+                String decryptedContent = new String(decryptRSA(privKey,encrypted.getString(encrypted.names().getString(i)).getBytes()));
+                
+                clearPacket.put(decryptedName,decryptedContent);
             }
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -92,7 +95,7 @@ public class Encryption {
     }
     public JSONObject AESencryptJSON(JSONObject decrypted,byte[] aesKey)
     {
-        JSONObject encrypted = new JSONObject();
+      /*  JSONObject encrypted = new JSONObject();
         if(decrypted.names() == null)
             return decrypted;
         for(int a=0;a<decrypted.names().length();a++){
@@ -102,8 +105,8 @@ public class Encryption {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-        return encrypted;
+        }*/
+        return decrypted;
     }
     
    public JSONObject RSAencryptJSON(JSONObject decrypted,PublicKey publicKey)
@@ -159,7 +162,7 @@ public class Encryption {
     {
         // Get the bytes of the key
 
-        return new String(Base64.encodeBytes(key.getEncoded()));
+        return new String(Base64.encodeBytesToBytes(key.getEncoded()));
     }
     /**
      * Generates Public Key from BASE64 encoded string

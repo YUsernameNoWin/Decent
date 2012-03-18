@@ -24,6 +24,7 @@ import naga.packetwriter.RegularPacketWriter;
 		public NIOServerSocket serverSock;
 		public int port;
 		public int col;
+		public String name;
 		public int row;
 		public Queue<String> data = new LinkedList<String>();
 		public String ID;
@@ -60,10 +61,10 @@ import naga.packetwriter.RegularPacketWriter;
 
 			
 		}
-		public Peer(String ip, int port2) {
+		public Peer(String ip, int port2, String name) {
 			address = ip;
 			port = port2;
-			
+			this.name = name;
 		}
 
 			

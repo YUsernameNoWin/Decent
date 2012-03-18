@@ -98,7 +98,7 @@ public class Master extends Thread{
             
                   }
         } catch (IOException e1) {
-            // TODO Auto-generated catch block
+            
             e1.printStackTrace();
         }
 
@@ -112,7 +112,7 @@ public class Master extends Thread{
             base.serverSock.listen(new ServerAdapter(this,index));
             base.serverSock.setConnectionAcceptor(ConnectionAcceptor.ALLOW);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+            
             e.printStackTrace();
         }
 	   
@@ -223,7 +223,7 @@ public class Master extends Thread{
 		try {
             output.put("cont","keylist");
         } catch (JSONException e1) {
-            // TODO Auto-generated catch block
+            
             e1.printStackTrace();
         }
 		while(iterate.hasNext())
@@ -235,7 +235,7 @@ public class Master extends Thread{
                 try {
                     output.put(current, encryption.getKeyAsString(value.publicKey));
                 } catch (JSONException e) {
-                    // TODO Auto-generated catch block
+                    
                     e.printStackTrace();
                 }
 		    }
@@ -262,7 +262,7 @@ public class Master extends Thread{
                 else if(peer.row >= map.get(col).activeSize()-1)
                 {
                     temp.put("up",map.get(0).get(peer.row-1));
-                    temp.put("right",map.get(map.size()-1).get(peer.row));
+                    temp.put("upRight",map.get(map.size()-1).get(peer.row-1));
                     temp.put("upLeft",map.get(map.size()-1).get(peer.row-1));
                     temp.put("downRight",map.get(1).get(peer.row-1));
                     temp.put("right",map.get(1).get(peer.row));
@@ -355,7 +355,7 @@ public class Master extends Thread{
                 try {
                     output.put(current, value);
                 } catch (JSONException e) {
-                    // TODO Auto-generated catch block
+                    
                     e.printStackTrace();
                 }
             }
@@ -395,7 +395,7 @@ public class Master extends Thread{
 			temp.write("GET /index.html".getBytes());
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 
@@ -418,7 +418,7 @@ public class Master extends Thread{
 	    for(int i = 0;i<map.size();i++)
 	    {
 	        for(int x =0;x<map.get(i).activeSize();x++) {
-	            System.out.print("x ");
+	            System.out.print(map.get(i).get(x).ID + " ");
 	        }
 	        System.out.println();
 	    }
@@ -485,7 +485,7 @@ public class Master extends Thread{
 		    return(json.put("col", Integer.toString(peer.col)).put("id", peer.ID).put("type", Integer.toString(type)));
 
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 		return json;
@@ -501,10 +501,10 @@ public class Master extends Thread{
 			    encrypted.put(new String(encryption.encryptAES(peer.aesKey, decrypted.names().getString(a).getBytes())),
 				        new String(encryption.encryptAES(peer.aesKey, decrypted.getString(decrypted.names().getString(a)).getBytes())));
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
+				
 				e.printStackTrace();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
+				
 				e.printStackTrace();
 			}
 		}
@@ -559,7 +559,7 @@ public class Master extends Thread{
                 throw new Exception();
             return dest.write((content + "\n").getBytes());
         }catch(Exception e) {
-            System.out.println(content + " " + dest);
+            //System.out.println(content + " " + dest);
             e.printStackTrace();
             return false;
         }
@@ -570,7 +570,7 @@ public class Master extends Thread{
             return dest.socket.write((content+"\n").getBytes());
 
         } catch (NullPointerException e) {
-            // TODO Auto-generated catch block
+            
             e.printStackTrace();
         }
         return false;

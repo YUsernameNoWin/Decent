@@ -34,9 +34,8 @@ public class PeerServerAdapter extends ServerSocketObserverAdapter{
 
 	public void newConnection(NIOSocket nioSocket)
     {
-		
-		sender.socket = nioSocket;
-		//System.out.println("newCONN");
+		if(sender.socket == null)
+		    sender.socket = nioSocket;
     	nioSocket.setPacketReader(new AsciiLinePacketReader());
 		nioSocket.setPacketWriter(new RawPacketWriter());
       // Set our socket observer to listen to the new socket.
@@ -47,14 +46,18 @@ public class PeerServerAdapter extends ServerSocketObserverAdapter{
 			//System.out.println(new String(packet));
 			
 				try {
-					if(!sender.active)
+					/*if(!sender.active)
 					{
 					    JSONObject clearPacket = new JSONObject(new String(packet));
 					    clearPacket = encryption.RSAdecryptJSON(clearPacket, master.privateKey);
 					    if(clearPacket.has("aeskey"))
 					    {
+					        if(!sender.name.equals("down"))
+					            //System.out.println(sender.name);
     					    sender.aesKey  = Base64.decode(clearPacket.getString("aeskey"));
     					    sender.active = true;
+                            sender.ID = clearPacket.getString("id");
+                            System.out.println("Peer "  + master.port + " connected to " + sender.name + ":" + sender.ID);
 					    }
 					}
 					if(sender.publicKey == null)
@@ -65,10 +68,10 @@ public class PeerServerAdapter extends ServerSocketObserverAdapter{
 	                        {
 	                            sender.publicKey = encryption.getPublicKeyFromString(clearPacket.getString("publickey"));
 	                        }
-					}
+					}*/
 					    
 					
-                    master.parse(new String(packet));
+                    master.parse(new String(packet),sender);
 				} catch (Exception e) {
 					
 					e.printStackTrace();
@@ -88,7 +91,7 @@ public class PeerServerAdapter extends ServerSocketObserverAdapter{
             return(json.put("col", Integer.toString(master.column)).put("id",master.ID).put("type", Integer.toString(type)));
 
         } catch (JSONException e) {
-            // TODO Auto-generated catch block
+            
             e.printStackTrace();
         }
         return json;

@@ -19,13 +19,12 @@ import org.JSON.JSONObject;
 //TODO REWRITE PARSE for 4 and 3
 public class NetworkThread extends Thread{
     Encryption encryption  =  new Encryption();
-	Peer down,left,right,up,upLeft,upRight,master,downLeft,downRight;
+	Peer down,left,right,up,upLeft,upRight,master,downLeft,downRight,top;
 
 	
 	
 	public PrivateKey privateKey;
 	public PublicKey publicKey;
-	public PublicKey upPubKey;
 	public ArrayList<UUID> leftList = new ArrayList<UUID>();
 	public ArrayList<UUID> downList = new ArrayList<UUID>();
 	public ArrayList<UUID> rightList = new ArrayList<UUID>();
@@ -34,13 +33,13 @@ public class NetworkThread extends Thread{
 	public NIOService service;
 	public int column;
 	public UUID ID = UUID.randomUUID();
+	public int id;
 	public NIOServerSocket leftServer,downServer,rightServer;
 	ServerSocket serverSocket = null;
     int port =0;
-	public byte[] topSymKey = encryption.generateSymmetricKey().getEncoded();
-	public NetworkThread(int port) throws Exception{
+	public NetworkThread(int port,int id) throws Exception{
 	    this.port = port;
-		
+		this.id = id;
 	}
 	public void run()
 	{
@@ -55,113 +54,239 @@ public class NetworkThread extends Thread{
             try {
                 service = new NIOService();
             } catch (IOException e) {
-                // TODO Auto-generated catch block
+                
                 e.printStackTrace();
             }
 
-            up = new Peer("127.0.0.1", port);
-            upLeft = new Peer("127.0.0.1", port);
-            upRight = new Peer("127.0.0.1", port);
-            right = new Peer("127.0.0.1", port);
-            left = new Peer("127.0.0.1", port);
-            downRight= new Peer("127.0.0.1", port);
-            downLeft = new Peer("127.0.0.1", port);
+            up = new Peer("127.0.0.1", port,"up");
+
+            upLeft = new Peer("127.0.0.1", port+1,"upLeft");
+
+            upRight = new Peer("127.0.0.1", port+2,"upRight");
+ 
+            right = new Peer("127.0.0.1", port,"right");
+    
+            left = new Peer("127.0.0.1", port,"left");
+      
+            downRight= new Peer("127.0.0.1", port+3,"downRight");
+           
+            downLeft = new Peer("127.0.0.1", port+4,"downLeft");
+         
+            top = new Peer(encryption.generateSymmetricKey().getEncoded());
+            top.name  = "top";
+            
             getKey();
            
             up.socket = service.openSocket(up.address,port);
             up.socket.setPacketReader(new AsciiLinePacketReader());
             up.socket.setPacketWriter(new RawPacketWriter());
             up.socket.listen(new NetworkProtocol(this,up));
-            up.aesKey  = encryption.generateSymmetricKey().getEncoded();
-            keyExchange(up);
-            
-            downLeft.aesKey = encryption.generateSymmetricKey().getEncoded();
-            downRight.aesKey = encryption.generateSymmetricKey().getEncoded();
-             
-            down = new Peer("127.0.0.1", port + 10);
+
+            down = new Peer("127.0.0.1", port + 10,"down");
             down.serverSock = service.openServerSocket(down.port);
             down.serverSock.listen(new PeerServerAdapter(this,down));
             down.serverSock.setConnectionAcceptor(ConnectionAcceptor.ALLOW);
+            masterKeyExchange();
+            sendLeftRightConnection();
+
+            
+
+            
+
             while(true){
-                service.selectBlocking();
+                service.selectBlocking(100);
             }
 
                  
             
 
         } catch (Exception e) {
+            
+            e.printStackTrace();
+        }
+	}
+	public void sendPubKey(Peer sender)
+	{
+	    JSONObject packet = new JSONObject();
+	    try {
+            packet.put("publickey", encryption.getKeyAsString(publicKey));
+            packet = encryption.AESencryptJSON(packet, sender.aesKey);
+            packet = addHeader(packet,1);
+            forwardMessage(sender,packet.toString(),"sendPubkey");
+        } catch (JSONException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
 	}
-	 private void keyExchange(Peer peer) throws JSONException {
+	public void sendLeftRightConnection() 
+	{
+	    
+       JSONObject clearPacket = new JSONObject();
+       try {
+       clearPacket =  clearPacket.put("uprightip", "127.0.0.1");
+       clearPacket =  clearPacket.put("uprightport", port+10);
+       clearPacket =  clearPacket.put("upleftip", "127.0.0.1");
+       clearPacket =  clearPacket.put("upleftport", port+10);
+       clearPacket= encryption.AESencryptJSON(clearPacket,top.aesKey);
+       clearPacket = addHeader(clearPacket,1);
+       }catch(Exception e) {
+           e.printStackTrace();
+       }
+       forwardMessage(up,clearPacket.toString(),"sendconnections");
+        
+    }
+	public void getKeyList() throws JSONException
+	{
+        JSONObject clearPacket = new JSONObject();
+        clearPacket =  clearPacket.put("needkeylist",true);
+        clearPacket= encryption.AESencryptJSON(clearPacket,top.aesKey);
+        clearPacket = addHeader(clearPacket,1);
+       forwardMessage(up,clearPacket.toString(),"getkeylist"); 
+	}
+    public void getColumn() throws JSONException
+    {     
+
+        JSONObject clearPacket = new JSONObject(); 
+       clearPacket =  clearPacket.put("needcol",true); 
+       clearPacket= encryption.AESencryptJSON(clearPacket,up.aesKey);
+       clearPacket = addHeader(clearPacket,2);
+       clearPacket.put("exchange", true);
+        forwardMessage(up,clearPacket.toString(),"getcolumn");    
+    }
+    
+    public void keyExchange(Peer peer) throws JSONException
+    {
 	     JSONObject message = new JSONObject();
-	     message.put("aeskey", new String(Base64.encodeBytes(peer.aesKey)));
+	     message.put("aeskey", new String(peer.aesKey));
 
 	     message = encryption.RSAencryptJSON(message, peer.publicKey);
-	       message = addHeader(message, 1);
-	     forwardMessage(peer,message.toString());
+	     message = addHeader(message, 1);
+	     message.put("exchange", true);
+	     forwardMessage(peer,message.toString(),"keyexchange,sendaeskey");
         
         message = new JSONObject();
         message.put("publickey", encryption.getKeyAsString(publicKey));
         message = encryption.AESencryptJSON(message, peer.aesKey);
-        message = addHeader(message, 1);
-       forwardMessage(peer,message.toString());
+        message = addHeader(message, 2);
+        message.put("exchange", true);
+       forwardMessage(peer,message.toString(),"keyexchange,sendpubkey");
         
     }
-    public String parse(String input)throws Exception
+	 public void masterKeyExchange() throws JSONException
+	    {
+	        JSONObject clearPacket;
+	        clearPacket = new JSONObject();
+	        clearPacket =  clearPacket.put("aeskey", new String(Base64.encodeBytes(top.aesKey)));
+	        clearPacket= encryption.RSAencryptJSON(clearPacket,top.publicKey);
+	        clearPacket = addHeader(clearPacket,1);
+
+	         forwardMessage(up,clearPacket.toString(),"masterexchange,sendaeskey");
+	         
+	        clearPacket = new JSONObject();
+	       
+
+	     clearPacket.put("publickey", encryption.getKeyAsString(publicKey));
+	        clearPacket = encryption.AESencryptJSON(clearPacket,top.aesKey);
+	     // System.out.println("DECRYPTED AES TEST " +  master.ID +" "  +encryption.encryption.AESdecryptJSON(clearPacket,master.top.aesKey) );
+	        clearPacket = addHeader(clearPacket,1);
+
+	      
+	        forwardMessage(up,clearPacket.toString(),"masterexchange,sendpubkey");
+	    }
+    public String parse(String input, Peer sender)throws Exception
 	    {
 	        JSONObject encryptedPacket = new JSONObject(input);
-
+	        JSONObject clearPacket = new JSONObject();
 	        //1 == send up. 2 == broadcast. 3 == forward down. 4 == send down one. 5 == Reroute.
 	        int type = encryptedPacket.getInt("type");
 	        //test send up to master, add UUID to senders list in order to send back response
 	        //get
-
-	        int col = encryptedPacket.getInt("col");
+	        
 
 	        if(type == 1)
 	        {
-
+	            if(!encryptedPacket.has("exchange"))
 	            sendUp(input);
+	            if(!sender.active)
+	            {
+	                try {
+	                    clearPacket =  encryption.RSAdecryptJSON(encryptedPacket,privateKey);
+	                    if(clearPacket.has("aeskey"))
+	                    {
+	                        sender.aesKey = clearPacket.getString("aeskey").getBytes();
+	                        sender.active = true;
+	                        sender.ID = clearPacket.getString("id");
+	                        //System.out.println("Peer "  + id + " connected to " + sender.name + ":" + sender.ID);
+	                    }
+	                }catch(Exception e)
+	                {
+	                    e.printStackTrace();
+	                }
+	            }
+	            else
+	            {
+    	            try 
+    	            {
+                        clearPacket =  encryption.AESdecryptJSON(encryptedPacket,sender.aesKey);
+                         if(clearPacket.has("publickey"))
+                            sender.publicKey = encryption.getPublicKeyFromString(clearPacket.getString("publickey"));
+                        else if(clearPacket.has("needcol"))
+                        {
+                            JSONObject outPacket = new JSONObject();
+                            outPacket.put("col", column);
+                            outPacket = encryption.AESencryptJSON(outPacket, sender.aesKey);
+                            outPacket = addHeader(outPacket,2);
+                            forwardMessage(sender,outPacket.toString(),"replycol");
+                        }
+                        else if(clearPacket.has("col"))
+                        {
+                            column = clearPacket.getInt("col");
+                        }
+
+    	            }catch(Exception e)
+    	            {
+    	              
+    	                System.out.println("notforme");
+    	            }
+	            
+	            }
+	            
 	        }
 
 	        //forward response downwards or if it is meant for us, decrypt it.
 	        else if( type == 2)
 	        {
-	            String content;
 
-	                JSONObject clearPacket = encryptedPacket;
-	                clearPacket =  encryption.AESdecryptJSON(encryptedPacket,topSymKey);
-	                if(clearPacket.has("cont")) {
-	                       content  = clearPacket.getString("cont");
-	                }
-
+	                clearPacket =  encryption.AESdecryptJSON(encryptedPacket,top.aesKey);
+	                if(Integer.toString(id).equals(clearPacket.getString("id")))
+	                {
 	                    if(clearPacket.has("repair"))
 	                    {
 	                        JSONObject  out = new JSONObject();
 	                        out.put("dc", "disconnected");
-	                        out = addHeader(encryption.AESencryptJSON(out,topSymKey),1);
-	                        forwardMessage(up, out.toString());
+	                        out = addHeader(encryption.AESencryptJSON(out,top.aesKey),1);
+	                        forwardMessage(up, out.toString(),"repairnotice");
 	                        repair(clearPacket.getInt("port"));
 	                    }
-	                    if(clearPacket.has("connect") && clearPacket.has("ip") && clearPacket.has("port"))
-	                        {
-	                        System.out.println("hello");
-	                            if(clearPacket.getString("connect").equals("downleft") && !downLeft.active)
+	                    if(clearPacket.has("connect"))
+	                    {
+	                       // System.out.println("hello");
+	                            if(clearPacket.getString("connect").equals("downleft")  && !downLeft.active)
 	                            {
 	                                downLeft.address = clearPacket.getString("ip");
                                     downLeft.port = clearPacket.getInt("port");
+                                    downLeft.publicKey = encryption.getPublicKeyFromString(clearPacket.getString("publickey")); 
 	                                downLeft.socket = service.openSocket(downLeft.address,downLeft.port);
 	                                downLeft.socket.setPacketReader(new AsciiLinePacketReader());
 	                                downLeft.socket.setPacketWriter(new RawPacketWriter());
 	                                downLeft.socket.listen(new NetworkProtocol(this,downLeft));
 	                                downLeft.active = true;
 	                            }
-	                            else if(clearPacket.getString("connect").equals("downright") && !downRight.active)
+	                            if(clearPacket.getString("connect").equals("downright") && !downRight.active)
 	                            {
 	                                downRight.address = clearPacket.getString("ip");
 	                                downRight.port = clearPacket.getInt("port");
+	                                downRight.publicKey = encryption.getPublicKeyFromString(clearPacket.getString("publickey")); 
 	                                downRight.socket = service.openSocket(downRight.address,downRight.port);
 	                                downRight.socket.setPacketReader(new AsciiLinePacketReader());
 	                                downRight.socket.setPacketWriter(new RawPacketWriter());
@@ -188,27 +313,17 @@ public class NetworkThread extends Thread{
 	                        if(clearPacket.has("up"))
 	                            up.publicKey = encryption.getPublicKeyFromString((String) clearPacket.opt("up"));
 	                        
-	                        JSONObject out = new JSONObject();
-	                        
-	                        if(left.publicKey != null)
-	                        {
-	                               out.put("leftip",encryption.encryptRSA(left.publicKey,InetAddress.getLocalHost().toString()))
-	                               .put("leftport",encryption.encryptRSA(left.publicKey,Integer.toString(port+10).getBytes()));
-	                        }
-	                        if(right.publicKey != null)
-	                        {
-	                            out.put("rightip",encryption.encryptRSA(right.publicKey,InetAddress.getLocalHost().toString()))
-	                                .put("rightport",encryption.encryptRSA(right.publicKey,Integer.toString(right.port).getBytes()));
-	                            right.serverSock = service.openServerSocket(port+10);
-	                        }
-	                        out = encryption.AESencryptJSON(out,topSymKey);
-	                        out = addHeader(out, 1);
-	                        
-	                        forwardMessage(up, out.toString());
+
 	                    }
 
 	                }
-	                    
+	                else
+	                {
+	                    if(down.publicKey !=  null)
+	                    forwardMessage(down,input,"senddown");
+	                }
+	        }
+
 	           
 	                
 	            
@@ -224,17 +339,17 @@ public class NetworkThread extends Thread{
 	            
 	    }
 	public boolean sendUp(String input){
-		if(!forwardMessage(up,input))
-			if(!forwardMessage(upLeft,input))
-				if(!forwardMessage(upRight,input))			
+		if(!forwardMessage(up,input,"sendUp"))
+			if(!forwardMessage(upLeft,input,"sendUp"))
+				if(!forwardMessage(upRight,input,"sendUp"))		
 					return false;
 		return true;
 
 	}
 	public void sendDown(String input){
-		forwardMessage(down,input);
-		forwardMessage(left,input);
-		forwardMessage(right,input);
+		forwardMessage(down,input,"sendUp");
+		forwardMessage(left,input,"sendUp");
+		forwardMessage(right,input,"sendUp");
 
 	}
 
@@ -260,7 +375,7 @@ public class NetworkThread extends Thread{
             this.port  = port;
             run();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
+            
             e.printStackTrace();
         }
     }
@@ -276,7 +391,7 @@ public class NetworkThread extends Thread{
 
 			}
 			publicKey = encryption.getPublicKeyFromString(key);
-			upPubKey = publicKey;
+			top.publicKey = publicKey;
 			up.publicKey = publicKey;
 			
 			key = "";
@@ -292,10 +407,10 @@ public class NetworkThread extends Thread{
     {
 
         try {
-            return(json.put("col", Integer.toString(column)).put("id",ID).put("type", Integer.toString(type)));
+            return(json.put("col", Integer.toString(column)).put("id", Integer.toString(id)).put("type", Integer.toString(type)));
 
         } catch (JSONException e) {
-            // TODO Auto-generated catch block
+            
             e.printStackTrace();
         }
         return json;
@@ -305,7 +420,7 @@ public class NetworkThread extends Thread{
 			try {
 				service.selectBlocking();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				
 				e.printStackTrace();
 			}
 		
@@ -318,13 +433,14 @@ public class NetworkThread extends Thread{
 			
 	}
 
-	public boolean forwardMessage(Peer dest,String content){
+	public boolean forwardMessage(Peer dest,String content , String type){
 	    try {
-	        
-			return dest.socket.write((content+"\n").getBytes());
+	        JSONObject temp = new JSONObject(content);
+	        temp.put("debug", type);
+			return dest.socket.write((temp.toString()+"\n").getBytes());
 
-	    } catch (NullPointerException e) {
-            // TODO Auto-generated catch block
+	    } catch (Exception e) {
+            
             e.printStackTrace();
         }
 	    return false;
@@ -334,7 +450,7 @@ public class NetworkThread extends Thread{
 			Socket dest = new Socket(down.address,6001);
 			return true;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
 			System.out.println("Peer: No down");
 			
 		}
@@ -342,14 +458,14 @@ public class NetworkThread extends Thread{
 			Socket dest = new Socket(left.address,6001);
 			return true;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
 			System.out.println("Peer: No Left");
 		}
 		try {
 			Socket dest = new Socket(right.address,6001);
 			return true;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
 			System.out.println("Peer: No Right");
 		}
 		return false;
