@@ -16,13 +16,13 @@ import java.io.*;
 import java.util.*;
 public class Encryption {
 
-	/**
-	 * @param args
-	 * @throws Exception 
+	/* Main encryption class. Encrypts with AES or RSA
+    * 
 	 */
 
     public JSONObject AESdecryptJSON(JSONObject encrypted, byte[] AESkey)
     {  
+        //Disable for debugging
         JSONObject clearPacket = new JSONObject();
         /*try {
 

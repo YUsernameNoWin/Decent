@@ -16,7 +16,10 @@ import naga.packetwriter.RawPacketWriter;
 import org.JSON.JSONException;
 import org.JSON.JSONObject;
 
-//TODO REWRITE PARSE for 4 and 3
+/* Handles message parsing in function Parse().
+ * Equivalent of Master for ServerAdapter
+ * Tracks peers and connections.
+ */
 public class NetworkThread extends Thread{
     Encryption encryption  =  new Encryption();
 	Peer down,left,right,up,upLeft,upRight,master,downLeft,downRight,top;

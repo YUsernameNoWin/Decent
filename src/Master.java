@@ -30,7 +30,9 @@ import naga.packetreader.AsciiLinePacketReader;
 import naga.packetreader.RawPacketReader;
 import naga.packetwriter.RawPacketWriter;
 
-//TODO FIX UUID ADDING AND ADJUST STRING LENGTHS.
+/*Works as the main manager of the network. Manages peer map, peer connections, dead peers and new peers.
+ * 
+ */
 public class Master extends Thread{
     Encryption encryption  =  new Encryption();
 
@@ -491,25 +493,7 @@ public class Master extends Thread{
 		return json;
 	}
 
-	public JSONObject AESencryptJSON(JSONObject decrypted,Peer peer)
-	{
-		JSONObject encrypted = new JSONObject();
-		if(decrypted.names() == null)
-		    return decrypted;
-		for(int a=0;a<decrypted.names().length();a++){
-			try {
-			    encrypted.put(new String(encryption.encryptAES(peer.aesKey, decrypted.names().getString(a).getBytes())),
-				        new String(encryption.encryptAES(peer.aesKey, decrypted.getString(decrypted.names().getString(a)).getBytes())));
-			} catch (JSONException e) {
-				
-				e.printStackTrace();
-			} catch (Exception e) {
-				
-				e.printStackTrace();
-			}
-		}
-		return encrypted;
-	}
+
 	public void saveKey()
 	{
 		  try

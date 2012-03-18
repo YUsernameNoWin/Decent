@@ -15,7 +15,8 @@ import naga.SocketObserverAdapter;
 import naga.packetreader.AsciiLinePacketReader;
 import naga.packetwriter.RawPacketWriter;
 
-
+/* Peer Server Class. Handles server connections between peers - Connects to a Network Protocol
+ * Message parsing is done in NetworkThread.*/
 public class PeerServerAdapter extends ServerSocketObserverAdapter{
 	public NetworkThread master;
 	public Peer sender;

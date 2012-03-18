@@ -15,9 +15,8 @@ import naga.SocketObserverAdapter;
 import naga.packetreader.AsciiLinePacketReader;
 import naga.packetwriter.RawPacketWriter;
 
-/*TODO Needs a check to make sure upstream peers aren't trying to flood the network with false broadcasts
-*	sign messages with master PrivKey? Hash it and provide checksum? 
-*
+/*Client part of the peer. Connects to a ServerAdapter or PeerServerAdapter.
+* Message parsing is done in NetworkThread.
 *
 */
 public class NetworkProtocol extends SocketObserverAdapter{

@@ -15,7 +15,9 @@ import javax.crypto.spec.SecretKeySpec;
 import naga.*;
 import naga.packetreader.AsciiLinePacketReader;
 import naga.packetwriter.RegularPacketWriter;
-
+    /*
+     * Peer datastructure
+     */
 	public class Peer{
 		public PublicKey publicKey;
 		public String address;

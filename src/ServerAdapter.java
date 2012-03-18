@@ -19,7 +19,7 @@ import naga.SocketObserverAdapter;
 import naga.packetreader.AsciiLinePacketReader;
 import naga.packetwriter.RawPacketWriter;
 
-
+/* Main server component for handling messages. Ties to master class for referencing peers and handling management of the peer map*/
 public class ServerAdapter extends ServerSocketObserverAdapter {
 	public Master master;
 	
@@ -29,24 +29,6 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 		master = master2;
 		this.port = col;
 	}
-
-    public void writeToFile(String text)
-    {
-          try
-          {
-              // Create file 
-                  FileWriter fstream = new FileWriter("error.txt");
-                  BufferedWriter out = new BufferedWriter(fstream);
-                  
-                  out.append(text);
-                  //Close the output stream
-                  out.close();
-              }catch (Exception e)
-              {//Catch exception if any
-              System.err.println("Error: " + e.getMessage());
-              }
-        
-    }
       
 	public void newConnection(NIOSocket nioSocket)
     {
@@ -89,10 +71,10 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
     						     outPacket
     						    .put("repair",true)
     						    .put("port", added + 510);
-                                // System.out.println(outPacket.toString());
+
     						     outPacket = master.addHeader(master.encryption.AESencryptJSON(outPacket,key),2,hashed);
 
-    	                    //    master.forwardMessage(socket, outPacket.toString());
+
     						}
 
 						return;
@@ -102,12 +84,9 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 					}
 					else 
 					{
-	                       //System.out.println(new String(hashed.aesKey));
-					   // System.out.println(new String(encryption.decryptAES(hashed.aesKey, encryptedPacket.getString("publickey").getBytes())));
 
 					    clearPacket = encryption.AESdecryptJSON(encryptedPacket,hashed.aesKey);
-			              //System.out.println("Server: " + clearPacket.toString());
-						
+				
 						if(clearPacket.has("needkeylist"))
 						{
 							outPacket = master.getPeerKeyList(hashed);
@@ -197,4 +176,21 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 		// TODO Auto-generated method stub
 		
 	}
+    public void writeToFile(String text)
+    {
+          try
+          {
+              // Create file 
+                  FileWriter fstream = new FileWriter("error.txt");
+                  BufferedWriter out = new BufferedWriter(fstream);
+                  
+                  out.append(text);
+                  //Close the output stream
+                  out.close();
+              }catch (Exception e)
+              {//Catch exception if any
+              System.err.println("Error: " + e.getMessage());
+              }
+        
+    }
 }

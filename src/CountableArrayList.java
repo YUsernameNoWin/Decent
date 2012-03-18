@@ -5,7 +5,7 @@ import java.util.List;
 public class CountableArrayList<T> extends ArrayList<T> {
 	
 	/**
-	 * 
+	 *  Provides an active list of peers dependent on the peer's active boolean.
 	 */
 	private static final long serialVersionUID = -1548561439412150277L;
 	public CountableArrayList(int capacity)
