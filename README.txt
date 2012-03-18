@@ -14,10 +14,10 @@ Decent(working name) is an attempt to create self scaling anonymous networks.
 \ = connection from left to right. If on the edge of the network, it connects to the one on the left on the other side.
                         M
                     /    |    \
-					p   p    p
+                    p   p    p
                 \ | /\  |  /\ | /
-					p   p    p
+                   p   p    p
                 \ | /\  |  /\ | /
-					p   p    p								
+                   p   p    p								
 					
 The key files in the src folder are the master class, and the networkthread class. The runner is the main class.
