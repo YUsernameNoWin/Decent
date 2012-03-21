@@ -23,7 +23,7 @@ public class runner {
         ArrayList<NetworkThread> peers = new ArrayList<NetworkThread>();
            master.start();
            int temp = 1;
-        for(int i=1;i<=50;i++)
+        for(int i=1;i<=5;i++)
         {
            peers.add(new NetworkThread(i*10+500,temp));
            temp++;

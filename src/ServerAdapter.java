@@ -19,7 +19,8 @@ import naga.SocketObserverAdapter;
 import naga.packetreader.AsciiLinePacketReader;
 import naga.packetwriter.RawPacketWriter;
 
-/* Main server component for handling messages. Ties to master class for referencing peers and handling management of the peer map*/
+/* Main server component for handling messages. 
+ * Ties to master class for referencing peers and handling management of the peer map*/
 public class ServerAdapter extends ServerSocketObserverAdapter {
 	public Master master;
 	
@@ -137,7 +138,7 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 	                            {
 	                            
 	                                Peer upLeft = (Peer)peers.get("upLeft");
-	                                outPacket.put("connect", "downleft");
+	                                outPacket.put("connect", "downright");
 	                                outPacket.put("ip",clearPacket.getString("upleftip"));
 	                                outPacket.put("port", clearPacket.get("upleftport"));
 	                                outPacket.put("publickey",encryption.getKeyAsString(hashed.publicKey));

@@ -257,15 +257,15 @@ public class Master extends Thread{
                 {
                     temp.put("right",map.get(0).get(peer.row+1));
                     temp.put("left",map.get(map.size()-1).get(peer.row));
-                    temp.put("downLeft",map.get(map.size()-1).get(peer.row+1));
-                    temp.put("downRight",map.get(1).get(peer.row+1));
+                    temp.put("downRight",map.get(map.size()-1).get(peer.row+1));
+                    temp.put("downLeft",map.get(peer.col+1).get(peer.row+1));
                     temp.put("down",map.get(1).get(peer.row));
                 }
                 else if(peer.row >= map.get(col).activeSize()-1)
                 {
                     temp.put("up",map.get(0).get(peer.row-1));
                     temp.put("upRight",map.get(map.size()-1).get(peer.row-1));
-                    temp.put("upLeft",map.get(map.size()-1).get(peer.row-1));
+                    temp.put("upLeft",map.get(peer.col+1).get(peer.row-1));
                     temp.put("downRight",map.get(1).get(peer.row-1));
                     temp.put("right",map.get(1).get(peer.row));
                 }
@@ -286,18 +286,18 @@ public class Master extends Thread{
             {
                 if(peer.row==0)
                 {
-                    temp.put("downLeft",map.get(map.size()-2).get(peer.row+1));
+                    temp.put("downLeft",map.get(0).get(peer.row+1));
                     temp.put("left",map.get(map.size()-2).get(peer.row));
                     temp.put("right",map.get(0).get(peer.row));
-                    temp.put("downRight",map.get(0).get(peer.row+1));
+                    temp.put("downRight",map.get(peer.col-1).get(peer.row+1));
                     temp.put("down",map.get(map.size()-1).get(peer.row+1));
                 }
                 else if(peer.row ==map.get(col).activeSize()-1)
                 {
                     temp.put("up",map.get(map.size()-1).get(peer.row-1));
                     temp.put("left",map.get(peer.col-1).get(peer.row));
-                    temp.put("upLeft",map.get(peer.col-1).get(peer.row-1));
-                    temp.put("upRight",map.get(0).get(peer.row-1));
+                    temp.put("upLeft",map.get(0).get(peer.row-1));
+                    temp.put("upRight",map.get(peer.col-1).get(peer.row-1));
                     temp.put("right",map.get(0).get(peer.row));
     
                 }
@@ -328,10 +328,10 @@ public class Master extends Thread{
 
                 else if(peer.row == map.get(col).activeSize()-1)
                 {
-                    temp.put("upLeft",map.get(peer.col-1).get(peer.row-1));
+                    temp.put("upLeft",map.get(peer.col+1).get(peer.row-1));
                     temp.put("left",map.get(peer.col-1).get(peer.row));
                     temp.put("up",map.get(peer.col).get(peer.row-1));
-                    temp.put("upRight",map.get(peer.col+1).get(peer.row-1));
+                    temp.put("upRight",map.get(peer.col-1).get(peer.row-1));
                     temp.put("right",map.get(peer.col+1).get(peer.row));
                 }
                 else
@@ -416,7 +416,7 @@ public class Master extends Thread{
         System.out.println();
         System.out.println();
         System.out.println();
-        System.out.println();
+        System.out.println("MAP");
 	    for(int i = 0;i<map.size();i++)
 	    {
 	        for(int x =0;x<map.get(i).activeSize();x++) {
@@ -424,7 +424,8 @@ public class Master extends Thread{
 	        }
 	        System.out.println();
 	    }
-	    System.out.println(peerNum);
+	    //System.out.println(peerNum);
+	    
 	}
 	public int addPeer(Peer peer) 
 	{
@@ -448,7 +449,7 @@ public class Master extends Thread{
 			peerNum++;
 		}
 		IDMap.put(peer.ID,peer);
-	     //printMap();
+	     printMap();
 		return peer.col;
 	}
 	public List<Peer> findShortest()
