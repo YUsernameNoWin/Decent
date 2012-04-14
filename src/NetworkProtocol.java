@@ -69,7 +69,7 @@ public class NetworkProtocol extends SocketObserverAdapter{
 	{
         sender.socket = nioSocket;
         sender.aesKey = encryption.generateSymmetricKey().getEncoded();
-
+        sender.active = true;
             try {
                 master.keyExchange(sender);
                 master.sendPubKey(sender);
@@ -84,10 +84,14 @@ public class NetworkProtocol extends SocketObserverAdapter{
 	}
 
 	@Override
-	public void connectionBroken(NIOSocket nioSocket, Exception exception) 
-	{
-		
-	}
+	public void connectionBroken(NIOSocket nioSocket, Exception exception)
+    {
+	//       nioSocket.close();
+	        System.out.println(" PORT " + sender.socket.getPort());
+	    master.deadPeer(sender);
+
+
+    }
 
 	public JSONObject stripHeader(JSONObject temp)
 	{

@@ -42,6 +42,15 @@ public class PeerServerAdapter extends ServerSocketObserverAdapter{
       // Set our socket observer to listen to the new socket.
 		nioSocket.listen(new SocketObserverAdapter()
 		{
+		    public void connectionOpened(NIOSocket nioSocket)
+		    {
+		        sender.active = true;
+		    }
+		    public void connectionBroken(NIOSocket nioSocket, Exception exception)
+		    {
+		          System.out.println(" PORT " + sender.serverSock.getPort() + " Name: " + sender.name);
+		        master.deadPeer(sender);
+		    }
 			public void packetReceived(NIOSocket socket, byte[] packet)
 			{
 			//System.out.println(new String(packet));

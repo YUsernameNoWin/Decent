@@ -41,6 +41,7 @@ public class Master extends Thread{
 	public ArrayList<UUID> rightList = new ArrayList<UUID>();
 	public List <CountableArrayList<Peer>> map= new ArrayList<CountableArrayList<Peer>>();
 	public Queue <Hole>holes = new LinkedList<Hole>();
+	public Queue <Hole>openSlots = new LinkedList<Hole>();
 	public HashMap<String,Peer> IDMap =  new HashMap<String,Peer>();
 	public PublicKey publicKey= null;
 	public PrivateKey privateKey = null;
@@ -75,19 +76,22 @@ public class Master extends Thread{
            map.get(2).add(new Peer());
           //  map.get(3).add(new Peer());
         }
+        holes.add(new Hole(0,0,map.get(0).get(0)));
+        holes.add(new Hole(1,0,map.get(1).get(0)));
+        holes.add(new Hole(2,0,map.get(2).get(0)));
         getKey();
         try {
             service = new NIOService();
            leftServer = service.openServerSocket(510);
-           leftServer.listen(new ServerAdapter(this,510));
+           leftServer.listen(new ServerAdapter(this,510,map.get(0).get(0)));
            leftServer.setConnectionAcceptor(ConnectionAcceptor.ALLOW);
            
            rightServer = service.openServerSocket(511);
-           rightServer.listen(new ServerAdapter(this,511));
+           rightServer.listen(new ServerAdapter(this,511,map.get(1).get(0)));
            rightServer.setConnectionAcceptor(ConnectionAcceptor.ALLOW);
            
            downServer = service.openServerSocket(512);
-           downServer.listen(new ServerAdapter(this,512));
+           downServer.listen(new ServerAdapter(this,512,map.get(2).get(0)));
            downServer.setConnectionAcceptor(ConnectionAcceptor.ALLOW);
 
 
@@ -95,9 +99,8 @@ public class Master extends Thread{
                   // Handle IO until we quit the program.
                   while (true)
                   {
-    
-                        service.selectBlocking();
-            
+                        service.selectBlocking(1000);
+                        System.out.println(holes);
                   }
         } catch (IOException e1) {
             
@@ -111,7 +114,7 @@ public class Master extends Thread{
 	    Peer base = list.get(0);
 	    try {
             base.serverSock = service.openServerSocket(510+index);
-            base.serverSock.listen(new ServerAdapter(this,index));
+            base.serverSock.listen(new ServerAdapter(this,index,base));
             base.serverSock.setConnectionAcceptor(ConnectionAcceptor.ALLOW);
         } catch (IOException e) {
             
@@ -407,6 +410,7 @@ public class Master extends Thread{
 	}
 	public void printMap() 
 	{
+	    
         System.out.println();
         System.out.println();
         System.out.println();
@@ -433,26 +437,58 @@ public class Master extends Thread{
 		if(!holes.isEmpty())
 		{
 			Hole hole = holes.remove();
+			peer.row  = hole.y;
+			peer.col  = hole.x;
+			if(map.get(peer.col).get(0).socket != null)
+			    peer.socket = map.get(peer.col).get(0).socket;
+			peer.active = true;
 			map.get(hole.x).set(hole.y, peer);
+			openSlots.add(new Hole(hole.x,hole.y+1,peer));
 		}
-		else
+		else if(!openSlots.isEmpty())
+		{
+	            Hole slot = openSlots.remove();
+	            peer.row  = slot.y;
+	            peer.col  = slot.x;
+	            if(map.get(peer.col).get(0).socket != null)
+	                peer.socket = map.get(peer.col).get(0).socket;
+	            peer.active = true;
+	            map.get(slot.x).set(slot.y, peer);
+	            openSlots.add(new Hole(slot.x,slot.y+1,peer));
+
+		}
+		else  
 		{
 			List<Peer> list =findShortest();
 			peer.col = map.indexOf(list);
 			peer.row = ((CountableArrayList<Peer>) list).activeSize();
 			peer.active = true;
 			//System.out.println(peer.col + " " + (map.size()-1));
-			if(list.get(0).socket != null) {
+			/*if(list.get(0).socket != null) {
 			    peer.socket = list.get(0).socket;
-			}
+			}*/
 			list.set(peer.row,peer);
-			peerNum++;
+			openSlots.add(new Hole(peer.col,peer.row +1,peer));
 		}
 		IDMap.put(peer.ID,peer);
+        peerNum++;
 	     printMap();
 		return peer.col;
 	}
-	public List<Peer> findShortest()
+	public void removePeer(Peer hashed) {
+       holes.add(new Hole(hashed.row,hashed.col,map.get(hashed.row).get(hashed.col-1)));
+       map.get(hashed.col).set(hashed.row, new Peer(hashed.col,hashed.row));
+        IDMap.remove(hashed.ID);
+      peerNum--;
+      printMap();
+        
+    }
+
+
+
+
+
+    public List<Peer> findShortest()
 	{
 		int min = MAX_PEER;
 
@@ -559,14 +595,6 @@ public class Master extends Thread{
             e.printStackTrace();
         }
         return false;
-    }
-   
-    public void removePeer(Peer hashed) {
-       map.get(hashed.col).set(hashed.row, new Peer());
-        IDMap.remove(hashed.ID);
-      peerNum--;
-        
-        
     }
 
 	

@@ -79,20 +79,20 @@ public class NetworkThread extends Thread{
             up.socket.setPacketReader(new AsciiLinePacketReader());
             up.socket.setPacketWriter(new RawPacketWriter());
             up.socket.listen(new NetworkProtocol(this,up));
-
+            up.active = true;
             down = new Peer("127.0.0.1", port + 10,"down");
             down.serverSock = service.openServerSocket(down.port);
             down.serverSock.listen(new PeerServerAdapter(this,down));
             down.serverSock.setConnectionAcceptor(ConnectionAcceptor.ALLOW);
+            
             masterKeyExchange();
             sendLeftRightConnection();
-
+            updatePort();
             
 
             
-
             while(true){
-                service.selectBlocking(100);
+                service.selectBlocking(500);
             }
 
                  
@@ -133,6 +133,14 @@ public class NetworkThread extends Thread{
        forwardMessage(up,clearPacket.toString(),"sendconnections");
         
     }
+	public void updatePort() throws JSONException
+	{
+        JSONObject clearPacket = new JSONObject();
+        clearPacket =  clearPacket.put("port",port);
+        clearPacket= encryption.AESencryptJSON(clearPacket,top.aesKey);
+        clearPacket = addHeader(clearPacket,1);
+       forwardMessage(up,clearPacket.toString(),"port"); 
+	}
 	public void getKeyList() throws JSONException
 	{
         JSONObject clearPacket = new JSONObject();
@@ -338,6 +346,24 @@ public class NetworkThread extends Thread{
 	        return input;
 	            
 	    }
+    public void deadPeer(Peer sender)
+    {
+        JSONObject packet = new JSONObject();
+        try {
+            packet.put("connectionbroken", sender.name);
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        packet = encryption.AESencryptJSON(packet, top.aesKey);
+        packet = addHeader(packet, 1);
+        sendUp(packet.toString());
+        
+    }
+    public void close()
+    {
+        service.close();
+    }
 	public boolean sendUp(String input){
 		if(!forwardMessage(up,input,"sendUp"))
 			if(!forwardMessage(upLeft,input,"sendUp"))

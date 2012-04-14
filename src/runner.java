@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 /* Main class. Initiats Peers.*/
-public class runner {
+public class runner extends Thread{
 
     /**
      * @param args
@@ -23,7 +23,7 @@ public class runner {
         ArrayList<NetworkThread> peers = new ArrayList<NetworkThread>();
            master.start();
            int temp = 1;
-        for(int i=1;i<=5;i++)
+        for(int i=1;i<=3;i++)
         {
            peers.add(new NetworkThread(i*10+500,temp));
            temp++;
@@ -39,8 +39,19 @@ public class runner {
         {
             a.start();
             System.out.print(a.port + " ");
-            scan.next();
+           sleep(100);
         }
+        peers.get(4).close();
+        peers.get(5).close();
+        peers.get(6).close();
+        new NetworkThread(master.holes.remove().up.port + 10,8213).start();
+        sleep(100);
+        new NetworkThread(master.holes.remove().up.port + 10,80).start();
+        sleep(100);
+        //peers.get(1).close();
+       new NetworkThread(master.holes.remove().up.port + 10,90).start();
+
+
         
     }
 

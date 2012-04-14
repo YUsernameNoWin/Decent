@@ -23,24 +23,25 @@ import naga.packetwriter.RawPacketWriter;
  * Ties to master class for referencing peers and handling management of the peer map*/
 public class ServerAdapter extends ServerSocketObserverAdapter {
 	public Master master;
-	
+	Peer peer;
 	Encryption encryption  =  new Encryption();
 	int port;
-	public ServerAdapter(Master master2,int col) {
+	public ServerAdapter(Master master2,int col, Peer self) {
 		master = master2;
 		this.port = col;
 	}
       
 	public void newConnection(NIOSocket nioSocket)
     {
+
     	nioSocket.setPacketReader(new AsciiLinePacketReader());
 		nioSocket.setPacketWriter(new RawPacketWriter());
+
       // Set our socket observer to listen to the new socket.
 		nioSocket.listen(new SocketObserverAdapter()
 		{
 			public void packetReceived(NIOSocket socket, byte[] packet)
 			{
-
 				try {
 					
 					JSONObject encryptedPacket =  new JSONObject(new String(packet));
@@ -74,7 +75,7 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
     						    .put("port", added + 510);
 
     						     outPacket = master.addHeader(master.encryption.AESencryptJSON(outPacket,key),2,hashed);
-
+    						   //  master.forwardMessage(newPeer.socket,outPacket.toString());
 
     						}
 
@@ -87,17 +88,36 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 					{
 
 					    clearPacket = encryption.AESdecryptJSON(encryptedPacket,hashed.aesKey);
-				
+					    if(clearPacket.has("connectionbroken"))
+					    {
+					        System.out.println("dead: " + clearPacket.getString("id") + " " + clearPacket.getString("connectionbroken"));
+					        JSONObject peers = master.getPeers(hashed);
+					        if(peers.has(clearPacket.getString("connectionbroken")))
+					        {
+    					           Peer dead =  ((Peer) peers.get(clearPacket.getString("connectionbroken")));
+    					           dead.connectionBrokenCount++;
+    				
+    					        if(dead.connectionBrokenCount >= 2)
+    					        {
+    					            master.removePeer(dead);
+    					              master.printMap();
+    					              System.out.println(dead.port);
+    					        }
+					        }
+					    }
+					   
 						if(clearPacket.has("needkeylist"))
 						{
 							outPacket = master.getPeerKeyList(hashed);
 							outPacket = master.addHeader(master.encryption.AESencryptJSON(outPacket,hashed.aesKey),2,hashed);
 							master.forwardMessage(socket,outPacket.toString());
 						}
-						
+						else if(clearPacket.has("port"))
+						{
+						    hashed.port = clearPacket.getInt("port");
+						}
 						else if(clearPacket.has("dc"))
 						{
-						   master.holes.add(new Hole(hashed.col,hashed.row));
 						   master.removePeer(hashed);
 						}
 						else if(clearPacket.has("publickey"))
@@ -164,6 +184,7 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 			}
 
       });
+
     }
 
 	@Override
