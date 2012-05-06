@@ -48,7 +48,6 @@ public class PeerServerAdapter extends ServerSocketObserverAdapter{
 		    }
 		    public void connectionBroken(NIOSocket nioSocket, Exception exception)
 		    {
-		          System.out.println(" PORT " + sender.serverSock.getPort() + " Name: " + sender.name);
 		        master.deadPeer(sender);
 		    }
 			public void packetReceived(NIOSocket socket, byte[] packet)

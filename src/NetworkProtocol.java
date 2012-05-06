@@ -86,8 +86,6 @@ public class NetworkProtocol extends SocketObserverAdapter{
 	@Override
 	public void connectionBroken(NIOSocket nioSocket, Exception exception)
     {
-	//       nioSocket.close();
-	        System.out.println(" PORT " + sender.socket.getPort());
 	    master.deadPeer(sender);
 
 

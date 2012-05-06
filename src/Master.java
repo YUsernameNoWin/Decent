@@ -39,7 +39,7 @@ public class Master extends Thread{
 	public ArrayList<UUID> leftList = new ArrayList<UUID>();
 	public ArrayList<UUID> downList = new ArrayList<UUID>();
 	public ArrayList<UUID> rightList = new ArrayList<UUID>();
-	public List <CountableArrayList<Peer>> map= new ArrayList<CountableArrayList<Peer>>();
+	public CountableArrayList <ArrayList<Peer>> map= new CountableArrayList<ArrayList<Peer>>();
 	public Queue <Hole>holes = new LinkedList<Hole>();
 	public Queue <Hole>openSlots = new LinkedList<Hole>();
 	public HashMap<String,Peer> IDMap =  new HashMap<String,Peer>();
@@ -70,18 +70,17 @@ public class Master extends Thread{
         map.add(new CountableArrayList<Peer>(MAX_PEER));
         map.add(new CountableArrayList<Peer>(MAX_PEER));
         //map.add(new CountableArrayList<Peer>(MAX_PEER));
-        for(int i = 0; i< MAX_PEER;i++){
-            map.get(0).add(new Peer());
-           map.get(1).add(new Peer());
-           map.get(2).add(new Peer());
+            map.get(0).add(new Peer(0,0));
+           map.get(1).add(new Peer(1,0));
+           map.get(2).add(new Peer(2,0));
+           map.get(0).get(0).ID = "1";
+           map.get(1).get(0).ID = "2";
+           map.get(2).get(0).ID = "3";
           //  map.get(3).add(new Peer());
-        }
-        holes.add(new Hole(0,0,map.get(0).get(0)));
-        holes.add(new Hole(1,0,map.get(1).get(0)));
-        holes.add(new Hole(2,0,map.get(2).get(0)));
+        
         getKey();
         try {
-            service = new NIOService();
+           service = new NIOService();
            leftServer = service.openServerSocket(510);
            leftServer.listen(new ServerAdapter(this,510,map.get(0).get(0)));
            leftServer.setConnectionAcceptor(ConnectionAcceptor.ALLOW);
@@ -100,7 +99,7 @@ public class Master extends Thread{
                   while (true)
                   {
                         service.selectBlocking(1000);
-                        System.out.println(holes);
+                     //   System.out.println(holes);
                   }
         } catch (IOException e1) {
             
@@ -122,105 +121,106 @@ public class Master extends Thread{
         }
 	   
 	}
-	public JSONObject getPeerKeyList(Peer peer){
+/*	@Deprecated
+public JSONObject getPeerKeyList2(Peer peer){
 		HashMap <String,Peer>temp = new HashMap<String,Peer>();
-		//System.out.println("Server: " + peer.port);
+		System.out.println("no fucking way");
 		//printMap();
-		if(peer.col == 0)
+		if(peer.x == 0)
 			{
 
 				//check if first row
-				if(peer.row==0)
+				if(peer.y==0)
 				{
-					temp.put("right",map.get(0).get(peer.row+1));
-					temp.put("left",map.get(map.size()-1).get(peer.row));
-					temp.put("downLeft",map.get(map.size()-1).get(peer.row+1));
-					temp.put("downRight",map.get(1).get(peer.row+1));
-					temp.put("down",map.get(1).get(peer.row));
+					temp.put("right",map.get(0).get(peer.y+1));
+					temp.put("left",map.get(map.activeSize-1).get(peer.y));
+					temp.put("downLeft",map.get(map.activeSize-1).get(peer.y+1));
+					temp.put("downRight",map.get(1).get(peer.y+1));
+					temp.put("down",map.get(1).get(peer.y));
 				}
-				else if(peer.row >= map.get(col).activeSize()-1)
+				else if(peer.y >= map.get(col).activeSize-1)
                 {
-                    temp.put("up",map.get(0).get(peer.row-1));
-                    temp.put("right",map.get(map.size()-1).get(peer.row));
-                    temp.put("upLeft",map.get(map.size()-1).get(peer.row-1));
-                    temp.put("downRight",map.get(1).get(peer.row-1));
-                    temp.put("right",map.get(1).get(peer.row));
+                    temp.put("up",map.get(0).get(peer.y-1));
+                    temp.put("right",map.get(map.activeSize-1).get(peer.y));
+                    temp.put("upLeft",map.get(map.activeSize-1).get(peer.y-1));
+                    temp.put("downRight",map.get(1).get(peer.y-1));
+                    temp.put("right",map.get(1).get(peer.y));
                 }
 				//any other rows
 				else
 				{
-					temp.put("up",map.get(0).get(peer.row-1));
-					temp.put("down",map.get(0).get(peer.row+1));
-					temp.put("upRight",map.get(1).get(peer.row-1));
-					temp.put("right",map.get(1).get(peer.row));
-					temp.put("downRight",map.get(1).get(peer.row+1));
-					temp.put("left",map.get(map.size()-1).get(peer.row));
-					temp.put("upLeft",map.get(map.size()-1).get(peer.row-1));
-					temp.put("downLeft",map.get(map.size()-1).get(peer.row+1));
+					temp.put("up",map.get(0).get(peer.y-1));
+					temp.put("down",map.get(0).get(peer.y+1));
+					temp.put("upRight",map.get(1).get(peer.y-1));
+					temp.put("right",map.get(1).get(peer.y));
+					temp.put("downRight",map.get(1).get(peer.y+1));
+					temp.put("left",map.get(map.activeSize-1).get(peer.y));
+					temp.put("upLeft",map.get(map.activeSize-1).get(peer.y-1));
+					temp.put("downLeft",map.get(map.activeSize-1).get(peer.y+1));
 				}
 			}
-			else if(peer.col == map.size()-1)
+			else if(peer.x == map.activeSize-1)
 			{
-			    if(peer.row==0)
+			    if(peer.y==0)
                 {
-                    temp.put("downLeft",map.get(map.size()-2).get(peer.row+1));
-                    temp.put("left",map.get(map.size()-2).get(peer.row));
-                    temp.put("right",map.get(0).get(peer.row));
-                    temp.put("downRight",map.get(0).get(peer.row+1));
-                    temp.put("down",map.get(map.size()-1).get(peer.row+1));
+                    temp.put("downLeft",map.get(map.activeSize-2).get(peer.y+1));
+                    temp.put("left",map.get(map.activeSize-2).get(peer.y));
+                    temp.put("right",map.get(0).get(peer.y));
+                    temp.put("downRight",map.get(0).get(peer.y+1));
+                    temp.put("down",map.get(map.activeSize-1).get(peer.y+1));
                 }
-			    else if(peer.row ==map.get(col).activeSize()-1)
+			    else if(peer.y ==map.get(col).activeSize-1)
 				{
-					temp.put("up",map.get(map.size()-1).get(peer.row-1));
-					temp.put("left",map.get(peer.col-1).get(peer.row));
-					temp.put("upLeft",map.get(peer.col-1).get(peer.row-1));
-					temp.put("upRight",map.get(0).get(peer.row-1));
-					temp.put("right",map.get(0).get(peer.row));
+					temp.put("up",map.get(map.activeSize-1).get(peer.y-1));
+					temp.put("left",map.get(peer.x-1).get(peer.y));
+					temp.put("upLeft",map.get(peer.x-1).get(peer.y-1));
+					temp.put("upRight",map.get(0).get(peer.y-1));
+					temp.put("right",map.get(0).get(peer.y));
 	
 				}
 				else
 				{
-					temp.put("down",map.get(map.size()-1).get(peer.row+1));
-					temp.put("up",map.get(map.size()-1).get(peer.row-1));
-					temp.put("left",map.get(peer.col-1).get(peer.row));
-					temp.put("downLeft",map.get(peer.col-1).get(peer.row+1));
-					temp.put("upLeft",map.get(peer.col-1).get(peer.row-1));
-					temp.put("right",map.get(0).get(peer.row));
-					temp.put("downRight",map.get(0).get(peer.row+1));
-					temp.put("upRight",map.get(0).get(peer.row-1));
+					temp.put("down",map.get(map.activeSize-1).get(peer.y+1));
+					temp.put("up",map.get(map.activeSize-1).get(peer.y-1));
+					temp.put("left",map.get(peer.x-1).get(peer.y));
+					temp.put("downLeft",map.get(peer.x-1).get(peer.y+1));
+					temp.put("upLeft",map.get(peer.x-1).get(peer.y-1));
+					temp.put("right",map.get(0).get(peer.y));
+					temp.put("downRight",map.get(0).get(peer.y+1));
+					temp.put("upRight",map.get(0).get(peer.y-1));
 	
 				}
 				
 			}
 			else
 			{	
-			    if(peer.row==0)
+			    if(peer.y==0)
                 {
-                    temp.put("downLeft",map.get(peer.col-1).get(peer.row+1));
-                    temp.put("left",map.get(peer.col-1).get(peer.row));
-                    temp.put("down",map.get(peer.col).get(peer.row+1));
-                    temp.put("downRight",map.get(peer.col+1).get(peer.row+1));
-                    temp.put("right",map.get(peer.col+1).get(peer.row));
+                    temp.put("downLeft",map.get(peer.x-1).get(peer.y+1));
+                    temp.put("left",map.get(peer.x-1).get(peer.y));
+                    temp.put("down",map.get(peer.x).get(peer.y+1));
+                    temp.put("downRight",map.get(peer.x+1).get(peer.y+1));
+                    temp.put("right",map.get(peer.x+1).get(peer.y));
                 }
 
-				else if(peer.row == map.get(col).activeSize()-1)
+				else if(peer.y == map.get(col).activeSize-1)
                 {
-                    temp.put("upLeft",map.get(peer.col-1).get(peer.row-1));
-                    temp.put("left",map.get(peer.col-1).get(peer.row));
-                    temp.put("up",map.get(peer.col).get(peer.row-1));
-                    temp.put("upRight",map.get(peer.col+1).get(peer.row-1));
-                    temp.put("right",map.get(peer.col+1).get(peer.row));
+                    temp.put("upLeft",map.get(peer.x-1).get(peer.y-1));
+                    temp.put("left",map.get(peer.x-1).get(peer.y));
+                    temp.put("up",map.get(peer.x).get(peer.y-1));
+                    temp.put("upRight",map.get(peer.x+1).get(peer.y-1));
+                    temp.put("right",map.get(peer.x+1).get(peer.y));
                 }
 				else
 				{
-					temp.put("upLeft",map.get(peer.col-1).get(peer.row-1));
-					temp.put("left",map.get(peer.col-1).get(peer.row));
-					temp.put("downLeft",map.get(peer.col-1).get(peer.row+1));
-					temp.put("down",map.get(peer.col).get(peer.row+1));
-					temp.put("up",map.get(peer.col).get(peer.row-1));
-					temp.put("upRight",map.get(peer.col+1).get(peer.row-1));
-					temp.put("right",map.get(peer.col+1).get(peer.row));
-					temp.put("downRight",map.get(peer.col+1).get(peer.row+1));
+					temp.put("upLeft",map.get(peer.x-1).get(peer.y-1));
+					temp.put("left",map.get(peer.x-1).get(peer.y));
+					temp.put("downLeft",map.get(peer.x-1).get(peer.y+1));
+					temp.put("down",map.get(peer.x).get(peer.y+1));
+					temp.put("up",map.get(peer.x).get(peer.y-1));
+					temp.put("upRight",map.get(peer.x+1).get(peer.y-1));
+					temp.put("right",map.get(peer.x+1).get(peer.y));
+					temp.put("downRight",map.get(peer.x+1).get(peer.y+1));
 				}
 			}
 		Iterator<String> iterate = temp.keySet().iterator();
@@ -246,107 +246,132 @@ public class Master extends Thread{
 		    }
 		}
 		return output;		
-	}
-	
-	public JSONObject<String,Peer> getPeers(Peer peer){
+	}*/
+    public JSONObject<String,Peer> getPeers(Peer peer){	
+        JSONObject<String,Peer> output = new JSONObject<String,Peer>();
+        try {
+            output.put("right", map.get(peer.x-1).get(peer.y));
+            output.put("left", map.get(peer.x+1).get(peer.y));
+
+            if(peer.y -1 > 0)
+            {
+                output.put("up", map.get(peer.x).get(peer.y-1));
+                output.put("upRight", map.get(peer.x-1).get(peer.y - 1));
+                output.put("upLeft", map.get(peer.x+1).get(peer.y - 1));
+            }
+            if(peer.y + 1 < map.get(peer.x).size()-1)
+            {
+                   output.put("downLeft", map.get(peer.x + 1).get(peer.y + 1));
+                   output.put("downRight", map.get(peer.x - 1).get(peer.y + 1));
+                   output.put("down", map.get(peer.x).get(peer.y + 1));
+            }
+        }
+        catch(JSONException e)
+        {
+                e.printStackTrace();
+        }
+        System.out.println(peer.ID);
+        return output;
+    }
+	/*public JSONObject<String,Peer> getPeers2(Peer peer){
         HashMap <String,Peer>temp = new HashMap<String,Peer>();
         //System.out.println("Server: " + peer.port);
         //printMap();
-        if(peer.col == 0)
+        if(peer.x == 0)
             {
 
                 //check if first row
-                if(peer.row==0)
+                if(peer.y==0)
                 {
-                    temp.put("right",map.get(0).get(peer.row+1));
-                    temp.put("left",map.get(map.size()-1).get(peer.row));
-                    temp.put("downRight",map.get(map.size()-1).get(peer.row+1));
-                    temp.put("downLeft",map.get(peer.col+1).get(peer.row+1));
-                    temp.put("down",map.get(1).get(peer.row));
+                    temp.put("right",map.get(0).get(peer.y+1));
+                    temp.put("left",map.get(map.activeSize-1).get(peer.y));
+                    temp.put("downRight",map.get(map.activeSize-1).get(peer.y+1));
+                    temp.put("downLeft",map.get(peer.x+1).get(peer.y+1));
+                    temp.put("down",map.get(1).get(peer.y));
                 }
-                else if(peer.row >= map.get(col).activeSize()-1)
+                else if(peer.y >= map.get(col).activeSize-1)
                 {
-                    temp.put("up",map.get(0).get(peer.row-1));
-                    temp.put("upRight",map.get(map.size()-1).get(peer.row-1));
-                    temp.put("upLeft",map.get(peer.col+1).get(peer.row-1));
-                    temp.put("downRight",map.get(1).get(peer.row-1));
-                    temp.put("right",map.get(1).get(peer.row));
+                    temp.put("up",map.get(0).get(peer.y-1));
+                    temp.put("upRight",map.get(map.activeSize-1).get(peer.y-1));
+                    temp.put("upLeft",map.get(peer.x+1).get(peer.y-1));
+                    temp.put("downRight",map.get(1).get(peer.y-1));
+                    temp.put("right",map.get(1).get(peer.y));
                 }
                 //any other rows
                 else
                 {
-                    temp.put("up",map.get(0).get(peer.row-1));
-                    temp.put("down",map.get(0).get(peer.row+1));
-                    temp.put("upRight",map.get(1).get(peer.row-1));
-                    temp.put("right",map.get(1).get(peer.row));
-                    temp.put("downRight",map.get(1).get(peer.row+1));
-                    temp.put("left",map.get(map.size()-1).get(peer.row));
-                    temp.put("upLeft",map.get(map.size()-1).get(peer.row-1));
-                    temp.put("downLeft",map.get(map.size()-1).get(peer.row+1));
+                    temp.put("up",map.get(0).get(peer.y-1));
+                    temp.put("down",map.get(0).get(peer.y+1));
+                    temp.put("upRight",map.get(1).get(peer.y-1));
+                    temp.put("right",map.get(1).get(peer.y));
+                    temp.put("downRight",map.get(1).get(peer.y+1));
+                    temp.put("left",map.get(map.activeSize-1).get(peer.y));
+                    temp.put("upLeft",map.get(map.activeSize-1).get(peer.y-1));
+                    temp.put("downLeft",map.get(map.activeSize-1).get(peer.y+1));
                 }
             }
-            else if(peer.col == map.size()-1)
+            else if(peer.x == map.activeSize-1)
             {
-                if(peer.row==0)
+                if(peer.y==0)
                 {
-                    temp.put("downLeft",map.get(0).get(peer.row+1));
-                    temp.put("left",map.get(map.size()-2).get(peer.row));
-                    temp.put("right",map.get(0).get(peer.row));
-                    temp.put("downRight",map.get(peer.col-1).get(peer.row+1));
-                    temp.put("down",map.get(map.size()-1).get(peer.row+1));
+                    temp.put("downLeft",map.get(0).get(peer.y+1));
+                    temp.put("left",map.get(map.activeSize-2).get(peer.y));
+                    temp.put("right",map.get(0).get(peer.y));
+                    temp.put("downRight",map.get(peer.x-1).get(peer.y+1));
+                    temp.put("down",map.get(map.activeSize-1).get(peer.y+1));
                 }
-                else if(peer.row ==map.get(col).activeSize()-1)
+                else if(peer.y ==map.get(col).activeSize-1)
                 {
-                    temp.put("up",map.get(map.size()-1).get(peer.row-1));
-                    temp.put("left",map.get(peer.col-1).get(peer.row));
-                    temp.put("upLeft",map.get(0).get(peer.row-1));
-                    temp.put("upRight",map.get(peer.col-1).get(peer.row-1));
-                    temp.put("right",map.get(0).get(peer.row));
+                    temp.put("up",map.get(map.activeSize-1).get(peer.y-1));
+                    temp.put("left",map.get(peer.x-1).get(peer.y));
+                    temp.put("upLeft",map.get(0).get(peer.y-1));
+                    temp.put("upRight",map.get(peer.x-1).get(peer.y-1));
+                    temp.put("right",map.get(0).get(peer.y));
     
                 }
                 else
                 {
-                    temp.put("down",map.get(map.size()-1).get(peer.row+1));
-                    temp.put("up",map.get(map.size()-1).get(peer.row-1));
-                    temp.put("left",map.get(peer.col-1).get(peer.row));
-                    temp.put("downLeft",map.get(peer.col-1).get(peer.row+1));
-                    temp.put("upLeft",map.get(peer.col-1).get(peer.row-1));
-                    temp.put("right",map.get(0).get(peer.row));
-                    temp.put("downRight",map.get(0).get(peer.row+1));
-                    temp.put("upRight",map.get(0).get(peer.row-1));
+                    temp.put("down",map.get(map.activeSize-1).get(peer.y+1));
+                    temp.put("up",map.get(map.activeSize-1).get(peer.y-1));
+                    temp.put("left",map.get(peer.x-1).get(peer.y));
+                    temp.put("downLeft",map.get(0).get(peer.y+1));
+                    temp.put("upLeft",map.get(peer.x-1).get(peer.y-1));
+                    temp.put("right",map.get(0).get(peer.y));
+                    temp.put("downRight",map.get(peer.x-1).get(peer.y+1));
+                    temp.put("upRight",map.get(0).get(peer.y-1));
     
                 }
                 
             }
             else
             {   
-                if(peer.row==0)
+                if(peer.y==0)
                 {
-                    temp.put("downLeft",map.get(peer.col-1).get(peer.row+1));
-                    temp.put("left",map.get(peer.col-1).get(peer.row));
-                    temp.put("down",map.get(peer.col).get(peer.row+1));
-                    temp.put("downRight",map.get(peer.col+1).get(peer.row+1));
-                    temp.put("right",map.get(peer.col+1).get(peer.row));
+                    temp.put("downLeft",map.get(peer.x-1).get(peer.y+1));
+                    temp.put("left",map.get(peer.x-1).get(peer.y));
+                    temp.put("down",map.get(peer.x).get(peer.y+1));
+                    temp.put("downRight",map.get(peer.x+1).get(peer.y+1));
+                    temp.put("right",map.get(peer.x+1).get(peer.y));
                 }
 
-                else if(peer.row == map.get(col).activeSize()-1)
+                else if(peer.y == map.get(col).activeSize-1)
                 {
-                    temp.put("upLeft",map.get(peer.col+1).get(peer.row-1));
-                    temp.put("left",map.get(peer.col-1).get(peer.row));
-                    temp.put("up",map.get(peer.col).get(peer.row-1));
-                    temp.put("upRight",map.get(peer.col-1).get(peer.row-1));
-                    temp.put("right",map.get(peer.col+1).get(peer.row));
+                    temp.put("upLeft",map.get(peer.x+1).get(peer.y-1));
+                    temp.put("left",map.get(peer.x-1).get(peer.y));
+                    temp.put("up",map.get(peer.x).get(peer.y-1));
+                    temp.put("upRight",map.get(peer.x-1).get(peer.y-1));
+                    temp.put("right",map.get(peer.x+1).get(peer.y));
                 }
                 else
                 {
-                    temp.put("upLeft",map.get(peer.col-1).get(peer.row-1));
-                    temp.put("left",map.get(peer.col-1).get(peer.row));
-                    temp.put("downLeft",map.get(peer.col-1).get(peer.row+1));
-                    temp.put("down",map.get(peer.col).get(peer.row+1));
-                    temp.put("up",map.get(peer.col).get(peer.row-1));
-                    temp.put("upRight",map.get(peer.col+1).get(peer.row-1));
-                    temp.put("right",map.get(peer.col+1).get(peer.row));
-                    temp.put("downRight",map.get(peer.col+1).get(peer.row+1));
+                    temp.put("upLeft",map.get(peer.x-1).get(peer.y-1));
+                    temp.put("left",map.get(peer.x-1).get(peer.y));
+                    temp.put("downLeft",map.get(peer.x-1).get(peer.y+1));
+                    temp.put("down",map.get(peer.x).get(peer.y+1));
+                    temp.put("up",map.get(peer.x).get(peer.y-1));
+                    temp.put("upRight",map.get(peer.x+1).get(peer.y-1));
+                    temp.put("right",map.get(peer.x+1).get(peer.y));
+                    temp.put("downRight",map.get(peer.x+1).get(peer.y+1));
                 }
             }
         Iterator<String> iterate = temp.keySet().iterator();
@@ -366,7 +391,7 @@ public class Master extends Thread{
             }
         }
         return output;      
-    }
+    }*/
 	public String get(String a){
 		NIOSocket temp;
 		try {
@@ -412,18 +437,11 @@ public class Master extends Thread{
 	{
 	    
         System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println("MAP");
+        System.out.println("MAP     0 1 2 3 4 5 6");
 	    for(int i = 0;i<map.size();i++)
 	    {
-	        for(int x =0;x<map.get(i).activeSize();x++) {
+	        System.out.print("Col: " + i + " ||| ");
+	        for(int x =0;x<map.get(i).size();x++) {
 	            System.out.print(map.get(i).get(x).ID + " ");
 	        }
 	        System.out.println();
@@ -437,51 +455,44 @@ public class Master extends Thread{
 		if(!holes.isEmpty())
 		{
 			Hole hole = holes.remove();
-			peer.row  = hole.y;
-			peer.col  = hole.x;
-			if(map.get(peer.col).get(0).socket != null)
-			    peer.socket = map.get(peer.col).get(0).socket;
+			peer.y  = hole.y;
+			peer.x  = hole.x;
+			if(map.get(peer.x).get(0).socket != null)
+			    peer.socket = map.get(peer.x).get(0).socket;
 			peer.active = true;
 			map.get(hole.x).set(hole.y, peer);
 			openSlots.add(new Hole(hole.x,hole.y+1,peer));
 		}
-		else if(!openSlots.isEmpty())
+		else
 		{
-	            Hole slot = openSlots.remove();
-	            peer.row  = slot.y;
-	            peer.col  = slot.x;
-	            if(map.get(peer.col).get(0).socket != null)
-	                peer.socket = map.get(peer.col).get(0).socket;
-	            peer.active = true;
-	            map.get(slot.x).set(slot.y, peer);
-	            openSlots.add(new Hole(slot.x,slot.y+1,peer));
-
-		}
-		else  
-		{
-			List<Peer> list =findShortest();
-			peer.col = map.indexOf(list);
-			peer.row = ((CountableArrayList<Peer>) list).activeSize();
-			peer.active = true;
-			//System.out.println(peer.col + " " + (map.size()-1));
-			/*if(list.get(0).socket != null) {
-			    peer.socket = list.get(0).socket;
-			}*/
-			list.set(peer.row,peer);
-			openSlots.add(new Hole(peer.col,peer.row +1,peer));
+	        List<Peer> index =map.get(0);
+	        int x = 0;
+	        for(int i = 0; i < map.size(); i ++)
+	        {
+	            ArrayList<Peer>list = map.get(i);
+	            if(list.size() < index.size())
+	            {
+	                index = list;
+	                x = i;
+	            }
+	        }
+		    peer.y = index.size();
+		    peer.x = x;
+		    index.add(peer);
 		}
 		IDMap.put(peer.ID,peer);
         peerNum++;
 	     printMap();
-		return peer.col;
+		return peer.x;
 	}
 	public void removePeer(Peer hashed) {
-       holes.add(new Hole(hashed.row,hashed.col,map.get(hashed.row).get(hashed.col-1)));
-       map.get(hashed.col).set(hashed.row, new Peer(hashed.col,hashed.row));
-        IDMap.remove(hashed.ID);
+
+       holes.add(new Hole(hashed.y,hashed.x,map.get(hashed.y).get(hashed.x-1)));
+       map.get(hashed.x).remove(hashed.y);
+       IDMap.remove(hashed.ID);
       peerNum--;
       printMap();
-        
+      System.out.println("Peer: " + hashed.ID + " has died");
     }
 
 
@@ -490,30 +501,12 @@ public class Master extends Thread{
 
     public List<Peer> findShortest()
 	{
-		int min = MAX_PEER;
-
 		List<Peer> index =map.get(0);
 		for(int i = 0; i < map.size(); i ++)
 		{
-			CountableArrayList<Peer>list = map.get(i);
-			
-			if(list.activeSize()<min)
-			{
-				min = list.activeSize();
-				index = map.get(i);
-			}
-
-				
-		}
-		
-		if(((CountableArrayList<Peer>) index).activeSize() == MAX_PEER)
-		{
-			map.add(new CountableArrayList<Peer>(MAX_PEER));
-			index = map.get(map.size()-1);
-	        for(int i = 0; i< MAX_PEER;i++){
-	          index.add(new Peer());
-	        }
-			
+			ArrayList<Peer>list = map.get(i);
+			if(list.size() < index.size())
+			    index = list;
 		}
 		return index;
 	}
@@ -521,7 +514,7 @@ public class Master extends Thread{
 	{
 
 		try {
-		    return(json.put("col", Integer.toString(peer.col)).put("id", peer.ID).put("type", Integer.toString(type)));
+		    return(json.put("col", Integer.toString(peer.x)).put("id", peer.ID).put("type", Integer.toString(type)));
 
 		} catch (JSONException e) {
 			

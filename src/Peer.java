@@ -25,9 +25,9 @@ import naga.packetwriter.RegularPacketWriter;
 		public NIOSocket socket;
 		public NIOServerSocket serverSock;
 		public int port;
-		public int col;
+		public int x;
 		public String name;
-		public int row;
+		public int y;
 		public Queue<String> data = new LinkedList<String>();
 		public String ID;
 		public boolean active;
@@ -37,8 +37,8 @@ import naga.packetwriter.RegularPacketWriter;
 			
 		}
 		public Peer(int col, int row){
-			this.col = col;
-			this.row = row;
+			this.x = col;
+			this.y = row;
 			
 		}
 		public Peer(byte[] aesKey,String ID){
@@ -55,8 +55,8 @@ import naga.packetwriter.RegularPacketWriter;
 		public Peer(byte[] aesKey,String ID,String col,String row){
 			this.aesKey = aesKey;
 			this.ID = ID;
-			this.row = Integer.parseInt(row);
-			this.col = Integer.parseInt(col);
+			this.y = Integer.parseInt(row);
+			this.x = Integer.parseInt(col);
 		}
 		public Peer(PublicKey a){
 				publicKey= a;
@@ -68,7 +68,13 @@ import naga.packetwriter.RegularPacketWriter;
 			port = port2;
 			this.name = name;
 		}
-
+	      public Peer(String ID) {
+	          this.ID = ID;
+	        }
+		public String toString()
+		{
+		    return "Peer: " + ID;
+		}
 			
 		
 		

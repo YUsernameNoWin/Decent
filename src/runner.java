@@ -1,13 +1,9 @@
-import java.awt.Frame;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.security.KeyPair;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-/* Main class. Initiats Peers.*/
+/* Main class. Initiates Peers.*/
 public class runner extends Thread{
 
     /**
@@ -22,7 +18,24 @@ public class runner extends Thread{
        Master master =new Master();
         ArrayList<NetworkThread> peers = new ArrayList<NetworkThread>();
            master.start();
-           int temp = 1;
+         /*  sleep(1000);
+           for(int i = 0; i < 9; i++)
+           {
+               master.addPeer(new Peer(Integer.toString(i+4)));
+               
+           }
+           sleep(1000);
+           System.out.println(master.map.get(2).get(2));
+           while(true)
+           {
+               master.printMap();
+               System.out.println(master.getPeers(master.map.get(scan.nextInt()).get(scan.nextInt())));
+
+           }*/
+
+
+           Scanner scan = new Scanner(System.in);
+           int temp = 4;
         for(int i=1;i<=3;i++)
         {
            peers.add(new NetworkThread(i*10+500,temp));
@@ -34,16 +47,21 @@ public class runner extends Thread{
         }
         
         
-        Scanner scan = new Scanner(System.in);
+
         for(NetworkThread a:peers)
         {
             a.start();
+           // scan.next();
             System.out.print(a.port + " ");
-           sleep(100);
+           sleep(200);
         }
-        peers.get(4).close();
-        peers.get(5).close();
-        peers.get(6).close();
+        //scan.next();
+       // peers.get(4).close();
+       // peers.get(5).close();
+        sleep(1000);
+        System.out.println("ID " + peers.get(3).id);
+        peers.get(3).close();
+        /*
         new NetworkThread(master.holes.remove().up.port + 10,8213).start();
         sleep(100);
         new NetworkThread(master.holes.remove().up.port + 10,80).start();
@@ -51,7 +69,7 @@ public class runner extends Thread{
         //peers.get(1).close();
        new NetworkThread(master.holes.remove().up.port + 10,90).start();
 
-
+*/
         
     }
 

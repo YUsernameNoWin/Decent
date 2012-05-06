@@ -29,6 +29,7 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 	public ServerAdapter(Master master2,int col, Peer self) {
 		master = master2;
 		this.port = col;
+		peer = self;
 	}
       
 	public void newConnection(NIOSocket nioSocket)
@@ -36,7 +37,7 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 
     	nioSocket.setPacketReader(new AsciiLinePacketReader());
 		nioSocket.setPacketWriter(new RawPacketWriter());
-
+		peer.socket = nioSocket;
       // Set our socket observer to listen to the new socket.
 		nioSocket.listen(new SocketObserverAdapter()
 		{
@@ -90,25 +91,25 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 					    clearPacket = encryption.AESdecryptJSON(encryptedPacket,hashed.aesKey);
 					    if(clearPacket.has("connectionbroken"))
 					    {
-					        System.out.println("dead: " + clearPacket.getString("id") + " " + clearPacket.getString("connectionbroken"));
+					//        System.out.println("Peer : " + hashed.ID + " has lost connection to " + clearPacket.getString("connectionbroken"));
 					        JSONObject peers = master.getPeers(hashed);
 					        if(peers.has(clearPacket.getString("connectionbroken")))
 					        {
     					           Peer dead =  ((Peer) peers.get(clearPacket.getString("connectionbroken")));
     					           dead.connectionBrokenCount++;
     				
-    					        if(dead.connectionBrokenCount >= 2)
+    					        if(dead.connectionBrokenCount > 1)
     					        {
     					            master.removePeer(dead);
-    					              master.printMap();
-    					              System.out.println(dead.port);
+
+                                      master.printMap();
     					        }
 					        }
 					    }
 					   
 						if(clearPacket.has("needkeylist"))
 						{
-							outPacket = master.getPeerKeyList(hashed);
+							outPacket = master.getPeers(hashed);
 							outPacket = master.addHeader(master.encryption.AESencryptJSON(outPacket,hashed.aesKey),2,hashed);
 							master.forwardMessage(socket,outPacket.toString());
 						}
@@ -146,7 +147,7 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 						        outPacket.put("publickey", encryption.getKeyAsString(hashed.publicKey));
 						        outPacket = encryption.AESencryptJSON(outPacket, upRight.aesKey);
 						        outPacket  = master.addHeader(outPacket, 2, upRight);
-						        master.forwardMessage(master.map.get(upRight.col).get(0).socket,outPacket.toString());
+						        master.forwardMessage(master.map.get(upRight.x).get(0).socket,outPacket.toString());
 						        
 						    }
 						}
@@ -165,7 +166,7 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 	                                outPacket = encryption.AESencryptJSON(outPacket, upLeft.aesKey);
 	                                //TODO FIX header function, should be uplef, not left
 	                                outPacket  = master.addHeader(outPacket, 2, upLeft);
-	                                master.forwardMessage(master.map.get(upLeft.col).get(0).socket,outPacket.toString());
+	                                master.forwardMessage(master.map.get(upLeft.x).get(0).socket,outPacket.toString());
 	                                
 	                            }
 						}

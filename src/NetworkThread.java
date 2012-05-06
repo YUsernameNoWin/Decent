@@ -287,7 +287,7 @@ public class NetworkThread extends Thread{
 	                                downLeft.socket.setPacketWriter(new RawPacketWriter());
 	                                downLeft.socket.listen(new NetworkProtocol(this,downLeft));
 	                                downLeft.active = true;
-	                                System.out.println(id + " connected to downLeft");
+	                            //    System.out.println(id + " connected to downLeft");
 	                            }
 	                            if(clearPacket.getString("connect").equals("downright") && !downRight.active)
 	                            {
@@ -299,7 +299,7 @@ public class NetworkThread extends Thread{
 	                                downRight.socket.setPacketWriter(new RawPacketWriter());
 	                                downRight.socket.listen(new NetworkProtocol(this,downRight));
 	                                downRight.active = true;
-	                                System.out.println(id + " connected to downRight");
+	                               // System.out.println(id + " connected to downRight");
 	                            }
 	                    }
 	                    if( clearPacket.has("keylist")) 
