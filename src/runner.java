@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
 
 /* Main class. Initiates Peers.*/
@@ -60,7 +61,9 @@ public class runner extends Thread{
        // peers.get(5).close();
         sleep(1000);
         System.out.println("ID " + peers.get(3).id);
-        peers.get(3).close();
+        Random rand = new Random();
+        peers.get(0).close();
+
         /*
         new NetworkThread(master.holes.remove().up.port + 10,8213).start();
         sleep(100);

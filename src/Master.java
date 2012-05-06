@@ -270,7 +270,6 @@ public JSONObject getPeerKeyList2(Peer peer){
         {
                 e.printStackTrace();
         }
-        System.out.println(peer.ID);
         return output;
     }
 	/*public JSONObject<String,Peer> getPeers2(Peer peer){

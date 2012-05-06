@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.channels.ClosedSelectorException;
 import java.security.PublicKey;
 import java.security.PrivateKey;
 import java.util.ArrayList;
@@ -92,7 +93,12 @@ public class NetworkThread extends Thread{
 
             
             while(true){
+                try {
                 service.selectBlocking(500);
+                }catch(ClosedSelectorException e)
+                {
+                    
+                }
             }
 
                  
