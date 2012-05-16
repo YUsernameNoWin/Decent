@@ -90,7 +90,7 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 					}
 					else 
 					{
-
+						System.out.println("DECRYPTING: " + encryptedPacket.toString() + " With KEY: " + new String(hashed.aesKey));
 					    clearPacket = encryption.AESdecryptJSON(encryptedPacket,hashed.aesKey);
 					    if(clearPacket.has("connectionbroken"))
 					    {

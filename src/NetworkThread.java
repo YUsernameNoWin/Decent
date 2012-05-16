@@ -87,10 +87,12 @@ public class NetworkThread extends Thread{
             down.serverSock.setConnectionAcceptor(ConnectionAcceptor.ALLOW);
             
             masterKeyExchange();
-            sendLeftRightConnection();
+            service.selectBlocking(500);
+            //sendLeftRightConnection();
+            service.selectBlocking(500);
             updatePort();
-         
-            get("index.html");
+            service.selectBlocking(500);
+            //get("index.html");
 
             
             while(true){
@@ -117,7 +119,7 @@ public class NetworkThread extends Thread{
             packet.put("publickey", encryption.getKeyAsString(publicKey));
             packet = encryption.AESencryptJSON(packet, sender.aesKey);
             packet = addHeader(packet,1);
-            forwardMessage(sender,packet.toString(),"sendPubkey");
+           // forwardMessage(sender,packet.toString(),"sendPubkey");
         } catch (JSONException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -163,8 +165,8 @@ public class NetworkThread extends Thread{
        clearPacket =  clearPacket.put("needcol",true); 
        clearPacket= encryption.AESencryptJSON(clearPacket,up.aesKey);
        clearPacket = addHeader(clearPacket,2);
-       clearPacket.put("exchange", true);
-        forwardMessage(up,clearPacket.toString(),"getcolumn");    
+       
+      //  forwardMessage(up,clearPacket.toString(),"getcolumn");    
     }
     
     public void keyExchange(Peer peer) throws JSONException
@@ -174,15 +176,15 @@ public class NetworkThread extends Thread{
 
 	     message = encryption.RSAencryptJSON(message, peer.publicKey);
 	     message = addHeader(message, 1);
-	     message.put("exchange", true);
-	     forwardMessage(peer,message.toString(),"keyexchange,sendaeskey");
+	     
+	     //forwardMessage(peer,message.toString(),"keyexchange,sendaeskey");
         
         message = new JSONObject();
         message.put("publickey", encryption.getKeyAsString(publicKey));
         message = encryption.AESencryptJSON(message, peer.aesKey);
         message = addHeader(message, 2);
-        message.put("exchange", true);
-       forwardMessage(peer,message.toString(),"keyexchange,sendpubkey");
+        
+      //forwardMessage(peer,message.toString(),"keyexchange,sendpubkey");
         
     }
 	 public void masterKeyExchange() throws JSONException
@@ -200,10 +202,10 @@ public class NetworkThread extends Thread{
 
 	     clearPacket.put("publickey", encryption.getKeyAsString(publicKey));
 	        clearPacket = encryption.AESencryptJSON(clearPacket,top.aesKey);
-	     // System.out.println("DECRYPTED AES TEST " +  master.ID +" "  +encryption.encryption.AESdecryptJSON(clearPacket,master.top.aesKey) );
+	   
 	        clearPacket = addHeader(clearPacket,1);
 
-	      
+	        
 	        forwardMessage(up,clearPacket.toString(),"masterexchange,sendpubkey");
 	    }
     public String parse(String input, Peer sender)throws Exception
@@ -218,8 +220,6 @@ public class NetworkThread extends Thread{
 
 	        if(type == 1)
 	        {
-	            if(!encryptedPacket.has("exchange"))
-	            sendUp(input);
 	            if(!sender.active)
 	            {
 	                try {
@@ -273,9 +273,9 @@ public class NetworkThread extends Thread{
 	        else if( type == 2)
 	        {
 
-	                clearPacket =  encryption.AESdecryptJSON(encryptedPacket,top.aesKey);
-	                if(Integer.toString(id).equals(clearPacket.getString("id")))
+	                if(Integer.toString(id).equals(encryptedPacket.getString("id")))
 	                {
+		                clearPacket =  encryption.AESdecryptJSON(encryptedPacket,top.aesKey);
 	                    if(clearPacket.has("repair"))
 	                    {
 	                        JSONObject  out = new JSONObject();
@@ -467,7 +467,7 @@ public class NetworkThread extends Thread{
 		JSONObject request = new JSONObject();
 		try {
 			request.put("get", input);
-			request = addHeader(encryption.AESencryptJSON(request, up.aesKey), 2);
+			request = addHeader(encryption.AESencryptJSON(request, top.aesKey), 2);
 			forwardMessage(up,request.toString(),"get");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -482,6 +482,7 @@ public class NetworkThread extends Thread{
 	    try {
 	        JSONObject temp = new JSONObject(content);
 	        temp.put("debug", type);
+	        //System.out.println(temp);
 			return dest.socket.write((temp.toString()+"\n").getBytes());
 
 	    } catch (Exception e) {

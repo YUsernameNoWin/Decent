@@ -27,13 +27,13 @@ public class runner extends Thread{
 
 
            int temp = 4;
-        for(int i=1;i<=2;i++)
+        for(int i=1;i<=1;i++)
         {
            peers.add(new NetworkThread(i*10+500,temp));
            temp++;
-          peers.add(new NetworkThread(i*10+501,temp));
+         // peers.add(new NetworkThread(i*10+501,temp));
           temp++;
-          peers.add(new NetworkThread(i*10+502,temp));
+         // peers.add(new NetworkThread(i*10+502,temp));
           temp++;
         }
         

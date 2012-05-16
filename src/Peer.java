@@ -31,6 +31,7 @@ import naga.packetwriter.RegularPacketWriter;
 		public Queue<String> data = new LinkedList<String>();
 		public String ID;
 		public boolean active;
+		public String secretID;
 		public int connectionBrokenCount = 0;
 		public Peer()
 		{

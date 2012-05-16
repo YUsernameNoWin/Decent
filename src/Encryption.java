@@ -20,40 +20,6 @@ public class Encryption {
     * 
 	 */
 
-    public JSONObject AESdecryptJSON(JSONObject encrypted, byte[] AESkey)
-    {  
-        //Disable for debugging
-        JSONObject clearPacket = new JSONObject();
-        try {
-
-            clearPacket.putOpt("id", encrypted.remove("id"));
-            clearPacket.putOpt("type", encrypted.remove("type"));
-            clearPacket.putOpt("col", encrypted.remove("col"));
-            JSONArray names = encrypted.names();
-            if(names == null)
-                return clearPacket;
-            for(int i =0;i<names.length();i++)
-            {
-                try {
-              String decryptedName = new String(decryptAES(AESkey, names.getString(i).getBytes()));
-              String decryptedContent = new String(decryptAES(AESkey, encrypted.getString(names.getString(i)).getBytes()));
-              clearPacket.put(decryptedName, decryptedContent);
-                }catch(Exception e) {
-                    e.printStackTrace();
-                    writeToFile(names.getString(i));
-                }
-
-
-
-            }
-        }
-        catch(Exception e)
-        {
-            writeToFile(new String (AESkey)  + " " + encrypted.toString());
-        }
-        return encrypted;
-        
-    }
     public void writeToFile(String input)
     {
         try
@@ -93,23 +59,13 @@ public class Encryption {
         return clearPacket;
         
     }
-    public JSONObject AESencryptJSON(JSONObject decrypted,byte[] aesKey)
-    {
-        JSONObject encrypted = new JSONObject();
-        if(decrypted.names() == null)
-            return decrypted;
-        for(int a=0;a<decrypted.names().length();a++){
-            try {
-                encrypted.put(new String(encryptAES(aesKey, decrypted.names().getString(a).getBytes())),
-                		new String(encryptAES(aesKey, decrypted.get(decrypted.names().getString(a)).toString().getBytes())));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return decrypted;
-    }
     
-   public JSONObject RSAencryptJSON(JSONObject decrypted,PublicKey publicKey)
+    
+   /* Main encryption class. Encrypts with AES or RSA
+	* 
+	 */
+	
+	public JSONObject RSAencryptJSON(JSONObject decrypted,PublicKey publicKey)
    {
        JSONObject encrypted = new JSONObject();
        if(decrypted.names() == null)
@@ -124,6 +80,60 @@ public class Encryption {
        }
        return encrypted;
    }
+	public JSONObject AESencryptJSON(JSONObject decrypted,byte[] aesKey)
+{
+    JSONObject encrypted = new JSONObject();
+    if(decrypted.names() == null)
+        return decrypted;
+    for(int a=0;a<decrypted.names().length();a++){
+        try {
+            encrypted.put(new String(encryptAES(aesKey, decrypted.names().getString(a).getBytes())),
+            		new String(encryptAES(aesKey, decrypted.get(decrypted.names().getString(a)).toString().getBytes())));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    return encrypted;
+}
+/* Main encryption class. Encrypts with AES or RSA
+* 
+ */
+
+public JSONObject AESdecryptJSON(JSONObject encrypted, byte[] AESkey)
+{  
+    //Disable for debugging
+    JSONObject clearPacket = new JSONObject();
+    try {
+        clearPacket.putOpt("id", encrypted.remove("id"));
+        clearPacket.putOpt("type", encrypted.remove("type"));
+        clearPacket.putOpt("col", encrypted.remove("col"));
+        clearPacket.putOpt("debug", encrypted.remove("debug"));
+        JSONArray names = encrypted.names();
+        if(names == null)
+            return clearPacket;
+        for(int i =0;i<names.length();i++)
+        {
+            try {
+          String decryptedName = new String(decryptAES(AESkey, names.getString(i).getBytes()));
+          String decryptedContent = new String(decryptAES(AESkey, encrypted.getString(names.getString(i)).getBytes()));
+          clearPacket.put(decryptedName, decryptedContent);
+            }catch(Exception e) {
+                e.printStackTrace();
+                writeToFile(names.getString(i));
+            }
+
+
+
+        }
+    }
+    catch(Exception e)
+    {
+    	e.printStackTrace();
+        writeToFile(new String (AESkey)  + " " + encrypted.toString());
+    }
+    return clearPacket;
+    
+}
 	/**
      * Generates Private Key from BASE64 encoded string
      * @param key BASE64 encoded string which represents the key
@@ -181,7 +191,7 @@ public class Encryption {
     	   SecretKeySpec skeySpec = null;
     	try {
 			KeyGenerator kgen = KeyGenerator.getInstance("AES");
-			kgen.init(256);
+			kgen.init(128);
 			SecretKey skey = kgen.generateKey();
 		       byte[] raw = skey.getEncoded();
 		    skeySpec =   new SecretKeySpec(raw, "AES");
@@ -250,22 +260,26 @@ public class Encryption {
         return text.getBytes();
     }
 	   public  byte[] encryptAES(byte[] key, byte[] text) throws Exception {   
+			   SecretKeySpec skeySpec = new SecretKeySpec(key, "AES");
 
-		   Key skey = new SecretKeySpec(key, "AES");
-	        Cipher c = Cipher.getInstance("AES");
-	        c.init(Cipher.ENCRYPT_MODE, skey);
-	        byte[] encValue = c.doFinal(text);
+
+		       // Instantiate the cipher
+
+		       Cipher cipher = Cipher.getInstance("AES");
+
+		       cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
+	        byte[] encValue = cipher.doFinal(text);
 	        byte[] encryptedValue = Base64.encodeBytesToBytes(encValue);
 	        return encryptedValue;
 	     }
-	public  byte[] decryptAES(byte[] key, byte[] text) throws Exception {   
-
-		  Key skey = new SecretKeySpec(key, "AES");
+	public  byte[] decryptAES(byte[] key, byte[] text) throws Exception{   
+			 SecretKeySpec skeySpec = new SecretKeySpec(key, "AES");
 	        Cipher c = Cipher.getInstance("AES");
-	        c.init(Cipher.DECRYPT_MODE, skey);
+	        c.init(Cipher.DECRYPT_MODE, skeySpec);
 	        byte[] decordedValue = Base64.decode(text);
 	        byte[] decValue = c.doFinal(decordedValue);
 	        return decValue;
+
      }
 
 	private  byte[] GetKey(byte[] suggestedKey)
