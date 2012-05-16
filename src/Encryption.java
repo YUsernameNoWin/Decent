@@ -24,7 +24,7 @@ public class Encryption {
     {  
         //Disable for debugging
         JSONObject clearPacket = new JSONObject();
-        /*try {
+        try {
 
             clearPacket.putOpt("id", encrypted.remove("id"));
             clearPacket.putOpt("type", encrypted.remove("type"));
@@ -50,7 +50,7 @@ public class Encryption {
         catch(Exception e)
         {
             writeToFile(new String (AESkey)  + " " + encrypted.toString());
-        }*/
+        }
         return encrypted;
         
     }
@@ -95,17 +95,17 @@ public class Encryption {
     }
     public JSONObject AESencryptJSON(JSONObject decrypted,byte[] aesKey)
     {
-      /*  JSONObject encrypted = new JSONObject();
+        JSONObject encrypted = new JSONObject();
         if(decrypted.names() == null)
             return decrypted;
         for(int a=0;a<decrypted.names().length();a++){
             try {
                 encrypted.put(new String(encryptAES(aesKey, decrypted.names().getString(a).getBytes())),
-                        new String(encryptAES(aesKey, decrypted.get(decrypted.names().getString(a)).toString().getBytes())));
+                		new String(encryptAES(aesKey, decrypted.get(decrypted.names().getString(a)).toString().getBytes())));
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }*/
+        }
         return decrypted;
     }
     
@@ -251,32 +251,21 @@ public class Encryption {
     }
 	   public  byte[] encryptAES(byte[] key, byte[] text) throws Exception {   
 
-	        SecretKeySpec skeySpec = new SecretKeySpec(GetKey(key), "AES");
-	        
-	          Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");  
-
-	         
-	          byte [] iv = new byte[cipher.getBlockSize()];
-	          for(int i=0;i<iv.length;i++)iv[i] = 0;
-	          IvParameterSpec ivSpec = new IvParameterSpec(iv);
-	          cipher.init(Cipher.ENCRYPT_MODE, skeySpec, ivSpec);
-
-	          byte[] encrypted = cipher.doFinal(text);   
-	          return text;
+		   Key skey = new SecretKeySpec(key, "AES");
+	        Cipher c = Cipher.getInstance("AES");
+	        c.init(Cipher.ENCRYPT_MODE, skey);
+	        byte[] encValue = c.doFinal(text);
+	        byte[] encryptedValue = Base64.encodeBytesToBytes(encValue);
+	        return encryptedValue;
 	     }
 	public  byte[] decryptAES(byte[] key, byte[] text) throws Exception {   
 
-        SecretKeySpec skeySpec = new SecretKeySpec(GetKey(key), "AES");
-
-          Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");  
-
-          byte [] iv = new byte[cipher.getBlockSize()];
-          for(int i=0;i<iv.length;i++)iv[i] = 0;
-          IvParameterSpec ivSpec = new IvParameterSpec(iv);
-          cipher.init(Cipher.DECRYPT_MODE, skeySpec, ivSpec);
-
-          byte[] decrypted = cipher.doFinal(Base64.decode(text));   
-          return text;   
+		  Key skey = new SecretKeySpec(key, "AES");
+	        Cipher c = Cipher.getInstance("AES");
+	        c.init(Cipher.DECRYPT_MODE, skey);
+	        byte[] decordedValue = Base64.decode(text);
+	        byte[] decValue = c.doFinal(decordedValue);
+	        return decValue;
      }
 
 	private  byte[] GetKey(byte[] suggestedKey)

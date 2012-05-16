@@ -3,8 +3,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.InetAddress;
-import java.net.Socket;
+import java.net.*;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -26,6 +25,7 @@ import naga.NIOServerSocket;
 import naga.NIOService;
 import naga.NIOSocket;
 import naga.SocketObserver;
+import naga.SocketObserverAdapter;
 import naga.packetreader.AsciiLinePacketReader;
 import naga.packetreader.RawPacketReader;
 import naga.packetwriter.RawPacketWriter;
@@ -108,170 +108,6 @@ public class Master extends Thread{
 
 	}
 	
-	public void addBasePeer(List<Peer> list,int index)
-	{
-	    Peer base = list.get(0);
-	    try {
-            base.serverSock = service.openServerSocket(510+index);
-            base.serverSock.listen(new ServerAdapter(this,index,base));
-            base.serverSock.setConnectionAcceptor(ConnectionAcceptor.ALLOW);
-        } catch (IOException e) {
-            
-            e.printStackTrace();
-        }
-	   
-	}
-/*	@Deprecated
-public JSONObject getPeerKeyList2(Peer peer){
-		HashMap <String,Peer>temp = new HashMap<String,Peer>();
-		System.out.println("no fucking way");
-		//printMap();
-		if(peer.x == 0)
-			{
-
-				//check if first row
-				if(peer.y==0)
-				{
-					temp.put("right",map.get(0).get(peer.y+1));
-					temp.put("left",map.get(map.activeSize-1).get(peer.y));
-					temp.put("downLeft",map.get(map.activeSize-1).get(peer.y+1));
-					temp.put("downRight",map.get(1).get(peer.y+1));
-					temp.put("down",map.get(1).get(peer.y));
-				}
-				else if(peer.y >= map.get(col).activeSize-1)
-                {
-                    temp.put("up",map.get(0).get(peer.y-1));
-                    temp.put("right",map.get(map.activeSize-1).get(peer.y));
-                    temp.put("upLeft",map.get(map.activeSize-1).get(peer.y-1));
-                    temp.put("downRight",map.get(1).get(peer.y-1));
-                    temp.put("right",map.get(1).get(peer.y));
-                }
-				//any other rows
-				else
-				{
-					temp.put("up",map.get(0).get(peer.y-1));
-					temp.put("down",map.get(0).get(peer.y+1));
-					temp.put("upRight",map.get(1).get(peer.y-1));
-					temp.put("right",map.get(1).get(peer.y));
-					temp.put("downRight",map.get(1).get(peer.y+1));
-					temp.put("left",map.get(map.activeSize-1).get(peer.y));
-					temp.put("upLeft",map.get(map.activeSize-1).get(peer.y-1));
-					temp.put("downLeft",map.get(map.activeSize-1).get(peer.y+1));
-				}
-			}
-			else if(peer.x == map.activeSize-1)
-			{
-			    if(peer.y==0)
-                {
-                    temp.put("downLeft",map.get(map.activeSize-2).get(peer.y+1));
-                    temp.put("left",map.get(map.activeSize-2).get(peer.y));
-                    temp.put("right",map.get(0).get(peer.y));
-                    temp.put("downRight",map.get(0).get(peer.y+1));
-                    temp.put("down",map.get(map.activeSize-1).get(peer.y+1));
-                }
-			    else if(peer.y ==map.get(col).activeSize-1)
-				{
-					temp.put("up",map.get(map.activeSize-1).get(peer.y-1));
-					temp.put("left",map.get(peer.x-1).get(peer.y));
-					temp.put("upLeft",map.get(peer.x-1).get(peer.y-1));
-					temp.put("upRight",map.get(0).get(peer.y-1));
-					temp.put("right",map.get(0).get(peer.y));
-	
-				}
-				else
-				{
-					temp.put("down",map.get(map.activeSize-1).get(peer.y+1));
-					temp.put("up",map.get(map.activeSize-1).get(peer.y-1));
-					temp.put("left",map.get(peer.x-1).get(peer.y));
-					temp.put("downLeft",map.get(peer.x-1).get(peer.y+1));
-					temp.put("upLeft",map.get(peer.x-1).get(peer.y-1));
-					temp.put("right",map.get(0).get(peer.y));
-					temp.put("downRight",map.get(0).get(peer.y+1));
-					temp.put("upRight",map.get(0).get(peer.y-1));
-	
-				}
-				
-			}
-			else
-			{	
-			    if(peer.y==0)
-                {
-                    temp.put("downLeft",map.get(peer.x-1).get(peer.y+1));
-                    temp.put("left",map.get(peer.x-1).get(peer.y));
-                    temp.put("down",map.get(peer.x).get(peer.y+1));
-                    temp.put("downRight",map.get(peer.x+1).get(peer.y+1));
-                    temp.put("right",map.get(peer.x+1).get(peer.y));
-                }
-
-				else if(peer.y == map.get(col).activeSize-1)
-                {
-                    temp.put("upLeft",map.get(peer.x-1).get(peer.y-1));
-                    temp.put("left",map.get(peer.x-1).get(peer.y));
-                    temp.put("up",map.get(peer.x).get(peer.y-1));
-                    temp.put("upRight",map.get(peer.x+1).get(peer.y-1));
-                    temp.put("right",map.get(peer.x+1).get(peer.y));
-                }
-				else
-				{
-					temp.put("upLeft",map.get(peer.x-1).get(peer.y-1));
-					temp.put("left",map.get(peer.x-1).get(peer.y));
-					temp.put("downLeft",map.get(peer.x-1).get(peer.y+1));
-					temp.put("down",map.get(peer.x).get(peer.y+1));
-					temp.put("up",map.get(peer.x).get(peer.y-1));
-					temp.put("upRight",map.get(peer.x+1).get(peer.y-1));
-					temp.put("right",map.get(peer.x+1).get(peer.y));
-					temp.put("downRight",map.get(peer.x+1).get(peer.y+1));
-				}
-			}
-		Iterator<String> iterate = temp.keySet().iterator();
-		JSONObject output = new JSONObject();
-		try {
-            output.put("cont","keylist");
-        } catch (JSONException e1) {
-            
-            e1.printStackTrace();
-        }
-		while(iterate.hasNext())
-		{
-	         String  current = iterate.next();
-		    Peer value = temp.get(current);
-		    if(value != null && value.active && value.publicKey != null)
-		    {
-                try {
-                    output.put(current, encryption.getKeyAsString(value.publicKey));
-                } catch (JSONException e) {
-                    
-                    e.printStackTrace();
-                }
-		    }
-		}
-		return output;		
-	}*/
-    public JSONObject<String,Peer> getPeers(Peer peer){	
-        JSONObject<String,Peer> output = new JSONObject<String,Peer>();
-        try {
-            output.put("right", map.get(peer.x-1).get(peer.y));
-            output.put("left", map.get(peer.x+1).get(peer.y));
-
-            if(peer.y -1 > 0)
-            {
-                output.put("up", map.get(peer.x).get(peer.y-1));
-                output.put("upRight", map.get(peer.x-1).get(peer.y - 1));
-                output.put("upLeft", map.get(peer.x+1).get(peer.y - 1));
-            }
-            if(peer.y + 1 < map.get(peer.x).size()-1)
-            {
-                   output.put("downLeft", map.get(peer.x + 1).get(peer.y + 1));
-                   output.put("downRight", map.get(peer.x - 1).get(peer.y + 1));
-                   output.put("down", map.get(peer.x).get(peer.y + 1));
-            }
-        }
-        catch(JSONException e)
-        {
-                e.printStackTrace();
-        }
-        return output;
-    }
 	/*public JSONObject<String,Peer> getPeers2(Peer peer){
         HashMap <String,Peer>temp = new HashMap<String,Peer>();
         //System.out.println("Server: " + peer.port);
@@ -391,63 +227,196 @@ public JSONObject getPeerKeyList2(Peer peer){
         }
         return output;      
     }*/
-	public String get(String a){
-		NIOSocket temp;
-		try {
-			String end = "";
-			temp = service.openSocket("google.com", 80);
-			temp.setPacketReader(new RawPacketReader());
-			temp.setPacketWriter(new RawPacketWriter());
-			
-			temp.listen(new SocketObserver(){
-
-				@Override
-				public void connectionOpened(NIOSocket nioSocket) {
-					// TODO Auto-generated method stub
-					
-				}
-
-				@Override
-				public void connectionBroken(NIOSocket nioSocket,
-						Exception exception) {
-					// TODO Auto-generated method stub
-					System.exit(0);
-				}
-
-				@Override
-				public void packetReceived(NIOSocket socket, byte[] packet) {
-					// TODO Auto-generated method stub
-				}
-				
-			});
-
-			temp.write("GET /index.html".getBytes());
-			
-		} catch (IOException e) {
-			
-			e.printStackTrace();
-		}
-
+	public String get(String content){
+		NIOSocket sock = null;
 		
-		return a;
+		
+		return content;
 		
 	}
 	public void printMap() 
 	{
 	    
         System.out.println();
-        System.out.println("MAP     0 1 2 3 4 5 6");
+        System.out.print("MAP        ");
+        for(int i = 0; i < MAX_PEER;i++)
+        	System.out.print(i + " ");
+        	        System.out.println();
 	    for(int i = 0;i<map.size();i++)
 	    {
 	        System.out.print("Col: " + i + " ||| ");
 	        for(int x =0;x<map.get(i).size();x++) {
-	            System.out.print(map.get(i).get(x).ID + " ");
+	            System.out.print("X ");
 	        }
 	        System.out.println();
 	    }
 	    //System.out.println(peerNum);
 	    
 	}
+	/*	@Deprecated
+	public JSONObject getPeerKeyList2(Peer peer){
+			HashMap <String,Peer>temp = new HashMap<String,Peer>();
+			System.out.println("no fucking way");
+			//printMap();
+			if(peer.x == 0)
+				{
+	
+					//check if first row
+					if(peer.y==0)
+					{
+						temp.put("right",map.get(0).get(peer.y+1));
+						temp.put("left",map.get(map.activeSize-1).get(peer.y));
+						temp.put("downLeft",map.get(map.activeSize-1).get(peer.y+1));
+						temp.put("downRight",map.get(1).get(peer.y+1));
+						temp.put("down",map.get(1).get(peer.y));
+					}
+					else if(peer.y >= map.get(col).activeSize-1)
+	                {
+	                    temp.put("up",map.get(0).get(peer.y-1));
+	                    temp.put("right",map.get(map.activeSize-1).get(peer.y));
+	                    temp.put("upLeft",map.get(map.activeSize-1).get(peer.y-1));
+	                    temp.put("downRight",map.get(1).get(peer.y-1));
+	                    temp.put("right",map.get(1).get(peer.y));
+	                }
+					//any other rows
+					else
+					{
+						temp.put("up",map.get(0).get(peer.y-1));
+						temp.put("down",map.get(0).get(peer.y+1));
+						temp.put("upRight",map.get(1).get(peer.y-1));
+						temp.put("right",map.get(1).get(peer.y));
+						temp.put("downRight",map.get(1).get(peer.y+1));
+						temp.put("left",map.get(map.activeSize-1).get(peer.y));
+						temp.put("upLeft",map.get(map.activeSize-1).get(peer.y-1));
+						temp.put("downLeft",map.get(map.activeSize-1).get(peer.y+1));
+					}
+				}
+				else if(peer.x == map.activeSize-1)
+				{
+				    if(peer.y==0)
+	                {
+	                    temp.put("downLeft",map.get(map.activeSize-2).get(peer.y+1));
+	                    temp.put("left",map.get(map.activeSize-2).get(peer.y));
+	                    temp.put("right",map.get(0).get(peer.y));
+	                    temp.put("downRight",map.get(0).get(peer.y+1));
+	                    temp.put("down",map.get(map.activeSize-1).get(peer.y+1));
+	                }
+				    else if(peer.y ==map.get(col).activeSize-1)
+					{
+						temp.put("up",map.get(map.activeSize-1).get(peer.y-1));
+						temp.put("left",map.get(peer.x-1).get(peer.y));
+						temp.put("upLeft",map.get(peer.x-1).get(peer.y-1));
+						temp.put("upRight",map.get(0).get(peer.y-1));
+						temp.put("right",map.get(0).get(peer.y));
+		
+					}
+					else
+					{
+						temp.put("down",map.get(map.activeSize-1).get(peer.y+1));
+						temp.put("up",map.get(map.activeSize-1).get(peer.y-1));
+						temp.put("left",map.get(peer.x-1).get(peer.y));
+						temp.put("downLeft",map.get(peer.x-1).get(peer.y+1));
+						temp.put("upLeft",map.get(peer.x-1).get(peer.y-1));
+						temp.put("right",map.get(0).get(peer.y));
+						temp.put("downRight",map.get(0).get(peer.y+1));
+						temp.put("upRight",map.get(0).get(peer.y-1));
+		
+					}
+					
+				}
+				else
+				{	
+				    if(peer.y==0)
+	                {
+	                    temp.put("downLeft",map.get(peer.x-1).get(peer.y+1));
+	                    temp.put("left",map.get(peer.x-1).get(peer.y));
+	                    temp.put("down",map.get(peer.x).get(peer.y+1));
+	                    temp.put("downRight",map.get(peer.x+1).get(peer.y+1));
+	                    temp.put("right",map.get(peer.x+1).get(peer.y));
+	                }
+	
+					else if(peer.y == map.get(col).activeSize-1)
+	                {
+	                    temp.put("upLeft",map.get(peer.x-1).get(peer.y-1));
+	                    temp.put("left",map.get(peer.x-1).get(peer.y));
+	                    temp.put("up",map.get(peer.x).get(peer.y-1));
+	                    temp.put("upRight",map.get(peer.x+1).get(peer.y-1));
+	                    temp.put("right",map.get(peer.x+1).get(peer.y));
+	                }
+					else
+					{
+						temp.put("upLeft",map.get(peer.x-1).get(peer.y-1));
+						temp.put("left",map.get(peer.x-1).get(peer.y));
+						temp.put("downLeft",map.get(peer.x-1).get(peer.y+1));
+						temp.put("down",map.get(peer.x).get(peer.y+1));
+						temp.put("up",map.get(peer.x).get(peer.y-1));
+						temp.put("upRight",map.get(peer.x+1).get(peer.y-1));
+						temp.put("right",map.get(peer.x+1).get(peer.y));
+						temp.put("downRight",map.get(peer.x+1).get(peer.y+1));
+					}
+				}
+			Iterator<String> iterate = temp.keySet().iterator();
+			JSONObject output = new JSONObject();
+			try {
+	            output.put("cont","keylist");
+	        } catch (JSONException e1) {
+	            
+	            e1.printStackTrace();
+	        }
+			while(iterate.hasNext())
+			{
+		         String  current = iterate.next();
+			    Peer value = temp.get(current);
+			    if(value != null && value.active && value.publicKey != null)
+			    {
+	                try {
+	                    output.put(current, encryption.getKeyAsString(value.publicKey));
+	                } catch (JSONException e) {
+	                    
+	                    e.printStackTrace();
+	                }
+			    }
+			}
+			return output;		
+		}*/
+	    public JSONObject<String,Peer> getPeers(Peer peer){	
+	        JSONObject<String,Peer> output = new JSONObject<String,Peer>();
+	        try {
+	            output.put("right", map.get(peer.x-1).get(peer.y));
+	            output.put("left", map.get(peer.x+1).get(peer.y));
+	
+	            if(peer.y -1 > 0)
+	            {
+	                output.put("up", map.get(peer.x).get(peer.y-1));
+	                output.put("upRight", map.get(peer.x-1).get(peer.y - 1));
+	                output.put("upLeft", map.get(peer.x+1).get(peer.y - 1));
+	            }
+	            if(peer.y + 1 < map.get(peer.x).size()-1)
+	            {
+	            	try{
+	                   output.put("downLeft", map.get(peer.x + 1).get(peer.y + 1));
+	            	}
+	            	catch(Exception e)
+	            	{
+	            		
+	            		System.out.println("BAD PEER::::::: " + peer.ID);
+	            	}
+	                   
+	                   output.put("downRight", map.get(peer.x - 1).get(peer.y + 1));
+	                   output.put("down", map.get(peer.x).get(peer.y + 1));
+	            }
+	        }
+	        catch(JSONException e)
+	        {
+	                e.printStackTrace();
+	        }
+	        return output;
+	    }
+
+
+
+
+
 	public int addPeer(Peer peer) 
 	{
 
@@ -464,7 +433,9 @@ public JSONObject getPeerKeyList2(Peer peer){
 		}
 		else
 		{
-	        List<Peer> index =map.get(0);
+			
+			//Find shortest list
+	        ArrayList<Peer> index =map.get(0);
 	        int x = 0;
 	        for(int i = 0; i < map.size(); i ++)
 	        {
@@ -475,15 +446,45 @@ public JSONObject getPeerKeyList2(Peer peer){
 	                x = i;
 	            }
 	        }
-		    peer.y = index.size();
-		    peer.x = x;
-		    index.add(peer);
+	        if(index.size() > MAX_PEER)
+	        {
+	        	index = new CountableArrayList<Peer>();
+	        	peer.x = map.activeSize-1;
+	        	peer.y = 0;
+	        	map.add(index);
+	        	index.add(peer);
+	        	addBasePeer(index,peer.y);
+	        }
+	        else
+	        {	        	
+			    peer.y = index.size();
+			    peer.x = x;
+			    index.add(peer);
+	        }
 		}
 		IDMap.put(peer.ID,peer);
         peerNum++;
 	     printMap();
 		return peer.x;
 	}
+	public void addBasePeer(List<Peer> list,int index)
+	{
+	    Peer base = list.get(0);
+	    try {
+	        base.serverSock = service.openServerSocket(510+index);
+	        base.serverSock.listen(new ServerAdapter(this,index,base));
+	        base.serverSock.setConnectionAcceptor(ConnectionAcceptor.ALLOW);
+	    } catch (IOException e) {
+	        
+	        e.printStackTrace();
+	    }
+	
+	}
+
+
+
+
+
 	public void removePeer(Peer hashed) {
 
        holes.add(new Hole(hashed.y,hashed.x,map.get(hashed.y).get(hashed.x-1)));

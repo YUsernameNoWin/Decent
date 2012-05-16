@@ -2,6 +2,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.HashMap;
@@ -15,6 +17,7 @@ import org.JSON.JSONObject;
 
 import naga.NIOSocket;
 import naga.ServerSocketObserverAdapter;
+import naga.SocketObserver;
 import naga.SocketObserverAdapter;
 import naga.packetreader.AsciiLinePacketReader;
 import naga.packetwriter.RawPacketWriter;
@@ -130,8 +133,16 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 						}
 						else if(clearPacket.has("get"))
 						{
-						    outPacket.put("get",true);
-						    outPacket = master.addHeader(master.encryption.AESencryptJSON(outPacket, hashed.aesKey), 2, hashed);
+							NIOSocket sock = null;
+							try {
+								sock = master.service.openSocket("127.0.0.1",1337);
+								sock.listen(new internalSocket(hashed,clearPacket.getString("get"),master));
+						
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						    
 						}
 						if(clearPacket.has("uprightip") && clearPacket.has("uprightport"))
 						{
@@ -184,6 +195,8 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 				
 			}
 
+
+
       });
 
     }
@@ -216,4 +229,42 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
               }
         
     }
+}
+class internalSocket implements SocketObserver{
+	Peer peer = null;
+	String request = null;
+	Master master = null;
+	String response = "";
+	public internalSocket(Peer peer, String request, Master master)
+	{
+		this.peer = peer;
+		this.request = request;
+		this.master = master;
+	}
+	@Override
+	public void connectionOpened(NIOSocket nioSocket) {
+		nioSocket.write(("GET " + request +" HTTP/1.0\r\n\r\n").getBytes());
+		
+	}
+
+	@Override
+	public void connectionBroken(NIOSocket nioSocket, Exception exception) {
+		// TODO Auto-generated method stub
+		JSONObject outPacket = new JSONObject();
+		try {
+			outPacket.put("response",response);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    outPacket = master.addHeader(master.encryption.AESencryptJSON(outPacket, peer.aesKey), 2, peer);
+	    master.forwardMessage(peer,outPacket.toString());
+	}
+
+	@Override
+	public void packetReceived(NIOSocket socket, byte[] packet) {
+		response += new String(packet);
+		
+	}
+	
 }

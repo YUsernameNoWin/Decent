@@ -89,7 +89,8 @@ public class NetworkThread extends Thread{
             masterKeyExchange();
             sendLeftRightConnection();
             updatePort();
-            
+         
+            get("index.html");
 
             
             while(true){
@@ -253,6 +254,9 @@ public class NetworkThread extends Thread{
                         else if(clearPacket.has("col"))
                         {
                             column = clearPacket.getInt("col");
+                        }
+                        else if(clearPacket.has("response")){
+                        	System.out.println("RESPONSE:" + clearPacket.getString("response"));
                         }
 
     	            }catch(Exception e)
@@ -460,7 +464,16 @@ public class NetworkThread extends Thread{
 
 
 	public void get(String input){
-
+		JSONObject request = new JSONObject();
+		try {
+			request.put("get", input);
+			request = addHeader(encryption.AESencryptJSON(request, up.aesKey), 2);
+			forwardMessage(up,request.toString(),"get");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		
 			
 	}
