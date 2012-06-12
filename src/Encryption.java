@@ -35,9 +35,10 @@ public class Encryption {
             System.err.println("Error: " + e.getMessage());
         }
     }
-    public JSONObject RSAdecryptJSON(JSONObject encrypted, PrivateKey privKey)
+    public JSONObject<?, ?> RSAdecryptJSON(JSONObject<?, ?> encrypted, PrivateKey privKey)
     {  
-        JSONObject clearPacket = new JSONObject();
+        System.out.println();
+        JSONObject<?, ?> clearPacket = new JSONObject<Object, Object>();
         try {
             clearPacket.putOpt("id", encrypted.remove("id"));
             clearPacket.putOpt("type", encrypted.remove("type"));
@@ -65,9 +66,9 @@ public class Encryption {
 	* 
 	 */
 	
-	public JSONObject RSAencryptJSON(JSONObject decrypted,PublicKey publicKey)
+	public JSONObject<?, ?> RSAencryptJSON(JSONObject<?, ?> decrypted,PublicKey publicKey)
    {
-       JSONObject encrypted = new JSONObject();
+       JSONObject<?, ?> encrypted = new JSONObject<Object, Object>();
        if(decrypted.names() == null)
            return decrypted;
        for(int a=0;a<decrypted.names().length();a++){
@@ -80,9 +81,9 @@ public class Encryption {
        }
        return encrypted;
    }
-	public JSONObject AESencryptJSON(JSONObject decrypted,byte[] aesKey)
+	public JSONObject<?, ?> AESencryptJSON(JSONObject<?, ?> decrypted,byte[] aesKey)
 {
-    JSONObject encrypted = new JSONObject();
+    JSONObject<?, ?> encrypted = new JSONObject<Object, Object>();
     if(decrypted.names() == null)
         return decrypted;
     for(int a=0;a<decrypted.names().length();a++){
@@ -99,10 +100,10 @@ public class Encryption {
 * 
  */
 
-public JSONObject AESdecryptJSON(JSONObject encrypted, byte[] AESkey)
+public JSONObject<?, ?> AESdecryptJSON(JSONObject<?, ?> encrypted, byte[] AESkey)
 {  
     //Disable for debugging
-    JSONObject clearPacket = new JSONObject();
+    JSONObject<?, ?> clearPacket = new JSONObject<Object, Object>();
     try {
         clearPacket.putOpt("id", encrypted.remove("id"));
         clearPacket.putOpt("type", encrypted.remove("type"));
@@ -187,23 +188,27 @@ public JSONObject AESdecryptJSON(JSONObject encrypted, byte[] AESkey)
         PublicKey publicKey = keyFactory.generatePublic(publicKeySpec);
         return publicKey;
     }
-	   public  SecretKeySpec generateSymmetricKey(){
-    	   SecretKeySpec skeySpec = null;
+   public  byte[] generateSymmetricKey(){
+	   SecretKeySpec skeySpec = null;
     	try {
-			KeyGenerator kgen = KeyGenerator.getInstance("AES");
-			kgen.init(128);
-			SecretKey skey = kgen.generateKey();
-		       byte[] raw = skey.getEncoded();
-		    skeySpec =   new SecretKeySpec(raw, "AES");
-		    
-		       
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-     	return skeySpec;
+    		KeyGenerator kgen = KeyGenerator.getInstance("AES");
+    		kgen.init(256);
+    		SecretKey skey = kgen.generateKey();
+    	       byte[] raw = skey.getEncoded();
+    	    skeySpec =   new SecretKeySpec(raw, "AES");
+    	    
+    	       
+    	} catch (NoSuchAlgorithmException e) {
+    		// TODO Auto-generated catch block
+    		e.printStackTrace();
+    	}
+     	return skeySpec.getEncoded();
     	
     }
+   public byte[] getAESKeyFromString(String aes) throws IOException
+   {
+       return Base64.decode(aes.getBytes());
+   }
 	 public   KeyPair generateKey() throws NoSuchAlgorithmException
 	    {
 	        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");

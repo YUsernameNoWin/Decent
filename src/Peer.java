@@ -21,7 +21,7 @@ import naga.packetwriter.RegularPacketWriter;
 	public class Peer{
 		public PublicKey publicKey;
 		public String address;
-		public byte[] aesKey;
+		private byte[] aesKey;
 		public NIOSocket socket;
 		public NIOServerSocket serverSock;
 		public int port;
@@ -29,8 +29,14 @@ import naga.packetwriter.RegularPacketWriter;
 		public String name;
 		public int y;
 		public Queue<String> data = new LinkedList<String>();
-		public String ID;
-		public boolean active;
+		public boolean isActive() {
+            return active;
+        }
+        public void setActive(boolean active) {
+            this.active = active;
+        }
+        public String ID;
+		private boolean active;
 		public String secretID;
 		public int connectionBrokenCount = 0;
 		public Peer()
@@ -43,18 +49,26 @@ import naga.packetwriter.RegularPacketWriter;
 			
 		}
 		public Peer(byte[] aesKey,String ID){
-			this.aesKey = aesKey;
+			this.setAesKey(aesKey);
 			this.ID = ID;
 		}
 	      public Peer(byte[] aesKey,PublicKey key){
-	            this.aesKey = aesKey;
+	            this.setAesKey(aesKey);
 	            this.publicKey = key;
 	     }
 	       public Peer(byte[] aesKey){
-               this.aesKey = aesKey;
+               this.setAesKey(aesKey);
         }
-		public Peer(byte[] aesKey,String ID,String col,String row){
-			this.aesKey = aesKey;
+		public void setAesKey(byte[] aesKey2) {
+		    this.aesKey = aesKey2;
+            
+        }
+		public byte[] getAesKey()
+		{
+		    return aesKey;
+		}
+        public Peer(byte[] aesKey,String ID,String col,String row){
+			this.setAesKey(aesKey);
 			this.ID = ID;
 			this.y = Integer.parseInt(row);
 			this.x = Integer.parseInt(col);
@@ -76,6 +90,28 @@ import naga.packetwriter.RegularPacketWriter;
 		{
 		    return "Peer: " + ID;
 		}
+		/**
+		 * 
+		 * @return AES key in decoded mode.
+		 */
+        public byte[] getAesKeyInBase64() {
+
+                    return Base64.encodeBytesToBytes(aesKey);
+            
+        }
+        /**
+         * 
+         * @param aesKey stored as Base64
+         */
+        public void setAesKeyInBase64(byte[] aesKey) {
+                try {
+                    this.aesKey = Base64.decode(aesKey);
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+  
+        }
 			
 		
 		

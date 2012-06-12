@@ -68,13 +68,13 @@ public class NetworkProtocol extends SocketObserverAdapter{
 	public void connectionOpened(NIOSocket nioSocket) 
 	{
         sender.socket = nioSocket;
-        sender.aesKey = encryption.generateSymmetricKey().getEncoded();
-        sender.active = true;
+        sender.setAesKey(encryption.generateSymmetricKey());
+        sender.setActive(true);
             try {
                 master.keyExchange(sender);
                 master.sendPubKey(sender);
                 master.getColumn();
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }

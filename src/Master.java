@@ -427,7 +427,7 @@ public class Master extends Thread{
 			peer.x  = hole.x;
 			if(map.get(peer.x).get(0).socket != null)
 			    peer.socket = map.get(peer.x).get(0).socket;
-			peer.active = true;
+			peer.setActive(true);
 			map.get(hole.x).set(hole.y, peer);
 			openSlots.add(new Hole(hole.x,hole.y+1,peer));
 		}
@@ -567,23 +567,24 @@ public class Master extends Thread{
 		}
 	
 	}
-    public boolean forwardMessage(NIOSocket dest,String content){
+    public boolean forwardMessage(NIOSocket dest,String content, String debug){
         try {
-            if(content.equals("{}"))
-                throw new Exception();
-            return dest.write((content + "\n").getBytes());
+            JSONObject<?, ?> temp = new JSONObject<Object, Object>(content);
+            temp.put("debug", debug);
+            return dest.write((temp.toString() + "\n").getBytes());
         }catch(Exception e) {
             //System.out.println(content + " " + dest);
             e.printStackTrace();
             return false;
         }
     }
-    public boolean forwardMessage(Peer dest,String content){
+    public boolean forwardMessage(Peer dest,String content, String debug){
         try {
-            
-            return dest.socket.write((content+"\n").getBytes());
+            JSONObject<?, ?> temp = new JSONObject<Object, Object>(content);
+            temp.put("debug", debug);
+            return dest.socket.write((temp.toString()+"\n").getBytes());
 
-        } catch (NullPointerException e) {
+        } catch (Exception e) {
             
             e.printStackTrace();
         }

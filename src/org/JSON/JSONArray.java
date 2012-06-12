@@ -85,14 +85,14 @@ public class JSONArray {
     /**
      * The arrayList where the JSONArray's properties are kept.
      */
-    private final ArrayList myArrayList;
+    private final ArrayList<Object> myArrayList;
 
 
     /**
      * Construct an empty JSONArray.
      */
     public JSONArray() {
-        this.myArrayList = new ArrayList();
+        this.myArrayList = new ArrayList<Object>();
     }
 
     /**
@@ -149,10 +149,10 @@ public class JSONArray {
      * Construct a JSONArray from a Collection.
      * @param collection     A Collection.
      */
-    public JSONArray(Collection collection) {
-        this.myArrayList = new ArrayList();
+    public JSONArray(Collection<?> collection) {
+        this.myArrayList = new ArrayList<Object>();
         if (collection != null) {
-            Iterator iter = collection.iterator();
+            Iterator<?> iter = collection.iterator();
             while (iter.hasNext()) {
                 this.myArrayList.add(JSONObject.wrap(iter.next()));
             }
@@ -283,10 +283,10 @@ public class JSONArray {
      * @throws JSONException If there is no value for the index or if the
      * value is not a JSONObject
      */
-    public JSONObject getJSONObject(int index) throws JSONException {
+    public JSONObject<?, ?> getJSONObject(int index) throws JSONException {
         Object object = this.get(index);
         if (object instanceof JSONObject) {
-            return (JSONObject)object;
+            return (JSONObject<?, ?>)object;
         }
         throw new JSONException("JSONArray[" + index +
             "] is not a JSONObject.");
@@ -496,9 +496,9 @@ public class JSONArray {
      * @param index The index must be between 0 and length() - 1.
      * @return      A JSONObject value.
      */
-    public JSONObject optJSONObject(int index) {
+    public JSONObject<?, ?> optJSONObject(int index) {
         Object o = this.opt(index);
-        return o instanceof JSONObject ? (JSONObject)o : null;
+        return o instanceof JSONObject ? (JSONObject<?, ?>)o : null;
     }
 
 
@@ -579,7 +579,7 @@ public class JSONArray {
      * @param value A Collection value.
      * @return      this.
      */
-    public JSONArray put(Collection value) {
+    public JSONArray put(Collection<?> value) {
         this.put(new JSONArray(value));
         return this;
     }
@@ -630,8 +630,8 @@ public class JSONArray {
      * @param value A Map value.
      * @return      this.
      */
-    public JSONArray put(Map value) {
-        this.put(new JSONObject(value));
+    public JSONArray put(Map<?, ?> value) {
+        this.put(new JSONObject<Object, Object>(value));
         return this;
     }
 
@@ -673,7 +673,7 @@ public class JSONArray {
      * @throws JSONException If the index is negative or if the value is
      * not finite.
      */
-    public JSONArray put(int index, Collection value) throws JSONException {
+    public JSONArray put(int index, Collection<?> value) throws JSONException {
         this.put(index, new JSONArray(value));
         return this;
     }
@@ -734,8 +734,8 @@ public class JSONArray {
      * @throws JSONException If the index is negative or if the the value is
      *  an invalid number.
      */
-    public JSONArray put(int index, Map value) throws JSONException {
-        this.put(index, new JSONObject(value));
+    public JSONArray put(int index, Map<?, ?> value) throws JSONException {
+        this.put(index, new JSONObject<Object, Object>(value));
         return this;
     }
 
@@ -791,11 +791,11 @@ public class JSONArray {
      * has no values.
      * @throws JSONException If any of the names are null.
      */
-    public JSONObject toJSONObject(JSONArray names) throws JSONException {
+    public JSONObject<?, ?> toJSONObject(JSONArray names) throws JSONException {
         if (names == null || names.length() == 0 || this.length() == 0) {
             return null;
         }
-        JSONObject jo = new JSONObject();
+        JSONObject<?, ?> jo = new JSONObject<Object, Object>();
         for (int i = 0; i < names.length(); i += 1) {
             jo.put(names.getString(i), this.opt(i));
         }
@@ -904,7 +904,7 @@ public class JSONArray {
                 }
                 Object v = this.myArrayList.get(i);
                 if (v instanceof JSONObject) {
-                    ((JSONObject)v).write(writer);
+                    ((JSONObject<?, ?>)v).write(writer);
                 } else if (v instanceof JSONArray) {
                     ((JSONArray)v).write(writer);
                 } else {
