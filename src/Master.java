@@ -464,7 +464,7 @@ public class Master extends Thread{
 		}
 		IDMap.put(peer.ID,peer);
         peerNum++;
-	     printMap();
+	     //printMap();
 		return peer.x;
 	}
 	public void addBasePeer(List<Peer> list,int index)
@@ -491,7 +491,7 @@ public class Master extends Thread{
        map.get(hashed.x).remove(hashed.y);
        IDMap.remove(hashed.ID);
       peerNum--;
-      printMap();
+      //printMap();
       System.out.println("Peer: " + hashed.ID + " has died");
     }
 

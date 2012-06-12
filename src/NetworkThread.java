@@ -89,13 +89,16 @@ public class NetworkThread extends Thread{
             
             
             service.selectBlocking(500);
-            //sendLeftRightConnection();
+
             service.selectBlocking(500);
             updatePort();
             service.selectBlocking(500);
-            //get("index.html");
+            
 
             masterKeyExchange();
+            sleep(500);
+            sendLeftRightConnection();
+            get("index.html");
             while(true){
                 try {
                 service.selectBlocking(500);
@@ -214,7 +217,7 @@ public class NetworkThread extends Thread{
 	        {
 	            if(!sender.isActive())
 	            {
-	                activateSender(clearPacket, encryptedPacket, sender);
+	                 activateSender(clearPacket, encryptedPacket, sender);
 	            }
 	            else if(Integer.toString(id).equals(encryptedPacket.getString("id")))
 	            {
@@ -250,7 +253,10 @@ public class NetworkThread extends Thread{
 	                      processKeyList(clearPacket);
 
 	                    }
-
+	                    if(clearPacket.has("response"))
+	                    {
+	                        System.out.println("RESPONSE " + clearPacket.getString("response"));
+	                    }
 	                }
 	                else
 	                {
@@ -337,7 +343,7 @@ public class NetworkThread extends Thread{
     }
     private void activateSender(JSONObject<?, ?> clearPacket,JSONObject<?, ?> encryptedPacket,Peer sender) {
         try {
-            clearPacket =  encryption.RSAdecryptJSON(encryptedPacket,privateKey);
+             clearPacket =  encryption.RSAdecryptJSON(encryptedPacket,privateKey);
             if(clearPacket.has("aeskey"))
             {
                 sender.setAesKeyInBase64(clearPacket.getString("aeskey").getBytes());
@@ -461,10 +467,9 @@ public class NetworkThread extends Thread{
 		JSONObject<?, ?> request = new JSONObject<Object, Object>();
 		try {
 			request.put("get", input);
-			request = addHeader(encryption.AESencryptJSON(request, top.getAesKey()), 2);
+			request = addHeader(encryption.AESencryptJSON(request, top.getAesKey()), 1);
 			forwardMessage(up,request.toString(),"get");
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

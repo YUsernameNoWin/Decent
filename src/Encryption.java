@@ -37,7 +37,7 @@ public class Encryption {
     }
     public JSONObject<?, ?> RSAdecryptJSON(JSONObject<?, ?> encrypted, PrivateKey privKey)
     {  
-        System.out.println();
+        //System.out.println();
         JSONObject<?, ?> clearPacket = new JSONObject<Object, Object>();
         try {
             clearPacket.putOpt("id", encrypted.remove("id"));
@@ -105,7 +105,7 @@ public JSONObject<?, ?> AESdecryptJSON(JSONObject<?, ?> encrypted, byte[] AESkey
     //Disable for debugging
     JSONObject<?, ?> clearPacket = new JSONObject<Object, Object>();
     try {
-        clearPacket.putOpt("id", encrypted.remove("id"));
+         clearPacket.putOpt("id", encrypted.remove("id"));
         clearPacket.putOpt("type", encrypted.remove("type"));
         clearPacket.putOpt("col", encrypted.remove("col"));
         clearPacket.putOpt("debug", encrypted.remove("debug"));
@@ -119,6 +119,7 @@ public JSONObject<?, ?> AESdecryptJSON(JSONObject<?, ?> encrypted, byte[] AESkey
           String decryptedContent = new String(decryptAES(AESkey, encrypted.getString(names.getString(i)).getBytes()));
           clearPacket.put(decryptedName, decryptedContent);
             }catch(Exception e) {
+                System.out.println("ERROR WITH " + clearPacket.getString("debug"));
                 e.printStackTrace();
                 writeToFile(names.getString(i));
             }

@@ -57,7 +57,7 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 			{
 				try {
 					
-					JSONObject<?, ?> encryptedPacket =  new JSONObject<Object, Object>(new String(packet));
+					 JSONObject<?, ?> encryptedPacket =  new JSONObject<Object, Object>(new String(packet));
 					JSONObject<?, ?> outPacket =  new JSONObject<Object, Object>();
 					JSONObject<?, ?> clearPacket =  new JSONObject<Object, Object>();
 					//master.printMap();
@@ -107,7 +107,7 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 							try {
 								sock = master.service.openSocket("127.0.0.1",1337);
 								sock.listen(new internalSocket(hashed,clearPacket.getString("get"),master));
-						
+								
 							} catch (IOException e) {
 					
 								e.printStackTrace();
@@ -145,14 +145,16 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
                   {
                   
                       Peer upLeft = (Peer)peers.get("upLeft");
-                      outPacket.put("connect", "downright");
-                      outPacket.put("ip",clearPacket.getString("upleftip"));
-                      outPacket.put("port", clearPacket.get("upleftport"));
-                      outPacket.put("publickey",encryption.getKeyAsString(hashed.publicKey));
-                      outPacket = encryption.AESencryptJSON(outPacket, upLeft.getAesKey());
-                      outPacket  = master.addHeader(outPacket, 2, upLeft);
-                      master.forwardMessage(master.map.get(upLeft.x).get(0).socket,outPacket.toString(),"sendupleftConnection");
-                      
+                      if(upLeft.publicKey != null)
+                      {
+                          outPacket.put("connect", "downright");
+                          outPacket.put("ip",clearPacket.getString("upleftip"));
+                          outPacket.put("port", clearPacket.get("upleftport"));
+                          outPacket.put("publickey",encryption.getKeyAsString(hashed.publicKey));
+                          outPacket = encryption.AESencryptJSON(outPacket, upLeft.getAesKey());
+                          outPacket  = master.addHeader(outPacket, 2, upLeft);
+                          master.forwardMessage(master.map.get(upLeft.x).get(0).socket,outPacket.toString(),"sendupleftConnection");
+                      }
                   }
                 }catch(Exception e)
                 {
@@ -167,17 +169,19 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
                     JSONObject<?, ?> outPacket = new JSONObject<Object, Object>();
                     if(peers.has("upRight"))
                     {
-                        Peer upRight =(Peer) peers.get("upRight");
-    
-                        //System.out.println("Upright id: " + upRight.ID);
-                        outPacket .put("connect", "downleft");
-                        outPacket.put("ip",clearPacket.getString("uprightip"));
-                        outPacket.put("port", clearPacket.get("uprightport"));
-                        outPacket.put("publickey", encryption.getKeyAsString(hashed.publicKey));
-                        outPacket = encryption.AESencryptJSON(outPacket, upRight.getAesKey());
-                        outPacket  = master.addHeader(outPacket, 2, upRight);
-                        master.forwardMessage(master.map.get(upRight.x).get(0).socket,outPacket.toString(),"sneduprightConnection");
                         
+                        Peer upRight =(Peer) peers.get("upRight");
+                        if(upRight.publicKey != null)
+                        {
+                            //System.out.println("Upright id: " + upRight.ID);
+                            outPacket .put("connect", "downleft");
+                            outPacket.put("ip",clearPacket.getString("uprightip"));
+                            outPacket.put("port", clearPacket.get("uprightport"));
+                            outPacket.put("publickey", encryption.getKeyAsString(hashed.publicKey));
+                            outPacket = encryption.AESencryptJSON(outPacket, upRight.getAesKey());
+                            outPacket  = master.addHeader(outPacket, 2, upRight);
+                            master.forwardMessage(master.map.get(upRight.x).get(0).socket,outPacket.toString(),"sneduprightConnection");
+                        }
                     }
                 }catch(Exception e)
                 {
@@ -220,7 +224,7 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
                         {
                             master.removePeer(dead);
     
-                              master.printMap();
+                             // master.printMap();
                         }
                     }
                 }catch(Exception e)

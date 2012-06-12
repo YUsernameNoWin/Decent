@@ -23,11 +23,11 @@ public class runner extends Thread{
        Master master =new Master();
         ArrayList<NetworkThread> peers = new ArrayList<NetworkThread>();
            master.start();
-           sleep(1000);
+           sleep(500);
 
 
            int temp = 4;
-        for(int i=1;i<=50;i++)
+        for(int i=1;i<=5;i++)
         {
            peers.add(new NetworkThread(i*10+500,temp));
            temp++;
@@ -44,7 +44,7 @@ public class runner extends Thread{
             a.start();
            // scan.next();
             //System.out.print(a.port + " ");
-           sleep(200);
+           sleep(100);
         }
         //scan.next();
        // peers.get(4).close();
