@@ -74,6 +74,13 @@ public class NetworkProtocol extends SocketObserverAdapter{
                 master.keyExchange(sender);
                 master.sendPubKey(sender);
                 master.getColumn();
+                if(sender.name.equals("up"))
+                {
+                    master.masterKeyExchange();
+                    master.sendLeftRightConnection();
+                    master.updatePort();
+                    master.get("index.html");
+                }
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

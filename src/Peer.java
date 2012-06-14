@@ -39,6 +39,7 @@ import naga.packetwriter.RegularPacketWriter;
 		private boolean active;
 		public String secretID;
 		public int connectionBrokenCount = 0;
+		public int trickleUpCount = 0;
 		public Peer()
 		{
 			

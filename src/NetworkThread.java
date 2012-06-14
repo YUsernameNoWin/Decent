@@ -1,5 +1,7 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetAddress;
@@ -87,18 +89,11 @@ public class NetworkThread extends Thread{
             down.serverSock.listen(new PeerServerAdapter(this,down));
             down.serverSock.setConnectionAcceptor(ConnectionAcceptor.ALLOW);
             
-            
-            service.selectBlocking(500);
 
-            service.selectBlocking(500);
-            updatePort();
-            service.selectBlocking(500);
-            
 
-            masterKeyExchange();
+            //masterKeyExchange();
             sleep(500);
-            sendLeftRightConnection();
-            get("index.html");
+
             while(true){
                 try {
                 service.selectBlocking(500);
@@ -243,7 +238,10 @@ public class NetworkThread extends Thread{
 	                    {
 	                        System.out.println("FUCK");
 	                    }
+	                    if(clearPacket.has("repair"))
+	                    {
 		                repair(clearPacket);
+	                    }
 	                    if(clearPacket.has("connect"))
 	                    {
 	                       connectToPeer(clearPacket);
@@ -255,7 +253,8 @@ public class NetworkThread extends Thread{
 	                    }
 	                    if(clearPacket.has("response"))
 	                    {
-	                        System.out.println("RESPONSE " + clearPacket.getString("response"));
+	                        //System.out.println("RESPONSE " + clearPacket.getString("response"));
+	                        saveHTML(clearPacket.getString("response"));
 	                    }
 	                }
 	                else
@@ -267,6 +266,23 @@ public class NetworkThread extends Thread{
 	        return input;
 	            
 	    }
+    public void saveHTML(String html)
+    {
+          try
+          {
+              // Create file 
+                  FileWriter fstream = new FileWriter("success.html",false);
+                  BufferedWriter out = new BufferedWriter(fstream);
+                  
+                  out.write(html);
+                  out.close();
+                  //Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler C://users/quinn/workspace/webserver/success.html");
+          }catch (Exception e) {//Catch exception if any
+              System.err.println("Error: " + e.getMessage());
+          }
+          
+        
+    }
     private void processKeyList(JSONObject<?, ?> clearPacket) throws Exception {
         if(clearPacket.has("left"))
             left.publicKey = encryption.getPublicKeyFromString((String) clearPacket.opt("left"));
@@ -406,14 +422,10 @@ public class NetworkThread extends Thread{
 	}
 	
 	public void repair(JSONObject<?, ?> clearPacket) throws JSONException {
-        if(clearPacket.has("repair"))
-        {
-            JSONObject<?, ?>  out = new JSONObject<Object, Object>();
-            out.put("dc", "disconnected");
-            out = addHeader(encryption.AESencryptJSON(out,top.getAesKey()),1);
-            forwardMessage(up, out.toString(),"repairnotice");
-            //TODO finish repair;
-        }
+	    
+	    
+            
+        
     }
 
     public void getKey(){

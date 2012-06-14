@@ -84,7 +84,10 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 					    {
 					        peerConnectionBroken(clearPacket, hashed);
 					    }
-					   
+					   if(clearPacket.has("bounce"))
+					   {
+					       bounceMessage(encryption.getPublicKeyFromString(clearPacket.getString("peerkey")),clearPacket.getString("bounce"));
+					   }
 						if(clearPacket.has("needkeylist"))
 						{
 							sendKeyList(socket, hashed);
@@ -193,6 +196,7 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
             private void peerAddPublicKey(Peer hashed, JSONObject<?, ?> clearPacket, NIOSocket socket) {
                 try {
                     JSONObject<?, ?> outPacket = new JSONObject<Object, Object>();
+                    master.keyMap.put(encryption.getPublicKeyFromString(clearPacket.getString("publickey")), hashed);
                     hashed.publicKey = encryption.getPublicKeyFromString(clearPacket.getString("publickey"));
                     outPacket.put("keylist",true);
                     outPacket = master.addHeader(master.encryption.AESencryptJSON(outPacket, hashed.getAesKey()), 2, hashed);
@@ -211,7 +215,6 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
             }
 
             private void peerConnectionBroken(JSONObject<?, ?> clearPacket, Peer hashed) {
-                //        System.out.println("Peer : " + hashed.ID + " has lost connection to " + clearPacket.getString("connectionbroken"));
                 try
                 {
                     JSONObject<?, ?> peers = master.getPeers(hashed);
@@ -224,7 +227,6 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
                         {
                             master.removePeer(dead);
     
-                             // master.printMap();
                         }
                     }
                 }catch(Exception e)
@@ -287,6 +289,11 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
              return;
                 
             }
+       private void bounceMessage(PublicKey key,String encryptedPacket)
+       {
+           Peer peer = master.keyMap.get(key);
+           master.forwardMessage(peer,encryptedPacket,"BOUNCE FROM " + peer.ID);
+       }
 
 
 

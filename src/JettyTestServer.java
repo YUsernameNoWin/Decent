@@ -23,9 +23,19 @@ public class JettyTestServer extends Thread{
 					throws IOException, ServletException {
 		        response.setContentType("text/html");
 		        response.setStatus(HttpServletResponse.SC_OK);
-		        response.getWriter().println("<h1>Hello</h1>");
+		        response.getWriter().println("<!DOCTYPE html PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\r\n" + 
+		        		"<HTML>\r\n" + 
+		        		"   <HEAD>\r\n" + 
+		        		"      <TITLE>\r\n" + 
+		        		"         HelloWorld\r\n" + 
+		        		"      </TITLE>\r\n" + 
+		        		"   </HEAD>\r\n" + 
+		        		"<BODY>\r\n" + 
+		        		"   <H1>Hello</H1>\r\n" + 
+		        		"   <P>HELLOWORLD</P> \r\n" + 
+		        		"</BODY>\r\n" + 
+		        		"</HTML>");
 		        ((Request)request).setHandled(true);
-		        System.out.println("HANDLED A REQUEST");
 				
 			}
 

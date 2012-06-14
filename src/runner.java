@@ -17,13 +17,12 @@ public class runner extends Thread{
      * @throws UnknownHostException 
      */
     public static void main(String[] args) throws UnknownHostException, Exception {
-        // TODO Auto-generated method stub
+        
     	JettyTestServer server = new JettyTestServer();
     	server.start();
        Master master =new Master();
         ArrayList<NetworkThread> peers = new ArrayList<NetworkThread>();
            master.start();
-           sleep(500);
 
 
            int temp = 4;
