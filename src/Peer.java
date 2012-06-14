@@ -104,7 +104,7 @@ import naga.packetwriter.RegularPacketWriter;
          * 
          * @param aesKey stored as Base64
          */
-        public void setAesKeyInBase64(byte[] aesKey) {
+        public void setAesKeyFromBase64(byte[] aesKey) {
                 try {
                     this.aesKey = Base64.decode(aesKey);
                 } catch (IOException e) {

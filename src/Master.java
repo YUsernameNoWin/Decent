@@ -263,7 +263,6 @@ public class Master extends Thread{
                {
                    Peer up = (Peer)peers.get("up");
                    outPacket.put("repair", encryption.getKeyAsString(up.publicKey));
-                   outPacket.put("port", up.port);
                    outPacket = encryption.AESencryptJSON(outPacket, replacement.getAesKey());
                    outPacket = addHeader(outPacket,2,replacement);
                }

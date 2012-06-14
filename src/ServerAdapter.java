@@ -242,7 +242,7 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
                    JSONObject<?, ?> clearPacket =  encryption.RSAdecryptJSON(encryptedPacket,master.privateKey);
                     if(clearPacket.has("aeskey"))
                     {
-                        peer.setAesKeyInBase64(clearPacket.getString("aeskey").getBytes());
+                        peer.setAesKeyFromBase64(clearPacket.getString("aeskey").getBytes());
                         peer.setActive(true);
                         peer.ID = clearPacket.getString("id");
                         //System.out.println("Peer "  + id + " connected to " + sender.name + ":" + sender.ID);

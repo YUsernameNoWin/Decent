@@ -26,7 +26,7 @@ import org.JSON.JSONObject;
 public class NetworkThread extends Thread{
     Encryption encryption  =  new Encryption();
     
-	Peer down,left,right,up,upLeft,upRight,master,downLeft,downRight,top;
+	Peer down,left,right,up,upLeft,upRight,master,downLeft,downRight,top,futureUp;
 
 	
 	
@@ -276,7 +276,7 @@ public class NetworkThread extends Thread{
                   
                   out.write(html);
                   out.close();
-                  //Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler C://users/quinn/workspace/webserver/success.html");
+                  Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler C://users/quinn/workspace/webserver/success.html");
           }catch (Exception e) {//Catch exception if any
               System.err.println("Error: " + e.getMessage());
           }
@@ -362,7 +362,7 @@ public class NetworkThread extends Thread{
              clearPacket =  encryption.RSAdecryptJSON(encryptedPacket,privateKey);
             if(clearPacket.has("aeskey"))
             {
-                sender.setAesKeyInBase64(clearPacket.getString("aeskey").getBytes());
+                sender.setAesKeyFromBase64(clearPacket.getString("aeskey").getBytes());
                 sender.setActive(true);
                 sender.ID = clearPacket.getString("id");
               
@@ -422,12 +422,45 @@ public class NetworkThread extends Thread{
 	}
 	
 	public void repair(JSONObject<?, ?> clearPacket) throws JSONException {
-	    
-	    
-            
+	    JSONObject outPacket = new JSONObject();
+	    try {
+	    String publicKey = clearPacket.getString("repair");
+	       futureUp = new Peer();
+	       futureUp.publicKey = encryption.getPublicKeyFromString(publicKey);
+	       futureUp.setAesKey(encryption.generateSymmetricKey());
+	    outPacket.put("bounce", encryption.encryptRSA(futureUp.publicKey, futureUp.getAesKeyInBase64()));
+	    outPacket.put("peerkey", publicKey);
+	    outPacket = encryption.AESdecryptJSON(outPacket, top.getAesKey());
+	    outPacket =  addHeader(outPacket,1);
+	    }catch(Exception e)
+	    {
+	        e.printStackTrace();
+	    }
         
     }
+	public void bounceParse(JSONObject encryptedPacket, Peer bouncer)
+	{
+	    JSONObject outPacket = new JSONObject();
+	    JSONObject containerPacket = new JSONObject();
+	    if(bouncer.getAesKey() ==  null)
+	    {
+	       
+	        try {
+	            encryptedPacket = encryption.RSAdecryptJSON(encryptedPacket, privateKey);
+                bouncer.setAesKeyFromBase64(encryptedPacket.getString("bounce").getBytes());
+                outPacket.put("ip", InetAddress.getLocalHost().getHostAddress());
+                outPacket = encryption.AESencryptJSON(outPacket, bouncer.getAesKey());
+                containerPacket.put("bounce", outPacket.toString());
+                containerPacket = encryption.AESencryptJSON(containerPacket, top.getAesKey());
+                containerPacket = addHeader(containerPacket,1);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
 
+                e.printStackTrace();
+            }
+	    }
+	}
     public void getKey(){
 		try{
 			String temp = "";
