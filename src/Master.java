@@ -298,7 +298,11 @@ public class Master extends Thread{
 	{
 
 		try {
-		    return(json.put("col", Integer.toString(peer.x)).put("id", peer.ID).put("type", Integer.toString(type)));
+		    return(json
+		    		.put("col", Integer.toString(peer.x))
+		    		.put("src", encryption.getKeyAsString(publicKey))
+            		.put("dest", encryption.getKeyAsString(peer.publicKey))
+		    		.put("type", Integer.toString(type)));
 
 		} catch (JSONException e) {
 			

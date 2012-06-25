@@ -61,10 +61,10 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 					JSONObject<?, ?> outPacket =  new JSONObject<Object, Object>();
 					JSONObject<?, ?> clearPacket =  new JSONObject<Object, Object>();
 					//master.printMap();
-					//if(UUID.fromString(encryptedPacket.getString("id")) == null)
+					//if(UUID.fromString(encryptedPacket.getString("src")) == null)
 					  //  return;
-					String id = encryptedPacket.getString("id");
-					Peer hashed = master.IDMap.get(encryptedPacket.getString("id"));
+					String id = encryptedPacket.getString("src");
+					Peer hashed = master.IDMap.get(encryptedPacket.getString("src"));
 					
 					if(hashed == null)
 					{
@@ -244,7 +244,7 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
                     {
                         peer.setAesKeyFromBase64(clearPacket.getString("aeskey").getBytes());
                         peer.setActive(true);
-                        peer.ID = clearPacket.getString("id");
+                        peer.ID = clearPacket.getString("src");
                         //System.out.println("Peer "  + id + " connected to " + sender.name + ":" + sender.ID);
                     }
                 }catch(Exception e)
@@ -258,17 +258,17 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
                 try {
                      JSONObject<?, ?> outPacket = new JSONObject<Object, Object>();
                      byte[] key = Base64.decode(encryption.decryptRSA(master.privateKey, encryptedPacket.getString("aeskey").getBytes()));
-                     Peer newPeer = new Peer(key,encryptedPacket.getString("id"));
+                     Peer newPeer = new Peer(key,encryptedPacket.getString("src"));
                      newPeer.socket = socket;
                      int added = master.addPeer(newPeer);
                      hashed = master.IDMap.get(id);
                      JSONObject<String,Peer> peers = master.getPeers(hashed);
                      
                      //Notify user that they are connected
-                     outPacket.put("connected", "yes");
+              /*       outPacket.put("connected", "yes");
                      outPacket = encryption.AESencryptJSON(outPacket, key);
                      outPacket = master.addHeader(outPacket, 2, hashed);
-                     master.forwardMessage(newPeer.socket,outPacket.toString(),"connectionSuccess");
+                     master.forwardMessage(newPeer.socket,outPacket.toString(),"connectionSuccess");*/
                      
                      //wrong column. Make the peer reconnect
                      if(added !=  port)
@@ -348,6 +348,7 @@ class internalSocket implements SocketObserver{
 	}
 
 	@Override
+	//TODO Fix up who the to send the connbroken packet to...
 	public void connectionBroken(NIOSocket nioSocket, Exception exception) {
 		// TODO Auto-generated method stub
 		JSONObject<?, ?> outPacket = new JSONObject<Object, Object>();
@@ -357,8 +358,8 @@ class internalSocket implements SocketObserver{
 			
 			e.printStackTrace();
 		}
-	    outPacket = master.addHeader(master.encryption.AESencryptJSON(outPacket, peer.getAesKey()), 2, peer);
-	    master.forwardMessage(peer,outPacket.toString(),"ConnectionBroken");
+	    //outPacket = master.addHeader(master.encryption.AESencryptJSON(outPacket, peer.getAesKey()), 2, peer);
+	    //master.forwardMessage(peer,outPacket.toString(),"ConnectionBroken");
 	}
 
 	@Override

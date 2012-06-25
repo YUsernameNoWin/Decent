@@ -40,7 +40,8 @@ public class Encryption {
         //System.out.println();
         JSONObject<?, ?> clearPacket = new JSONObject<Object, Object>();
         try {
-            clearPacket.putOpt("id", encrypted.remove("id"));
+            clearPacket.putOpt("dest", encrypted.remove("dest"));
+            clearPacket.putOpt("src", encrypted.remove("src"));
             clearPacket.putOpt("type", encrypted.remove("type"));
             clearPacket.putOpt("col", encrypted.remove("col"));
             clearPacket.putOpt("debug", encrypted.remove("debug"));
@@ -105,7 +106,8 @@ public JSONObject<?, ?> AESdecryptJSON(JSONObject<?, ?> encrypted, byte[] AESkey
     //Disable for debugging
     JSONObject<?, ?> clearPacket = new JSONObject<Object, Object>();
     try {
-         clearPacket.putOpt("id", encrypted.remove("id"));
+        clearPacket.putOpt("dest", encrypted.remove("dest"));
+        clearPacket.putOpt("src", encrypted.remove("src"));
         clearPacket.putOpt("type", encrypted.remove("type"));
         clearPacket.putOpt("col", encrypted.remove("col"));
         clearPacket.putOpt("debug", encrypted.remove("debug"));
@@ -193,7 +195,7 @@ public JSONObject<?, ?> AESdecryptJSON(JSONObject<?, ?> encrypted, byte[] AESkey
 	   SecretKeySpec skeySpec = null;
     	try {
     		KeyGenerator kgen = KeyGenerator.getInstance("AES");
-    		kgen.init(256);
+    		kgen.init(128);
     		SecretKey skey = kgen.generateKey();
     	       byte[] raw = skey.getEncoded();
     	    skeySpec =   new SecretKeySpec(raw, "AES");

@@ -33,7 +33,7 @@ public class NetworkProtocol extends SocketObserverAdapter{
        {
 
            try {
-               return(json.put("col", Integer.toString(master.column)).put("id",master.ID).put("type", Integer.toString(type)));
+               return(json.put("col", Integer.toString(master.column)).put("src",master.ID).put("type", Integer.toString(type)));
 
            } catch (JSONException e) {
                
@@ -100,7 +100,7 @@ public class NetworkProtocol extends SocketObserverAdapter{
 
 	public JSONObject stripHeader(JSONObject temp)
 	{
-	    temp.remove("id");
+	    temp.remove("src");
 	    temp.remove("type");
 	    temp.remove("col");
 	    return temp;

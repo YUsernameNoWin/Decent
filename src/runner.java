@@ -1,5 +1,8 @@
+import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.security.KeyPair;
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -16,6 +19,7 @@ public class runner extends Thread{
      * @throws IOException 
      * @throws UnknownHostException 
      */
+    static Encryption e = new Encryption();
     public static void main(String[] args) throws UnknownHostException, Exception {
         
     	JettyTestServer server = new JettyTestServer();
@@ -24,15 +28,18 @@ public class runner extends Thread{
         ArrayList<NetworkThread> peers = new ArrayList<NetworkThread>();
            master.start();
 
-
+           KeyPair top = getKey();
+           KeyPair keys1 = getKey();
+           KeyPair keys2 = getKey();
+           KeyPair keys3 = getKey();
            int temp = 4;
         for(int i=1;i<=5;i++)
         {
-           peers.add(new NetworkThread(i*10+500,temp));
-           temp++;
-          peers.add(new NetworkThread(i*10+501,temp));
+          peers.add(new NetworkThread(i*10+500,temp,keys1,(keys1 = e.generateKey()),top));
           temp++;
-          peers.add(new NetworkThread(i*10+502,temp));
+          peers.add(new NetworkThread(i*10+501,temp,keys2,(keys2 = e.generateKey()),top));
+          temp++;
+          peers.add(new NetworkThread(i*10+502,temp,keys3,(keys3 = e.generateKey()),top));
           temp++;
         }
         
@@ -43,7 +50,13 @@ public class runner extends Thread{
             a.start();
            // scan.next();
             //System.out.print(a.port + " ");
-           sleep(100);
+           sleep(300);
+        }
+        sleep(50000);
+        for(NetworkThread a:peers)
+        {
+        	//if(a.up.publicKey == null || a.down.publicKey == null)
+        		System.out.println(a.id);
         }
         //scan.next();
        // peers.get(4).close();
@@ -60,5 +73,21 @@ public class runner extends Thread{
 */
         
     }
+    public static KeyPair getKey(){
+		try{
+			String temp = "";
+			String key  = "";
+			
+			Scanner scan = new Scanner(new File("out.txt"));
+			while(!(temp = scan.next()).contains("PrivKey")){
+				key +=temp;
 
+			}
+			KeyPair a = new KeyPair(e.getPublicKeyFromString(key), null);
+			return a;
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+    }
 }

@@ -30,6 +30,7 @@ import naga.packetwriter.RegularPacketWriter;
 		public int y;
 		public Queue<String> data = new LinkedList<String>();
 		public boolean isActive() {
+			
             return active;
         }
         public void setActive(boolean active) {
