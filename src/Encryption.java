@@ -35,11 +35,10 @@ public class Encryption {
             System.err.println("Error: " + e.getMessage());
         }
     }
-    public JSONObject<?, ?> RSAdecryptJSON(JSONObject<?, ?> encrypted, PrivateKey privKey)
+    public JSONObject<?, ?> RSAdecryptJSON(JSONObject<?, ?> encrypted, PrivateKey privKey) throws Exception
     {  
         //System.out.println();
         JSONObject<?, ?> clearPacket = new JSONObject<Object, Object>();
-        try {
             clearPacket.putOpt("dest", encrypted.remove("dest"));
             clearPacket.putOpt("src", encrypted.remove("src"));
             clearPacket.putOpt("type", encrypted.remove("type"));
@@ -53,11 +52,6 @@ public class Encryption {
                 
                 clearPacket.put(decryptedName,decryptedContent);
             }
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            System.out.println(encrypted);
-            e.printStackTrace();
-        }
         return clearPacket;
         
     }
@@ -114,14 +108,16 @@ public JSONObject<?, ?> AESdecryptJSON(JSONObject<?, ?> encrypted, byte[] AESkey
         JSONArray names = encrypted.names();
         if(names == null)
             return clearPacket;
+        String decryptedName = null;
+        String decryptedContent = null;
         for(int i =0;i<names.length();i++)
         {
             try {
-          String decryptedName = new String(decryptAES(AESkey, names.getString(i).getBytes()));
-          String decryptedContent = new String(decryptAES(AESkey, encrypted.getString(names.getString(i)).getBytes()));
-          clearPacket.put(decryptedName, decryptedContent);
+            	decryptedName= new String(decryptAES(AESkey, names.getString(i).getBytes()));
+            	decryptedContent = new String(decryptAES(AESkey, encrypted.getString(names.getString(i)).getBytes()));
+            	clearPacket.put(decryptedName, decryptedContent);
             }catch(Exception e) {
-                System.out.println("ERROR WITH " + clearPacket.getString("debug"));
+                System.out.println("ERROR WITH " + clearPacket.getString("debug") + " " + decryptedName);
                 e.printStackTrace();
                 writeToFile(names.getString(i));
             }

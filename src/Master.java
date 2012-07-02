@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.*;
+import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -45,19 +46,21 @@ public class Master extends Thread{
 	public HashMap<String,Peer> IDMap =  new HashMap<String,Peer>();
 	public PublicKey publicKey= null;
 	public PrivateKey privateKey = null;
+	public KeyPair peerKeys = null;
 	public NIOService service;
 	public InetAddress leftAd,rightAd,downAd;
-	public NIOServerSocket leftServer, rightServer, downServer;
 	public HashMap<PublicKey,Peer> keyMap = new HashMap<PublicKey,Peer>();
 	public int peerNum = 0;
-	public final int MAX_PEER =10;
+	public final int MAX_PEER = 10;
 	String clearText;
 	String AESKEY;
 	char type;
 	int col;
-	public Master()
+	public Master(KeyPair top, KeyPair keys1)
 	{
-	    
+	    publicKey = top.getPublic();
+	    privateKey = top.getPrivate();
+	    peerKeys = keys1;
 	}
 
 
@@ -78,20 +81,12 @@ public class Master extends Thread{
            map.get(2).get(0).ID = "3";
           //  map.get(3).add(new Peer());
         
-        getKey();
+        //getKey();
         try {
            service = new NIOService();
-           leftServer = service.openServerSocket(510);
-           leftServer.listen(new ServerAdapter(this,510,map.get(0).get(0)));
-           leftServer.setConnectionAcceptor(ConnectionAcceptor.ALLOW);
-           
-           rightServer = service.openServerSocket(511);
-           rightServer.listen(new ServerAdapter(this,511,map.get(1).get(0)));
-           rightServer.setConnectionAcceptor(ConnectionAcceptor.ALLOW);
-           
-           downServer = service.openServerSocket(512);
-           downServer.listen(new ServerAdapter(this,512,map.get(2).get(0)));
-           downServer.setConnectionAcceptor(ConnectionAcceptor.ALLOW);
+           addBasePeer(map.get(0),0);
+           addBasePeer(map.get(0),1);
+           addBasePeer(map.get(0),2);
 
 
 
@@ -225,10 +220,12 @@ public class Master extends Thread{
 	{
 	    Peer base = list.get(0);
 	    try {
+	    	base.peerKeys = encryption.generateKey();
 	        base.serverSock = service.openServerSocket(510+index);
-	        base.serverSock.listen(new ServerAdapter(this,index,base));
+	        base.serverSock.listen(new ServerAdapter(this,index,base,peerKeys));
 	        base.serverSock.setConnectionAcceptor(ConnectionAcceptor.ALLOW);
-	    } catch (IOException e) {
+	        
+	    } catch (Exception e) {
 	        
 	        e.printStackTrace();
 	    }
@@ -322,7 +319,27 @@ public class Master extends Thread{
 				  
 				  out.write(encryption.getKeyAsString(publicKey));
 				  out.newLine();
-				  out.write("PrivKeyion");
+				  out.write("PrivKey");
+				  out.newLine();
+				  out.write(encryption.getKeyAsString(privateKey));
+				  //Close the output stream
+				  out.close();
+		  }catch (Exception e) {//Catch exception if any
+			  System.err.println("Error: " + e.getMessage());
+		  }
+		
+	}
+	public void saveKey2()
+	{
+		  try
+		  {
+			  // Create file 
+				  FileWriter fstream = new FileWriter("out2.txt",true);
+				  BufferedWriter out = new BufferedWriter(fstream);
+				  
+				  out.write(encryption.getKeyAsString(publicKey));
+				  out.newLine();
+				  out.write("PrivKey");
 				  out.newLine();
 				  out.write(encryption.getKeyAsString(privateKey));
 				  //Close the output stream
@@ -338,6 +355,29 @@ public class Master extends Thread{
 			String key  = "";
 			
 			Scanner scan = new Scanner(new File("out.txt"));
+			while(!(temp = scan.next()).contains("PrivKey")){
+				key +=temp;
+
+			}
+			publicKey = encryption.getPublicKeyFromString(key);
+			key = "";
+			while(scan.hasNext()){
+				key+=scan.next();
+			}
+			privateKey = encryption.getPrivateKeyFromString(key);
+		
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	
+	}
+	public void getKey2(){
+		try{
+			String temp = "";
+			String key  = "";
+			
+			Scanner scan = new Scanner(new File("out2.txt"));
 			while(!(temp = scan.next()).contains("PrivKey")){
 				key +=temp;
 

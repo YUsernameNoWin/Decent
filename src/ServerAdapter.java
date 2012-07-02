@@ -31,12 +31,12 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 	Encryption encryption  =  new Encryption();
 	int port;
     private KeyPair keyPair;
-	public ServerAdapter(Master master2,int col, Peer self) {
+	public ServerAdapter(Master master2,int col, Peer self, KeyPair keys) {
 		master = master2;
 		this.port = col;
 		peer = self;
 		try {
-		   keyPair = encryption.generateKey();
+		   keyPair = keys;
 		   
 		}catch(Exception e)
 		{
@@ -56,7 +56,6 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 			public void packetReceived(NIOSocket socket, byte[] packet)
 			{
 				try {
-					
 					 JSONObject<?, ?> encryptedPacket =  new JSONObject<Object, Object>(new String(packet));
 					JSONObject<?, ?> outPacket =  new JSONObject<Object, Object>();
 					JSONObject<?, ?> clearPacket =  new JSONObject<Object, Object>();
@@ -66,47 +65,48 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 					String id = encryptedPacket.getString("src");
 					Peer hashed = master.IDMap.get(encryptedPacket.getString("src"));
 					
-					if(hashed == null)
+					if(hashed == null &&
+							encryptedPacket.getString("dest").equals(encryption.getKeyAsString(master.publicKey)))
 					{
 						if(encryptedPacket.has("aeskey"))
 						{
 						   registerPeer(encryptedPacket,hashed, socket, id);
 						}
-						else if(!peer.isActive())
-						{
-						    peerActivate(encryptedPacket);
-						}
 					}
-					else 
+					else if(encryptedPacket.getString("dest").equals(encryption.getKeyAsString(keyPair.getPublic())))
 					{
-					    clearPacket = encryption.AESdecryptJSON(encryptedPacket,hashed.getAesKey());
-					    if(clearPacket.has("connectionbroken"))
-					    {
-					        peerConnectionBroken(clearPacket, hashed);
-					    }
+						peerParse(encryptedPacket,peer);
+					}
+					else if(encryptedPacket.getString("dest").equals(encryption.getKeyAsString(master.publicKey)))
+					{
+					   clearPacket = encryption.AESdecryptJSON(encryptedPacket,hashed.getAesKey());
+					   if(clearPacket.has("connectionbroken"))
+					   {
+					       peerConnectionBroken(clearPacket, hashed);
+					   }
 					   if(clearPacket.has("bounce"))
 					   {
 					       bounceMessage(encryption.getPublicKeyFromString(clearPacket.getString("peerkey")),clearPacket.getString("bounce"));
 					   }
-						if(clearPacket.has("needkeylist"))
-						{
-							sendKeyList(socket, hashed);
-						}
-						else if(clearPacket.has("port"))
-						{
-						    hashed.port = clearPacket.getInt("port");
-						}
-						else if(clearPacket.has("dc"))
-						{
+					   if(clearPacket.has("needkeylist"))
+					   {
+						   sendKeyList(socket, hashed);
+					   }
+					   else if(clearPacket.has("port"))
+					   {
+						   hashed.port = clearPacket.getInt("port");
+					   }
+					   else if(clearPacket.has("dc"))
+					   {
 						   master.removePeer(hashed);
-						}
-						else if(clearPacket.has("publickey"))
-						{
-							peerAddPublicKey(hashed, clearPacket, socket);
-						}
-						else if(clearPacket.has("get"))
-						{
-							NIOSocket sock = null;
+					   }
+					   else if(clearPacket.has("publickey"))
+					   {
+						   peerAddPublicKey(hashed, clearPacket, socket);
+					   }
+					   else if(clearPacket.has("get"))
+					   {
+						   NIOSocket sock = null;
 							try {
 								sock = master.service.openSocket("127.0.0.1",1337);
 								sock.listen(new internalSocket(hashed,clearPacket.getString("get"),master));
@@ -116,15 +116,15 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 								e.printStackTrace();
 							}
 						    
-						}
-						if(clearPacket.has("uprightip") && clearPacket.has("uprightport"))
-						{
-						    sendUpRightConnection(hashed, clearPacket);
-						}
-						if(clearPacket.has("upleftip") && clearPacket.has("upleftport"))
-						{
-						    sendUpLeftConnection(hashed,clearPacket);
-						}
+					   }
+					   if(clearPacket.has("uprightip") && clearPacket.has("uprightport"))
+					   {
+						   sendUpRightConnection(hashed, clearPacket);
+					   }
+					   if(clearPacket.has("upleftip") && clearPacket.has("upleftport"))
+					   {
+						   sendUpLeftConnection(hashed,clearPacket);
+					   }
 						
 						
 					}
@@ -139,7 +139,33 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 				
 			}
 
-            private void sendUpLeftConnection(Peer hashed, JSONObject<?, ?> clearPacket) {
+			public void peerParse(JSONObject<?, ?> encryptedPacket, Peer sender)throws Exception
+		    {
+		        JSONObject<?, ?> clearPacket = new JSONObject<Object, Object>();
+		        //1 == send up. 2 == broadcast. 3 == forward down. 4 == send down one. 5 == Reroute.
+		        int type = encryptedPacket.getInt("type");
+		        //test send up to master, add UUID to senders list in order to send back response
+		        //get
+		        //System.out.println();
+		        
+		        if(type == 1)
+		        {
+		            if(!sender.isActive())
+		            {
+		                 peerActivate(encryptedPacket, sender);
+		            }
+		            
+		        }
+
+		        //forward response downwards or if it is meant for us, decrypt it.
+		        else if( type == 2)
+		        {
+		        	
+		        }
+		            
+		    }
+
+			private void sendUpLeftConnection(Peer hashed, JSONObject<?, ?> clearPacket) {
                 // master.printMap();
                 JSONObject<?, ?> peers = master.getPeers(hashed);
                 JSONObject<?, ?> outPacket = new JSONObject<Object, Object>();
@@ -235,31 +261,42 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
                 }
             }
 
-            private void peerActivate(JSONObject<?, ?> encryptedPacket) {
-              //TODO make sure to randomize publickeys instead of just using master when going into release.  
-              
-                try {
-                   JSONObject<?, ?> clearPacket =  encryption.RSAdecryptJSON(encryptedPacket,master.privateKey);
-                    if(clearPacket.has("aeskey"))
-                    {
-                        peer.setAesKeyFromBase64(clearPacket.getString("aeskey").getBytes());
-                        peer.setActive(true);
-                        peer.ID = clearPacket.getString("src");
-                        //System.out.println("Peer "  + id + " connected to " + sender.name + ":" + sender.ID);
-                    }
-                }catch(Exception e)
-                {
-                    e.printStackTrace();
-                }
+            private void peerActivate(JSONObject<?, ?> encryptedPacket,Peer sender) {
+            	JSONObject clearPacket = new JSONObject();
+            	try {
+                    //clearPacket =  encryption.RSAdecryptJSON(encryptedPacket,master.privateKey);
+                   if(clearPacket.has("aeskey"))
+                   {
+
+                       byte[] key = encryption.decryptRSA(master.privateKey, encryptedPacket.getString("aeskey").getBytes());
+                       sender.setAesKeyFromBase64(key);
+                       encryptedPacket.remove("aeskey");
+                       clearPacket = encryption.AESdecryptJSON(encryptedPacket,key);
+                       if(clearPacket.has("publickey"))
+                       {
+                       	sender.publicKey = encryption.getPublicKeyFromString(clearPacket.getString("publickey"));
+       	                sender.isPeerActive = true;
+       	                sender.ID = clearPacket.getString("src");
+                       }
+                   }
+               }catch(Exception e)
+               {
+                   e.printStackTrace();
+               }
                 
             }
 
             private void registerPeer(JSONObject<?, ?> encryptedPacket, Peer hashed, NIOSocket socket,String id) {
                 try {
                      JSONObject<?, ?> outPacket = new JSONObject<Object, Object>();
+                     JSONObject<?, ?> clearPacket = new JSONObject<Object, Object>();
                      byte[] key = Base64.decode(encryption.decryptRSA(master.privateKey, encryptedPacket.getString("aeskey").getBytes()));
                      Peer newPeer = new Peer(key,encryptedPacket.getString("src"));
+                     encryptedPacket.remove("aeskey");
+                     clearPacket = encryption.AESdecryptJSON(encryptedPacket,key);
+                     newPeer.publicKey = encryption.getPublicKeyFromString(clearPacket.getString("src"));
                      newPeer.socket = socket;
+                     newPeer.setActive(true);
                      int added = master.addPeer(newPeer);
                      hashed = master.IDMap.get(id);
                      JSONObject<String,Peer> peers = master.getPeers(hashed);
@@ -358,8 +395,8 @@ class internalSocket implements SocketObserver{
 			
 			e.printStackTrace();
 		}
-	    //outPacket = master.addHeader(master.encryption.AESencryptJSON(outPacket, peer.getAesKey()), 2, peer);
-	    //master.forwardMessage(peer,outPacket.toString(),"ConnectionBroken");
+	    outPacket = master.addHeader(master.encryption.AESencryptJSON(outPacket, peer.getAesKey()), 2, peer);
+	    master.forwardMessage(peer,outPacket.toString(),"ConnectionBroken");
 	}
 
 	@Override

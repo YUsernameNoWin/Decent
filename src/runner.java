@@ -1,7 +1,10 @@
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.security.KeyPair;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Random;
@@ -10,7 +13,7 @@ import java.util.Scanner;
 import org.eclipse.jetty.client.Address;
 import org.eclipse.jetty.client.HttpExchange;
 import org.eclipse.jetty.http.*;
-
+/* TODO Work on fixing left right connections. Other than that, all encryption issues are done.*/
 /* Main class. Initiates Peers.*/
 public class runner extends Thread{
 
@@ -19,21 +22,26 @@ public class runner extends Thread{
      * @throws IOException 
      * @throws UnknownHostException 
      */
+	static PublicKey publicKey;
+	static PrivateKey privateKey;
     static Encryption e = new Encryption();
     public static void main(String[] args) throws UnknownHostException, Exception {
         
     	JettyTestServer server = new JettyTestServer();
     	server.start();
-       Master master =new Master();
+        getKey2();
+        KeyPair top =  new KeyPair(publicKey,privateKey);
+        KeyPair keys1 = getKey();
+        KeyPair keys2 = getKey();
+        KeyPair keys3 = getKey();
+       Master master =new Master(top,keys1);
         ArrayList<NetworkThread> peers = new ArrayList<NetworkThread>();
            master.start();
-
-           KeyPair top = getKey();
-           KeyPair keys1 = getKey();
-           KeyPair keys2 = getKey();
-           KeyPair keys3 = getKey();
+           //KeyPair news = e.generateKey();
+           //saveKey2(news.getPublic(),news.getPrivate());
+ 
            int temp = 4;
-        for(int i=1;i<=5;i++)
+        for(int i=1;i<=3;i++)
         {
           peers.add(new NetworkThread(i*10+500,temp,keys1,(keys1 = e.generateKey()),top));
           temp++;
@@ -55,8 +63,9 @@ public class runner extends Thread{
         sleep(50000);
         for(NetworkThread a:peers)
         {
-        	//if(a.up.publicKey == null || a.down.publicKey == null)
-        		System.out.println(a.id);
+        	a.getKeyStatus();
+        	a.getSocketStatus();
+        	
         }
         //scan.next();
        // peers.get(4).close();
@@ -90,4 +99,49 @@ public class runner extends Thread{
 		}
 		return null;
     }
+    public static void getKey2(){
+		KeyPair pair = null;
+		try{
+
+			String temp = "";
+			String key  = "";
+			
+			Scanner scan = new Scanner(new File("out2.txt"));
+			while(!(temp = scan.next()).contains("PrivKey")){
+				key +=temp;
+
+			}
+			publicKey = e.getPublicKeyFromString(key);
+			key = "";
+			while(scan.hasNext()){
+				key+=scan.next();
+			}
+			privateKey = e.getPrivateKeyFromString(key);
+		
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	
+	}
+	public static void saveKey2(PublicKey publicKey, PrivateKey privateKey)
+	{
+		  try
+		  {
+			  // Create file 
+				  FileWriter fstream = new FileWriter("out2.txt",true);
+				  BufferedWriter out = new BufferedWriter(fstream);
+				  
+				  out.write(e.getKeyAsString(publicKey));
+				  out.newLine();
+				  out.write("PrivKey");
+				  out.newLine();
+				  out.write(e.getKeyAsString(privateKey));
+				  //Close the output stream
+				  out.close();
+		  }catch (Exception e) {//Catch exception if any
+			  System.err.println("Error: " + e.getMessage());
+		  }
+		
+	}
 }

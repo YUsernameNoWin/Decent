@@ -6,6 +6,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.security.KeyPair;
 import java.security.PublicKey;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -29,15 +30,11 @@ import naga.packetwriter.RegularPacketWriter;
 		public String name;
 		public int y;
 		public Queue<String> data = new LinkedList<String>();
-		public boolean isActive() {
-			
-            return active;
-        }
-        public void setActive(boolean active) {
-            this.active = active;
-        }
-        public String ID;
+		public boolean isPeerActive;
 		private boolean active;
+		public KeyPair peerKeys;
+        public String ID;
+
 		public String secretID;
 		public int connectionBrokenCount = 0;
 		public int trickleUpCount = 0;
@@ -61,6 +58,13 @@ import naga.packetwriter.RegularPacketWriter;
 	       public Peer(byte[] aesKey){
                this.setAesKey(aesKey);
         }
+		public boolean isActive() {
+			
+	        return active;
+	    }
+	    public void setActive(boolean active) {
+	            this.active = active;
+	        }	       
 		public void setAesKey(byte[] aesKey2) {
 		    this.aesKey = aesKey2;
             
