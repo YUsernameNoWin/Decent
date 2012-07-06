@@ -41,7 +41,7 @@ public class runner extends Thread{
            //saveKey2(news.getPublic(),news.getPrivate());
  
            int temp = 4;
-        for(int i=1;i<=3;i++)
+        for(int i=1;i<=30;i++)
         {
           peers.add(new NetworkThread(i*10+500,temp,keys1,(keys1 = e.generateKey()),top));
           temp++;
@@ -60,7 +60,8 @@ public class runner extends Thread{
             //System.out.print(a.port + " ");
            sleep(300);
         }
-        sleep(50000);
+        Scanner scan =  new Scanner(System.in);
+       scan.next();
         for(NetworkThread a:peers)
         {
         	a.getKeyStatus();
@@ -82,12 +83,13 @@ public class runner extends Thread{
 */
         
     }
+
     public static KeyPair getKey(){
 		try{
 			String temp = "";
 			String key  = "";
 			
-			Scanner scan = new Scanner(new File("out.txt"));
+			Scanner scan = new Scanner(new File("C:/Users/Quinn/Disporic/Decent/out.txt"));
 			while(!(temp = scan.next()).contains("PrivKey")){
 				key +=temp;
 
@@ -106,7 +108,7 @@ public class runner extends Thread{
 			String temp = "";
 			String key  = "";
 			
-			Scanner scan = new Scanner(new File("out2.txt"));
+			Scanner scan = new Scanner(new File("C:/Users/Quinn/Disporic/Decent/out2.txt"));
 			while(!(temp = scan.next()).contains("PrivKey")){
 				key +=temp;
 

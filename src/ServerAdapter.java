@@ -174,9 +174,9 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
                   {
                   
                       Peer upLeft = (Peer)peers.get("upLeft");
-                      if(upLeft.publicKey != null)
+                      if(upLeft.publicKey != null && upLeft.y != 0)
                       {
-                          outPacket.put("connect", "downright");
+                          outPacket.put("connect", "upleft");
                           outPacket.put("ip",clearPacket.getString("upleftip"));
                           outPacket.put("port", clearPacket.get("upleftport"));
                           outPacket.put("publickey",encryption.getKeyAsString(hashed.publicKey));
@@ -200,16 +200,17 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
                     {
                         
                         Peer upRight =(Peer) peers.get("upRight");
-                        if(upRight.publicKey != null)
+                        if(upRight.publicKey != null && upRight.y != 0)
                         {
+                        	
                             //System.out.println("Upright id: " + upRight.ID);
-                            outPacket .put("connect", "downleft");
+                            outPacket.put("connect", "upright");
                             outPacket.put("ip",clearPacket.getString("uprightip"));
                             outPacket.put("port", clearPacket.get("uprightport"));
                             outPacket.put("publickey", encryption.getKeyAsString(hashed.publicKey));
                             outPacket = encryption.AESencryptJSON(outPacket, upRight.getAesKey());
                             outPacket  = master.addHeader(outPacket, 2, upRight);
-                            master.forwardMessage(master.map.get(upRight.x).get(0).socket,outPacket.toString(),"sneduprightConnection");
+                            master.forwardMessage(master.map.get(upRight.x).get(0).socket,outPacket.toString(),"senduprightConnection");
                         }
                     }
                 }catch(Exception e)
@@ -234,7 +235,21 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
             }
 
             private void sendKeyList(NIOSocket socket,Peer hashed) {
-                JSONObject<?, ?> outPacket = master.getPeers(hashed);
+                JSONObject<?, ?> outPacket = new JSONObject();
+                JSONObject<String, Peer> peers = master.getPeers(hashed);
+                for(int i = 0; i < peers.names().length();i++)
+                {
+                	String key;
+					try {
+						key = (String)peers.names().get(i);
+	
+                	outPacket.put(key,
+                			encryption.getKeyAsString(((Peer)peers.get(key)).publicKey));
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+                }
                 outPacket = master.addHeader(master.encryption.AESencryptJSON(outPacket,hashed.getAesKey()),2,hashed);
                 master.forwardMessage(socket,outPacket.toString(),"sendKeylist");
                 
@@ -271,7 +286,7 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
                        byte[] key = encryption.decryptRSA(master.privateKey, encryptedPacket.getString("aeskey").getBytes());
                        sender.setAesKeyFromBase64(key);
                        encryptedPacket.remove("aeskey");
-                       clearPacket = encryption.AESdecryptJSON(encryptedPacket,key);
+                       clearPacket = encryption.AESdecryptJSON(encryptedPacket,sender.getAesKey());
                        if(clearPacket.has("publickey"))
                        {
                        	sender.publicKey = encryption.getPublicKeyFromString(clearPacket.getString("publickey"));

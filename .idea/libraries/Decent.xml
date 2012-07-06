@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Decent">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/Decent/sbbi-bootstrap-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Decent/bcprov-jdk16-146.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Decent/net.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Decent/naga-debug-2_1-r42.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Decent/sbbi.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

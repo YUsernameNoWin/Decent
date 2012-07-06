@@ -1,0 +1,15 @@
+BACKQUOTES_COLOR=224,226,228
+CLASS_NAME_COLOR=103,140,177
+CODE_COLOR=224,226,228
+COMMENT_COLOR=125,140,147
+DECORATOR_COLOR=224,226,228
+EDITOR_MATCHING_BRACKETS_COLOR=232,226,183
+FUNC_NAME_COLOR=103,140,177
+INTERPRETER_PATH_NEW=Name\:python\:EndName\:Version2.7Executable\:C\:\\Python27\\python.exe|C\:\\Python27\\lib\\site-packages\\distribute-0.6.27-py2.7.egg|C\:\\Python27\\lib\\site-packages\\pip-1.1-py2.7.egg|C\:\\Python27\\lib\\site-packages\\psycopg2-2.4.5-py2.7-win32.egg|C\:\\Python27\\DLLs|C\:\\Python27\\lib|C\:\\Python27\\lib\\plat-win|C\:\\Python27\\lib\\lib-tk|C\:\\Python27|C\:\\Python27\\lib\\site-packages|C\:\\Python27\\lib\\site-packages\\PIL@$|Image|OpenGL|__builtin__|_ast|_bisect|_bytesio|_codecs|_codecs_cn|_codecs_hk|_codecs_iso2022|_codecs_jp|_codecs_kr|_codecs_tw|_collections|_csv|_fileio|_functools|_heapq|_hotshot|_json|_locale|_lsprof|_md5|_multibytecodec|_random|_sha|_sha256|_sha512|_sre|_struct|_subprocess|_symtable|_warnings|_weakref|_winreg|array|audioop|binascii|cPickle|cStringIO|cmath|datetime|email|errno|exceptions|future_builtins|gc|hashlib|imageop|imp|itertools|marshal|math|mmap|msvcrt|nt|numpy|operator|os|os.path|parser|pytest|scipy|signal|socket|strop|sys|thread|time|wx|wxPython|xxsubtype|zipimport|zlib&&&&&
+KEYWORD_COLOR=147,199,99
+NUMBER_COLOR=255,205,34
+OPERATORS_COLOR=232,226,183
+PARENS_COLOR=232,226,183
+SELF_COLOR=224,226,228
+STRING_COLOR=236,118,0
+eclipse.preferences.version=1

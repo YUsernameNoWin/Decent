@@ -51,7 +51,7 @@ public class Master extends Thread{
 	public InetAddress leftAd,rightAd,downAd;
 	public HashMap<PublicKey,Peer> keyMap = new HashMap<PublicKey,Peer>();
 	public int peerNum = 0;
-	public final int MAX_PEER = 10;
+	public final int MAX_PEER = 100;
 	String clearText;
 	String AESKEY;
 	char type;
@@ -73,20 +73,25 @@ public class Master extends Thread{
         map.add(new CountableArrayList<Peer>(MAX_PEER));
         map.add(new CountableArrayList<Peer>(MAX_PEER));
         //map.add(new CountableArrayList<Peer>(MAX_PEER));
-            map.get(0).add(new Peer(0,0));
+           map.get(0).add(new Peer(0,0));
            map.get(1).add(new Peer(1,0));
            map.get(2).add(new Peer(2,0));
+           
            map.get(0).get(0).ID = "1";
            map.get(1).get(0).ID = "2";
            map.get(2).get(0).ID = "3";
+           
+           map.get(0).get(0).publicKey = peerKeys.getPublic();
+           map.get(1).get(0).publicKey = peerKeys.getPublic();
+           map.get(2).get(0).publicKey = peerKeys.getPublic();
           //  map.get(3).add(new Peer());
         
         //getKey();
         try {
            service = new NIOService();
            addBasePeer(map.get(0),0);
-           addBasePeer(map.get(0),1);
-           addBasePeer(map.get(0),2);
+           addBasePeer(map.get(1),1);
+           addBasePeer(map.get(2),2);
 
 
 
@@ -129,18 +134,19 @@ public class Master extends Thread{
 	    
 	}
 	    public JSONObject<String,Peer> getPeers(Peer peer){	
+	    	//System.out.println("WTF");
 	        JSONObject<String,Peer> output = new JSONObject<String,Peer>();
 	        try {
-	            output.put("right", map.get(peer.x-1).get(peer.y));
-	            output.put("left", map.get(peer.x+1).get(peer.y));
+	            output.put("right", map.get(peer.x+1).get(peer.y));
+	            output.put("left", map.get(peer.x-1).get(peer.y));
 	
-	            if(peer.y -1 > 0)
+	            if(peer.y - 1 >= 0)
 	            {
 	                output.put("up", map.get(peer.x).get(peer.y-1));
-	                output.put("upRight", map.get(peer.x-1).get(peer.y - 1));
-	                output.put("upLeft", map.get(peer.x+1).get(peer.y - 1));
+	                output.put("upLeft", map.get(peer.x-1).get(peer.y - 1));
+	                output.put("upRight", map.get(peer.x+1).get(peer.y - 1));
 	            }
-	            if(peer.y + 1 < map.get(peer.x).size()-1)
+	            if(peer.y + 1 <= map.get(peer.x).size())
 	            {
 	            	try{
 	                   output.put("downLeft", map.get(peer.x + 1).get(peer.y + 1));
@@ -221,6 +227,7 @@ public class Master extends Thread{
 	    Peer base = list.get(0);
 	    try {
 	    	base.peerKeys = encryption.generateKey();
+	    	base.publicKey = peerKeys.getPublic();
 	        base.serverSock = service.openServerSocket(510+index);
 	        base.serverSock.listen(new ServerAdapter(this,index,base,peerKeys));
 	        base.serverSock.setConnectionAcceptor(ConnectionAcceptor.ALLOW);

@@ -135,12 +135,12 @@ public class NetworkThread extends Thread{
 	    
        JSONObject<?, ?> clearPacket = new JSONObject<Object, Object>();
        try {
-       clearPacket =  clearPacket.put("uprightip", "127.0.0.1");
-       clearPacket =  clearPacket.put("uprightport", port+10);
-       clearPacket =  clearPacket.put("upleftip", "127.0.0.1");
-       clearPacket =  clearPacket.put("upleftport", port+10);
-       clearPacket= encryption.AESencryptJSON(clearPacket,top.getAesKey());
-       clearPacket = addHeader(clearPacket,1,top);
+	       clearPacket =  clearPacket.put("uprightip", "127.0.0.1");
+	       clearPacket =  clearPacket.put("uprightport", port+10);
+	       clearPacket =  clearPacket.put("upLeftip", "127.0.0.1");
+	       clearPacket =  clearPacket.put("upLeftport", port+10);
+	       clearPacket= encryption.AESencryptJSON(clearPacket,top.getAesKey());
+	       clearPacket = addHeader(clearPacket,1,top);
        }catch(Exception e) {
            e.printStackTrace();
        }
@@ -152,7 +152,7 @@ public class NetworkThread extends Thread{
         JSONObject<?, ?> clearPacket = new JSONObject<Object, Object>();
         clearPacket =  clearPacket.put("port",port);
         clearPacket= encryption.AESencryptJSON(clearPacket,top.getAesKey());
-        clearPacket = addHeader(clearPacket,1,up);
+        clearPacket = addHeader(clearPacket,1,top);
        forwardMessage(up,clearPacket.toString(),"port"); 
 	}
 	public void getKeyList() throws JSONException
@@ -163,21 +163,22 @@ public class NetworkThread extends Thread{
         clearPacket = addHeader(clearPacket,1,top);
        forwardMessage(up,clearPacket.toString(),"getkeylist"); 
 	}
-    public void getColumn() throws JSONException
-    {     
 
-        JSONObject<?, ?> clearPacket = new JSONObject<Object, Object>(); 
-       clearPacket =  clearPacket.put("needcol",true); 
-       clearPacket= encryption.AESencryptJSON(clearPacket,top.getAesKey());
-       clearPacket = addHeader(clearPacket,2,top);
-       
-        forwardMessage(up,clearPacket.toString(),"getcolumn");    
-    }
     
-    public void keyExchange(Peer peer) throws Exception
+    public void getColumn() throws JSONException
+	{     
+	
+	    JSONObject<?, ?> clearPacket = new JSONObject<Object, Object>(); 
+	   clearPacket =  clearPacket.put("needcol",true); 
+	   clearPacket= encryption.AESencryptJSON(clearPacket,top.getAesKey());
+	   clearPacket = addHeader(clearPacket,2,top);
+	
+	    forwardMessage(up,clearPacket.toString(),"getcolumn");    
+	}
+	public void keyExchange(Peer peer) throws Exception
     {
     	JSONObject<?, ?> clearPacket;
-    	//System.out.println("");
+    	
         peer.setAesKey(encryption.generateSymmetricKey());
         clearPacket = new JSONObject<Object, Object>();
         clearPacket.put("publickey", encryption.getKeyAsString(publicKey));
@@ -259,7 +260,7 @@ public class NetworkThread extends Thread{
 	                    }
 	                    if(clearPacket.has("response"))
 	                    {
-	                        System.out.println("RESPONSE " + clearPacket.getString("response"));
+	                        //System.out.println("RESPONSE " + clearPacket.getString("response"));
 	                        saveHTML(clearPacket.getString("response"));
 	                    }
 	                }
@@ -292,8 +293,8 @@ public class NetworkThread extends Thread{
     private void processKeyList(JSONObject<?, ?> clearPacket) throws Exception {
         if(clearPacket.has("left"))
             left.publicKey = encryption.getPublicKeyFromString((String) clearPacket.opt("left"));
-        if(clearPacket.has("upleft"))
-            upLeft.publicKey = encryption.getPublicKeyFromString((String) clearPacket.opt("upleft"));
+        if(clearPacket.has("upLeft"))
+            upLeft.publicKey = encryption.getPublicKeyFromString((String) clearPacket.opt("upLeft"));
         if(clearPacket.has("downleft"))
             downLeft.publicKey = encryption.getPublicKeyFromString((String) clearPacket.opt("downleft"));
         if(clearPacket.has("upright"))
@@ -310,27 +311,27 @@ public class NetworkThread extends Thread{
         
     }
     private void connectToPeer(JSONObject<?, ?> clearPacket) throws JSONException, IOException, Exception {
-        if(clearPacket.getString("connect").equals("downleft")  && !downLeft.isActive())
+        if(clearPacket.getString("connect").equals("upright")  && !upRight.isActive())
         {
-            downLeft.address = clearPacket.getString("ip");
-            downLeft.port = clearPacket.getInt("port");
-            downLeft.publicKey = encryption.getPublicKeyFromString(clearPacket.getString("publickey")); 
-            downLeft.socket = service.openSocket(downLeft.address,downLeft.port);
-            downLeft.socket.setPacketReader(new AsciiLinePacketReader());
-            downLeft.socket.setPacketWriter(new RawPacketWriter());
-            downLeft.socket.listen(new NetworkProtocol(this,downLeft));
-            downLeft.setActive(true);
+            upRight.address = clearPacket.getString("ip");
+            upRight.port = clearPacket.getInt("port");
+            upRight.publicKey = encryption.getPublicKeyFromString(clearPacket.getString("publickey")); 
+            upRight.socket = service.openSocket(upRight.address,upRight.port);
+            upRight.socket.setPacketReader(new AsciiLinePacketReader());
+            upRight.socket.setPacketWriter(new RawPacketWriter());
+            upRight.socket.listen(new NetworkProtocol(this,upRight));
+            upRight.setActive(true);
         }
-        if(clearPacket.getString("connect").equals("downright") && !downRight.isActive())
+        if(clearPacket.getString("connect").equals("upleft") && !upLeft.isActive())
         {
-            downRight.address = clearPacket.getString("ip");
-            downRight.port = clearPacket.getInt("port");
-            downRight.publicKey = encryption.getPublicKeyFromString(clearPacket.getString("publickey")); 
-            downRight.socket = service.openSocket(downRight.address,downRight.port);
-            downRight.socket.setPacketReader(new AsciiLinePacketReader());
-            downRight.socket.setPacketWriter(new RawPacketWriter());
-            downRight.socket.listen(new NetworkProtocol(this,downRight));
-            downRight.setActive(true);
+            upLeft.address = clearPacket.getString("ip");
+            upLeft.port = clearPacket.getInt("port");
+            upLeft.publicKey = encryption.getPublicKeyFromString(clearPacket.getString("publickey")); 
+            upLeft.socket = service.openSocket(upLeft.address,upLeft.port);
+            upLeft.socket.setPacketReader(new AsciiLinePacketReader());
+            upLeft.socket.setPacketWriter(new RawPacketWriter());
+            upLeft.socket.listen(new NetworkProtocol(this,upLeft));
+            upLeft.setActive(true);
         }
         
     }
@@ -339,9 +340,9 @@ public class NetworkThread extends Thread{
         {
         	if(encryptedPacket.getString("src").equals(encryption.getKeyAsString(top.publicKey)))
             	clearPacket =  encryption.AESdecryptJSON(encryptedPacket,top.getAesKey());
-            else if(down.publicKey != null && encryptedPacket.getString("src").equals(encryption.getKeyAsString(down.publicKey)))
-            	clearPacket =  encryption.AESdecryptJSON(encryptedPacket,up.getAesKey());
-             if(clearPacket.has("publickey"))
+            else if(down.isActive() && encryptedPacket.getString("src").equals(encryption.getKeyAsString(down.publicKey)))
+            	clearPacket =  encryption.AESdecryptJSON(encryptedPacket,down.getAesKey());
+            if(clearPacket.has("publickey"))
                 sender.publicKey = encryption.getPublicKeyFromString(clearPacket.getString("publickey"));
             else if(clearPacket.has("needcol"))
             {
@@ -368,13 +369,13 @@ public class NetworkThread extends Thread{
     }
     private void activateSender(JSONObject<?, ?> clearPacket,JSONObject<?, ?> encryptedPacket,Peer sender) {
         try {
-            if(clearPacket.has("aeskey"))
+            if(encryptedPacket.has("aeskey"))
             {
 
                 byte[] key = encryption.decryptRSA(privateKey, encryptedPacket.getString("aeskey").getBytes());
                 sender.setAesKeyFromBase64(key);
                 encryptedPacket.remove("aeskey");
-                clearPacket = encryption.AESdecryptJSON(encryptedPacket,key);
+                clearPacket = encryption.AESdecryptJSON(encryptedPacket,sender.getAesKey());
                 if(clearPacket.has("publickey"))
                 {
                 	sender.publicKey = encryption.getPublicKeyFromString(clearPacket.getString("publickey"));

@@ -94,7 +94,7 @@ import naga.packetwriter.RegularPacketWriter;
 	        }
 		public String toString()
 		{
-		    return "Peer: " + ID;
+		    return "X: " + x + " Y: " + y;
 		}
 		/**
 		 * 

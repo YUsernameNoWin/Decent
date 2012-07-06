@@ -44,7 +44,13 @@ public class PeerServerAdapter extends ServerSocketObserverAdapter{
 		{
 		    public void connectionOpened(NIOSocket nioSocket)
 		    {
-		        //sender.active = true;
+		    	sender.socket = nioSocket;
+		        try {
+					//master.keyExchange(sender);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 		    }
 		    public void connectionBroken(NIOSocket nioSocket, Exception exception)
 		    {
