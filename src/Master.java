@@ -1,42 +1,35 @@
+import naga.ConnectionAcceptor;
+import naga.NIOService;
+import naga.NIOSocket;
+import org.JSON.JSONException;
+import org.JSON.JSONObject;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.*;
+import java.net.InetAddress;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Scanner;
-import java.util.UUID;
-
-
-import org.JSON.JSONException;
-import org.JSON.JSONObject;
-
-import naga.ConnectionAcceptor;
-import naga.NIOServerSocket;
-import naga.NIOService;
-import naga.NIOSocket;
-import naga.SocketObserver;
-import naga.SocketObserverAdapter;
-import naga.packetreader.AsciiLinePacketReader;
-import naga.packetreader.RawPacketReader;
-import naga.packetwriter.RawPacketWriter;
+import java.util.*;
 
 /*Works as the main manager of the network. Manages peer map, peer connections, dead peers and new peers.
  * 
  */
 public class Master extends Thread{
     Encryption encryption  =  new Encryption();
-
+    private static final Map<String, String> OPPOSITEDIRECTION =
+            Collections.unmodifiableMap(new HashMap<String, String>() {{
+                put("upRight", "downLeft");
+                put("up", "down");
+                put("upLeft","downRight");
+                put("downRight","upLeft");
+                put("down","up");
+                put("downLeft","upRight");
+                put("left","right");
+                put("right","left");
+            }});
 	public ArrayList<UUID> leftList = new ArrayList<UUID>();
 	public ArrayList<UUID> downList = new ArrayList<UUID>();
 	public ArrayList<UUID> rightList = new ArrayList<UUID>();
@@ -126,7 +119,7 @@ public class Master extends Thread{
 	    {
 	        System.out.print("Col: " + i + " ||| ");
 	        for(int x =0;x<map.get(i).size();x++) {
-	            System.out.print("X ");
+	            System.out.print(map.get(i).get(x).name + " ");
 	        }
 	        System.out.println();
 	    }
@@ -157,7 +150,7 @@ public class Master extends Thread{
 	            		System.out.println("BAD PEER::::::: " + peer.ID);
 	            	}
 	                   
-	                   output.put("downRight", map.get(peer.x - 1).get(peer.y + 1));
+	                   output.put("downRight", map.get(peer.x + 1).get(peer.y + 1));
 	                   output.put("down", map.get(peer.x).get(peer.y + 1));
 	            }
 	        }
@@ -188,8 +181,10 @@ public class Master extends Thread{
 		}
 		else
 		{
-			
-			//Find shortest list
+            peer.y = map.get(peer.x).size();
+			 map.get(peer.x).add(peer);
+
+			/*//Find shortest list
 	        ArrayList<Peer> index =map.get(0);
 	        int x = 0;
 	        for(int i = 0; i < map.size(); i ++)
@@ -215,11 +210,27 @@ public class Master extends Thread{
 			    peer.y = index.size();
 			    peer.x = x;
 			    index.add(peer);
-	        }
+	        }  */
 		}
 		IDMap.put(peer.ID,peer);
         peerNum++;
 	     //printMap();
+        JSONObject peerList =  getPeers(peer);
+        JSONObject peerPubKey =  new JSONObject();
+        try{
+            for(int i = 0; i < peerList.length();i++)
+            {
+                    Peer current = (Peer)peerList.get((String)peerList.names().get(i));
+                    if(current.publicKey != null && current.getAesKey() != null)
+                    {
+                        sendKeyList(current);
+                    }
+            }
+
+        }catch(Exception e)
+        {
+            e.printStackTrace();
+        }
 		return peer.x;
 	}
 	public void addBasePeer(List<Peer> list,int index)
@@ -336,6 +347,39 @@ public class Master extends Thread{
 		  }
 		
 	}
+    public void sendKeyList(Peer hashed) {
+        JSONObject<?, ?> outPacket = new JSONObject();
+        JSONObject<String, Peer> peers = getPeers(hashed);
+        hashed.peers = peers;
+        if(hashed.name.equals("13"))
+        {
+            System.out.println(hashed.x);
+            hashed.socket = map.get(hashed.x).get(0).socket;
+            printMap();
+
+        }
+        try {
+            outPacket.put("keylist",true);
+        } catch (JSONException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        for(int i = 0; i < peers.names().length();i++)
+        {
+            String key;
+            try {
+                key = (String)peers.names().get(i);
+
+                outPacket.put(key.toLowerCase(),
+                        encryption.getKeyAsString(((Peer)peers.get(key)).publicKey));
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        outPacket = addHeader(encryption.AESencryptJSON(outPacket,hashed.getAesKey()),2,hashed);
+        forwardMessage(hashed.socket,outPacket.toString(),hashed.name);
+
+    }
 	public void saveKey2()
 	{
 		  try

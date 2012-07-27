@@ -1,24 +1,16 @@
-import java.io.BufferedReader;
+import naga.NIOServerSocket;
+import naga.NIOSocket;
+import org.JSON.JSONObject;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import javax.crypto.spec.SecretKeySpec;
-
-import naga.*;
-import naga.packetreader.AsciiLinePacketReader;
-import naga.packetwriter.RegularPacketWriter;
-    /*
-     * Peer datastructure
-     */
+/*
+* Peer datastructure
+*/
 	public class Peer{
 		public PublicKey publicKey;
 		public String address;
@@ -29,6 +21,7 @@ import naga.packetwriter.RegularPacketWriter;
 		public int x;
 		public String name;
 		public int y;
+        public JSONObject<String, Peer> peers;
 		public Queue<String> data = new LinkedList<String>();
 		public boolean isPeerActive;
 		private boolean active;
@@ -62,6 +55,12 @@ import naga.packetwriter.RegularPacketWriter;
 			
 	        return active;
 	    }
+        public boolean isReady() {
+
+            if(aesKey != null && publicKey != null)
+                return true;
+            return false;
+        }
 	    public void setActive(boolean active) {
 	            this.active = active;
 	        }	       

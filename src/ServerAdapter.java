@@ -1,27 +1,17 @@
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.UUID;
-
-import org.JSON.JSONArray;
-import org.JSON.JSONException;
-import org.JSON.JSONObject;
-
-
 import naga.NIOSocket;
 import naga.ServerSocketObserverAdapter;
 import naga.SocketObserver;
 import naga.SocketObserverAdapter;
 import naga.packetreader.AsciiLinePacketReader;
 import naga.packetwriter.RawPacketWriter;
+import org.JSON.JSONException;
+import org.JSON.JSONObject;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.security.KeyPair;
+import java.security.PublicKey;
 
 /* Main server component for handling messages. 
  * Ties to master class for referencing peers and handling management of the peer map*/
@@ -56,21 +46,25 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 			public void packetReceived(NIOSocket socket, byte[] packet)
 			{
 				try {
-					 JSONObject<?, ?> encryptedPacket =  new JSONObject<Object, Object>(new String(packet));
+					JSONObject<?, ?> encryptedPacket =  new JSONObject<Object, Object>(new String(packet));
 					JSONObject<?, ?> outPacket =  new JSONObject<Object, Object>();
 					JSONObject<?, ?> clearPacket =  new JSONObject<Object, Object>();
 					//master.printMap();
 					//if(UUID.fromString(encryptedPacket.getString("src")) == null)
 					  //  return;
 					String id = encryptedPacket.getString("src");
+                    String name  =  (String) encryptedPacket.remove("name");
 					Peer hashed = master.IDMap.get(encryptedPacket.getString("src"));
-					
+
+                    //If peer is not connected yet
 					if(hashed == null &&
 							encryptedPacket.getString("dest").equals(encryption.getKeyAsString(master.publicKey)))
 					{
 						if(encryptedPacket.has("aeskey"))
 						{
-						   registerPeer(encryptedPacket,hashed, socket, id);
+
+						   hashed = registerPeer(encryptedPacket,hashed, socket, id);
+                            hashed.name =  name;
 						}
 					}
 					else if(encryptedPacket.getString("dest").equals(encryption.getKeyAsString(keyPair.getPublic())))
@@ -90,7 +84,7 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 					   }
 					   if(clearPacket.has("needkeylist"))
 					   {
-						   sendKeyList(socket, hashed);
+						   master.sendKeyList(hashed);
 					   }
 					   else if(clearPacket.has("port"))
 					   {
@@ -234,26 +228,7 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
                 }
             }
 
-            private void sendKeyList(NIOSocket socket,Peer hashed) {
-                JSONObject<?, ?> outPacket = new JSONObject();
-                JSONObject<String, Peer> peers = master.getPeers(hashed);
-                for(int i = 0; i < peers.names().length();i++)
-                {
-                	String key;
-					try {
-						key = (String)peers.names().get(i);
-	
-                	outPacket.put(key,
-                			encryption.getKeyAsString(((Peer)peers.get(key)).publicKey));
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-                }
-                outPacket = master.addHeader(master.encryption.AESencryptJSON(outPacket,hashed.getAesKey()),2,hashed);
-                master.forwardMessage(socket,outPacket.toString(),"sendKeylist");
-                
-            }
+
 
             private void peerConnectionBroken(JSONObject<?, ?> clearPacket, Peer hashed) {
                 try
@@ -280,10 +255,10 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
             	JSONObject clearPacket = new JSONObject();
             	try {
                     //clearPacket =  encryption.RSAdecryptJSON(encryptedPacket,master.privateKey);
-                   if(clearPacket.has("aeskey"))
+                   if(encryptedPacket.has("aeskey"))
                    {
 
-                       byte[] key = encryption.decryptRSA(master.privateKey, encryptedPacket.getString("aeskey").getBytes());
+                       byte[] key = encryption.decryptRSA(keyPair.getPrivate(), encryptedPacket.getString("aeskey").getBytes());
                        sender.setAesKeyFromBase64(key);
                        encryptedPacket.remove("aeskey");
                        clearPacket = encryption.AESdecryptJSON(encryptedPacket,sender.getAesKey());
@@ -292,6 +267,10 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
                        	sender.publicKey = encryption.getPublicKeyFromString(clearPacket.getString("publickey"));
        	                sender.isPeerActive = true;
        	                sender.ID = clearPacket.getString("src");
+                        JSONObject outPacket = new JSONObject();
+                        outPacket.put("gotpubkey",true);
+                        outPacket = master.addHeader(encryption.AESdecryptJSON(outPacket, sender.getAesKey()), 2, sender);
+                        master.forwardMessage(sender, outPacket.toString(), "gotpubkey");
                        }
                    }
                }catch(Exception e)
@@ -301,7 +280,7 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
                 
             }
 
-            private void registerPeer(JSONObject<?, ?> encryptedPacket, Peer hashed, NIOSocket socket,String id) {
+            private Peer registerPeer(JSONObject<?, ?> encryptedPacket, Peer hashed, NIOSocket socket,String id) {
                 try {
                      JSONObject<?, ?> outPacket = new JSONObject<Object, Object>();
                      JSONObject<?, ?> clearPacket = new JSONObject<Object, Object>();
@@ -312,6 +291,7 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
                      newPeer.publicKey = encryption.getPublicKeyFromString(clearPacket.getString("src"));
                      newPeer.socket = socket;
                      newPeer.setActive(true);
+                     newPeer.x = Integer.parseInt(clearPacket.getString("col"));
                      int added = master.addPeer(newPeer);
                      hashed = master.IDMap.get(id);
                      JSONObject<String,Peer> peers = master.getPeers(hashed);
@@ -338,7 +318,7 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
                     e.printStackTrace();
                 }
 
-             return;
+             return hashed;
                 
             }
        private void bounceMessage(PublicKey key,String encryptedPacket)

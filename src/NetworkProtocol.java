@@ -1,19 +1,10 @@
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.net.InetAddress;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.util.UUID;
-
-import org.JSON.JSONArray;
+import naga.NIOSocket;
+import naga.SocketObserverAdapter;
 import org.JSON.JSONException;
 import org.JSON.JSONObject;
 
-import naga.ConnectionAcceptor;
-import naga.NIOSocket;
-import naga.SocketObserverAdapter;
-import naga.packetreader.AsciiLinePacketReader;
-import naga.packetwriter.RawPacketWriter;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 
 /*Client part of the peer. Connects to a ServerAdapter or PeerServerAdapter.
 * Message parsing is done in NetworkThread.
@@ -70,18 +61,19 @@ public class NetworkProtocol extends SocketObserverAdapter{
         sender.socket = nioSocket;
         sender.setAesKey(encryption.generateSymmetricKey());
         sender.setActive(true);
+
+
             try {
-                master.keyExchange(sender);
-                //master.sendPubKey(sender);
-                master.getColumn();
+
+
                 if(sender.name.equals("up"))
                 {
-                    master.keyExchange(master.top);
-                    master.sendLeftRightConnection();
-                    master.getKeyList();
-                    master.updatePort();
-                    master.get("index.html");
-                }
+                    master.keyExchange(sender);
+                }/*
+                if(sender.name.equals("upRight"))
+                {
+                    master.sendLeftConnection();
+                }     */
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

@@ -1,19 +1,18 @@
+import org.JSON.JSONArray;
+import org.JSON.JSONObject;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.security.*;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-
-import javax.crypto.*;
-import javax.crypto.spec.*;
-
-import org.JSON.JSONArray;
-import org.JSON.JSONException;
-import org.JSON.JSONObject;
-
-import sun.misc.BASE64Decoder;
-
-import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
 public class Encryption {
 
 	/* Main encryption class. Encrypts with AES or RSA
@@ -45,6 +44,7 @@ public class Encryption {
             clearPacket.putOpt("col", encrypted.remove("col"));
             clearPacket.putOpt("debug", encrypted.remove("debug"));
             clearPacket.putOpt("exchange", encrypted.remove("exchange"));
+        clearPacket.putOpt("name", encrypted.remove("name"));
             for(int i =0;i<encrypted.names().length();i++)
             {
                 String decryptedName = new String(decryptRSA(privKey,encrypted.names().getString(i).getBytes()));
@@ -105,6 +105,7 @@ public JSONObject<?, ?> AESdecryptJSON(JSONObject<?, ?> encrypted, byte[] AESkey
         clearPacket.putOpt("type", encrypted.remove("type"));
         clearPacket.putOpt("col", encrypted.remove("col"));
         clearPacket.putOpt("debug", encrypted.remove("debug"));
+        clearPacket.putOpt("name", encrypted.remove("name"));
         JSONArray names = encrypted.names();
         if(names == null)
             return clearPacket;

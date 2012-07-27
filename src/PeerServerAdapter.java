@@ -1,29 +1,28 @@
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.UUID;
-
-import org.JSON.JSONArray;
+import naga.NIOSocket;
+import naga.ServerSocketObserverAdapter;
+import naga.packetreader.AsciiLinePacketReader;
+import naga.packetwriter.RawPacketWriter;
 import org.JSON.JSONException;
 import org.JSON.JSONObject;
 
-import naga.ConnectionAcceptor;
-import naga.NIOSocket;
-import naga.ServerSocketObserverAdapter;
-import naga.SocketObserverAdapter;
-import naga.packetreader.AsciiLinePacketReader;
-import naga.packetwriter.RawPacketWriter;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Queue;
 
 /* Peer Server Class. Handles server connections between peers - Connects to a Network Protocol
  * Message parsing is done in NetworkThread.*/
 public class PeerServerAdapter extends ServerSocketObserverAdapter{
 	public NetworkThread master;
-	public Peer sender;
+	//public Peer sender;
 	Encryption encryption  =  new Encryption();
-	public PeerServerAdapter(NetworkThread master2, Peer peer) {
+    Queue <Peer> senders = new LinkedList<Peer>();
+    private int currentSender = 0;
+	public PeerServerAdapter(NetworkThread master2, LinkedList <Peer> senders) {
 		master = master2;
-		sender = peer;
+		//sender = peer;
+       this.senders.addAll(senders);
 	}
 	public void acceptFailed(IOException exception)
 	{
@@ -35,68 +34,19 @@ public class PeerServerAdapter extends ServerSocketObserverAdapter{
 
 	public void newConnection(NIOSocket nioSocket)
     {
-		if(sender.socket == null)
-		    sender.socket = nioSocket;
+		//if(sender.socket == null)
+		  //  sender.socket = nioSocket;
     	nioSocket.setPacketReader(new AsciiLinePacketReader());
 		nioSocket.setPacketWriter(new RawPacketWriter());
       // Set our socket observer to listen to the new socket.
-		nioSocket.listen(new SocketObserverAdapter()
-		{
-		    public void connectionOpened(NIOSocket nioSocket)
-		    {
-		    	sender.socket = nioSocket;
-		        try {
-					//master.keyExchange(sender);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		    }
-		    public void connectionBroken(NIOSocket nioSocket, Exception exception)
-		    {
-		        master.deadPeer(sender);
-		    }
-			public void packetReceived(NIOSocket socket, byte[] packet)
-			{
-			//System.out.println(new String(packet));
-			
-				try {
-					/*if(!sender.active)
-					{
-					    JSONObject clearPacket = new JSONObject(new String(packet));
-					    clearPacket = encryption.RSAdecryptJSON(clearPacket, master.privateKey);
-					    if(clearPacket.has("aeskey"))
-					    {
-					        if(!sender.name.equals("down"))
-					            //System.out.println(sender.name);
-    					    sender.aesKey  = Base64.decode(clearPacket.getString("aeskey"));
-    					    sender.active = true;
-                            sender.ID = clearPacket.getString("id");
-                            System.out.println("Peer "  + master.port + " connected to " + sender.name + ":" + sender.ID);
-					    }
-					}
-					if(sender.publicKey == null)
-					{
-	                       JSONObject clearPacket = new JSONObject(new String(packet));
-	                        clearPacket = encryption.AESdecryptJSON(clearPacket, sender.aesKey);
-	                        if(clearPacket.has("publickey"))
-	                        {
-	                            sender.publicKey = encryption.getPublicKeyFromString(clearPacket.getString("publickey"));
-	                        }
-					}*/
-					    
-					
-                    master.parse(new String(packet),sender);
-				} catch (Exception e) {
-					
-					e.printStackTrace();
-				}
-				
-	
-				
-			}
 
-      });
+		nioSocket.listen(new NetworkProtocol(master,senders.remove()));
+
+
+				
+
+
+
     }
 	
     public JSONObject addHeader(JSONObject json,int type)

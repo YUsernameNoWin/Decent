@@ -7,12 +7,8 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.Scanner;
 
-import org.eclipse.jetty.client.Address;
-import org.eclipse.jetty.client.HttpExchange;
-import org.eclipse.jetty.http.*;
 /* TODO Work on fixing left right connections. Other than that, all encryption issues are done.*/
 /* Main class. Initiates Peers.*/
 public class runner extends Thread{
@@ -26,7 +22,7 @@ public class runner extends Thread{
 	static PrivateKey privateKey;
     static Encryption e = new Encryption();
     public static void main(String[] args) throws UnknownHostException, Exception {
-        
+        Scanner scan =  new Scanner(System.in);
     	JettyTestServer server = new JettyTestServer();
     	server.start();
         getKey2();
@@ -39,16 +35,19 @@ public class runner extends Thread{
            master.start();
            //KeyPair news = e.generateKey();
            //saveKey2(news.getPublic(),news.getPrivate());
- 
+           sleep(200);
            int temp = 4;
-        for(int i=1;i<=30;i++)
+        for(int i=1;i<=5;i++)
         {
           peers.add(new NetworkThread(i*10+500,temp,keys1,(keys1 = e.generateKey()),top));
           temp++;
+          sleep(200);
           peers.add(new NetworkThread(i*10+501,temp,keys2,(keys2 = e.generateKey()),top));
           temp++;
+          sleep(200);
           peers.add(new NetworkThread(i*10+502,temp,keys3,(keys3 = e.generateKey()),top));
           temp++;
+          sleep(200);
         }
         
         
@@ -60,12 +59,15 @@ public class runner extends Thread{
             //System.out.print(a.port + " ");
            sleep(300);
         }
-        Scanner scan =  new Scanner(System.in);
-       scan.next();
+        scan.next();
+        for (int i = 0; i < master.map.size(); i++)
+            for(int j = 1; j < master.map.get(i).size(); j++)
+                master.sendKeyList(master.map.get(i).get(j));
         for(NetworkThread a:peers)
         {
+
         	a.getKeyStatus();
-        	a.getSocketStatus();
+        	//a.getSocketStatus();
         	
         }
         //scan.next();
@@ -90,11 +92,17 @@ public class runner extends Thread{
 			String key  = "";
 			
 			Scanner scan = new Scanner(new File("C:/Users/Quinn/Disporic/Decent/out.txt"));
-			while(!(temp = scan.next()).contains("PrivKey")){
-				key +=temp;
+            while(!(temp = scan.next()).contains("PrivKey")){
+                key +=temp;
 
-			}
-			KeyPair a = new KeyPair(e.getPublicKeyFromString(key), null);
+            }
+            publicKey = e.getPublicKeyFromString(key);
+            key = "";
+            while(scan.hasNext()){
+                key+=scan.next();
+            }
+            privateKey = e.getPrivateKeyFromString(key);
+			KeyPair a = new KeyPair(publicKey, privateKey);
 			return a;
 		}catch (Exception e) {
 			e.printStackTrace();
