@@ -1,13 +1,17 @@
 <component name="libraryTable">
   <library name="Decent">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/Decent/sbbi-bootstrap-1.0.jar!/" />
-      <root url="jar://$PROJECT_DIR$/Decent/bcprov-jdk16-146.jar!/" />
-      <root url="jar://$PROJECT_DIR$/Decent/net.jar!/" />
-      <root url="jar://$PROJECT_DIR$/Decent/naga-debug-2_1-r42.jar!/" />
-      <root url="jar://$PROJECT_DIR$/Decent/sbbi.jar!/" />
+      <root url="jar://$PROJECT_DIR$/sbbi.jar!/" />
+      <root url="jar://$PROJECT_DIR$/sbbi-bootstrap-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/naga-debug-2_1-r42.jar!/" />
+      <root url="jar://$PROJECT_DIR$/net.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bcprov-jdk16-146.jar!/" />
+      <root url="file://$PROJECT_DIR$/jetty-distribution-8.1.3.v20120416" />
     </CLASSES>
-    <JAVADOC />
+    <JAVADOC>
+      <root url="file://$PROJECT_DIR$/jetty-distribution-8.1.3.v20120416/javadoc" />
+    </JAVADOC>
     <SOURCES />
+    <jarDirectory url="file://$PROJECT_DIR$/jetty-distribution-8.1.3.v20120416" recursive="false" />
   </library>
 </component>

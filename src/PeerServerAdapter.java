@@ -8,8 +8,6 @@ import org.JSON.JSONObject;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.Queue;
 
 /* Peer Server Class. Handles server connections between peers - Connects to a Network Protocol
  * Message parsing is done in NetworkThread.*/
@@ -17,12 +15,12 @@ public class PeerServerAdapter extends ServerSocketObserverAdapter{
 	public NetworkThread master;
 	//public Peer sender;
 	Encryption encryption  =  new Encryption();
-    Queue <Peer> senders = new LinkedList<Peer>();
+    Peer sender;
     private int currentSender = 0;
-	public PeerServerAdapter(NetworkThread master2, LinkedList <Peer> senders) {
+	public PeerServerAdapter(NetworkThread master2,Peer sender) {
 		master = master2;
-		//sender = peer;
-       this.senders.addAll(senders);
+		this.sender = sender;
+
 	}
 	public void acceptFailed(IOException exception)
 	{
@@ -40,7 +38,7 @@ public class PeerServerAdapter extends ServerSocketObserverAdapter{
 		nioSocket.setPacketWriter(new RawPacketWriter());
       // Set our socket observer to listen to the new socket.
 
-		nioSocket.listen(new NetworkProtocol(master,senders.remove()));
+		nioSocket.listen(new NetworkProtocol(master,sender));
 
 
 				

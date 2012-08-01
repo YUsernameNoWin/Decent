@@ -212,7 +212,7 @@ public class Master extends Thread{
 			    index.add(peer);
 	        }  */
 		}
-		IDMap.put(peer.ID,peer);
+		//IDMap.put(peer.ID,peer);
         peerNum++;
 	     //printMap();
         JSONObject peerList =  getPeers(peer);
@@ -351,13 +351,7 @@ public class Master extends Thread{
         JSONObject<?, ?> outPacket = new JSONObject();
         JSONObject<String, Peer> peers = getPeers(hashed);
         hashed.peers = peers;
-        if(hashed.name.equals("13"))
-        {
-            System.out.println(hashed.x);
-            hashed.socket = map.get(hashed.x).get(0).socket;
-            printMap();
 
-        }
         try {
             outPacket.put("keylist",true);
         } catch (JSONException e) {
@@ -377,7 +371,7 @@ public class Master extends Thread{
             }
         }
         outPacket = addHeader(encryption.AESencryptJSON(outPacket,hashed.getAesKey()),2,hashed);
-        forwardMessage(hashed.socket,outPacket.toString(),hashed.name);
+        forwardMessage(hashed.socket,outPacket.toString(),"sendkeylist");
 
     }
 	public void saveKey2()

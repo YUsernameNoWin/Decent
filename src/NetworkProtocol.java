@@ -60,7 +60,7 @@ public class NetworkProtocol extends SocketObserverAdapter{
 	{
         sender.socket = nioSocket;
         sender.setAesKey(encryption.generateSymmetricKey());
-        sender.setActive(true);
+        //sender.setActive(true);
 
 
             try {

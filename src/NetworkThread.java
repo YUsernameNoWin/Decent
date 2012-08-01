@@ -71,17 +71,17 @@ public class NetworkThread extends Thread{
 
             
 
-            upLeft = new Peer("127.0.0.1", port+1,"upLeft");
+            upLeft = new Peer("127.0.0.1", port + 5000,"upLeft");
 
-            upRight = new Peer("127.0.0.1", port+2,"upRight");
+            upRight = new Peer("127.0.0.1", port + 5001,"upRight");
  
             right = new Peer("127.0.0.1", port,"right");
     
             left = new Peer("127.0.0.1", port,"left");
       
-            downRight= new Peer("127.0.0.1", port+3,"downRight");
+            downRight= new Peer("127.0.0.1", port+5011,"downRight");
            
-            downLeft = new Peer("127.0.0.1", port+4,"downLeft");
+            downLeft = new Peer("127.0.0.1", port+5010,"downLeft");
          
 
             
@@ -94,7 +94,7 @@ public class NetworkThread extends Thread{
             up.setActive(true);
 
             down = new Peer("127.0.0.1", port + 10,"down");
-            openServerSocket();
+
             
 
 
@@ -136,7 +136,7 @@ public class NetworkThread extends Thread{
        JSONObject<?, ?> clearPacket = new JSONObject<Object, Object>();
        try {
 	       clearPacket =  clearPacket.put("upleftip", "127.0.0.1");
-	       clearPacket =  clearPacket.put("upleftport", port+10);
+	       clearPacket =  clearPacket.put("upleftport", upLeft.port);
 	       clearPacket= encryption.AESencryptJSON(clearPacket, top.getAesKey());
 	       clearPacket = addHeader(clearPacket,1,top);
        }catch(Exception e) {
@@ -151,7 +151,7 @@ public class NetworkThread extends Thread{
         JSONObject<?, ?> clearPacket = new JSONObject<Object, Object>();
         try {
             clearPacket =  clearPacket.put("uprightip", "127.0.0.1");
-            clearPacket =  clearPacket.put("uprightport", port+10);
+            clearPacket =  clearPacket.put("uprightport", upRight.port);
             clearPacket= encryption.AESencryptJSON(clearPacket,top.getAesKey());
             clearPacket = addHeader(clearPacket,1,top);
         }catch(Exception e) {
@@ -184,7 +184,7 @@ public class NetworkThread extends Thread{
 	    JSONObject<?, ?> clearPacket = new JSONObject<Object, Object>(); 
 	   clearPacket =  clearPacket.put("needcol",true); 
 	   clearPacket= encryption.AESencryptJSON(clearPacket,sender.getAesKey());
-	   clearPacket = addHeader(clearPacket,2,sender);
+	   clearPacket = addHeader(clearPacket,1,sender);
 	
 	    forwardMessage(sender,clearPacket.toString(),"getcolumn");
 	}
@@ -213,13 +213,11 @@ public class NetworkThread extends Thread{
 	        //test send up to master, add UUID to senders list in order to send back response
 	        //get
 	        //System.out.println();
-            activateSender(clearPacket,encryptedPacket,sender);
+
             if(!initialized)
               notReadyParse(encryptedPacket,sender);
-            if(initialized)
+            else if(initialized)
             {
-                if(encryptedPacket.getString("debug").equals("13"))
-                    System.out.println("13 at " + id);
                 String name  =  (String) encryptedPacket.remove("name");
                 if(type == 1)
                 {
@@ -268,28 +266,39 @@ public class NetworkThread extends Thread{
             }
             if(clearPacket.has("response"))
             {
-                //System.out.println("RESPONSE " + clearPacket.getString("response"));
-                saveHTML(clearPacket.getString("response"));
+                System.out.println("RESPONSE " + id);
+                //saveHTML(clearPacket.getString("response"));
             }
         }
         else
         {
             int tempCol = Integer.parseInt(encryptedPacket.getString("col"));
+            if(encryptedPacket.getString("debug").equals("getRequest"))
+            {
+                System.out.println(column + " " + tempCol);
+            }
             if(tempCol > column)
+            {
                 if(downLeft.publicKey !=  null)
                     forwardMessage(downLeft,encryptedPacket.toString(),encryptedPacket.getString("debug"));
                 else if(upLeft.publicKey != null)
                     forwardMessage(upLeft,encryptedPacket.toString(),encryptedPacket.getString("debug"));
-                else if(tempCol < column)
+            }
+            else if(tempCol < column)
+            {
                     if(downRight.publicKey !=  null)
                         forwardMessage(downRight,encryptedPacket.toString(),encryptedPacket.getString("debug"));
                     else if(upRight.publicKey != null)
                         forwardMessage(upRight,encryptedPacket.toString(),encryptedPacket.getString("debug"));
-                    else if( tempCol == column && down.publicKey !=  null)
-                    {
-                        forwardMessage(down,encryptedPacket.toString(),encryptedPacket.getString("debug"));
-                        forwardMessage(up,encryptedPacket.toString(),encryptedPacket.getString("debug"));
-                    }
+            }
+            else if( tempCol == column && down.publicKey !=  null)
+            {
+                    forwardMessage(down,encryptedPacket.toString(),encryptedPacket.getString("debug"));
+                    encryptedPacket.remove("type");
+                    encryptedPacket.put("type", "1");
+                    forwardMessage(up,encryptedPacket.toString(),encryptedPacket.getString("debug"));
+            }
+
         }
     }
 
@@ -321,34 +330,43 @@ public class NetworkThread extends Thread{
             if(!exchangedKeysWithUp)
             {   JSONObject clearPacket = encryption.AESdecryptJSON(encryptedPacket, sender.getAesKey());
                 if(clearPacket.has("gotpubkey"))
+                {
                     exchangedKeysWithUp = true;
+                    getColumn(up);
+                }
 
             }
             else if(!recievedColFromUp)
             {
-                JSONObject clearPacket = encryption.AESdecryptJSON(encryptedPacket,sender.getAesKey());
-                getColumn(up);
-                setColumn(clearPacket);
+                 JSONObject clearPacket = encryption.AESdecryptJSON(encryptedPacket,sender.getAesKey());
+
+                recievedColFromUp = setColumn(clearPacket);
+                if(recievedColFromUp)
+                    keyExchange(top);
             }
             else if(!exchangedKeysWithTop)
             {
                 JSONObject clearPacket = encryption.AESdecryptJSON(encryptedPacket,top.getAesKey());
-                keyExchange(top);
-                exchangedKeysWithTop = activateSender(clearPacket,encryptedPacket,top);
-                if(clearPacket.has("gotpubkey"))
-                    exchangedKeysWithUp = true;
-            }
-            else if(!openedServerSocket)
-            {
+
+                 if(clearPacket.has("gotpubkey"))
+                 {
+                     exchangedKeysWithTop = true;
+
+                 }
+
+
+
+
                 openServerSocket();
                 openedServerSocket = true;
-            }
-            else if(!SentLeftRightConnections)
-            {
+
+
                 sendLeftConnection();
                 sendRightConnection();
                 SentLeftRightConnections = true;
                 initialized = true;
+                get("hello");
+                System.out.println(this.id +" is ready");
             }
         }catch(Exception e)
         {
@@ -363,10 +381,10 @@ public class NetworkThread extends Thread{
               // Create file 
                   FileWriter fstream = new FileWriter("success.html",false);
                   BufferedWriter out = new BufferedWriter(fstream);
-                  
+                  System.out.println(html);
                   out.write(html);
                   out.close();
-                  Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler C://users/quinn/workspace/webserver/success.html");
+                  //Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler C://users/quinn/workspace/webserver/success.html");
           }catch (Exception e) {//Catch exception if any
               System.err.println("Error: " + e.getMessage());
           }
@@ -421,6 +439,7 @@ public class NetworkThread extends Thread{
     private void processMessageForSelf(JSONObject<?, ?> clearPacket,JSONObject<?, ?> encryptedPacket,Peer sender) {
         try 
         {
+
         	if(encryptedPacket.getString("src").equals(encryption.getKeyAsString(top.publicKey)))
             	clearPacket =  encryption.AESdecryptJSON(encryptedPacket,top.getAesKey());
             else if(down.isReady() && encryptedPacket.getString("src").equals(encryption.getKeyAsString(down.publicKey)))
@@ -467,8 +486,9 @@ public class NetworkThread extends Thread{
 	                sender.ID = clearPacket.getString("src");
                     JSONObject outPacket = new JSONObject();
                     outPacket.put("gotpubkey",true);
-                    outPacket = addHeader(encryption.AESdecryptJSON(outPacket,sender.getAesKey()),2,sender);
+                    outPacket = addHeader(encryption.AESencryptJSON(outPacket,sender.getAesKey()),2,sender);
                     forwardMessage(sender,outPacket.toString(),"gotpubkey");
+                    //sendPubKey(sender);
                     return true;
                 }
             }
@@ -525,17 +545,18 @@ public class NetworkThread extends Thread{
 	public void broadcast(){
 		
 	}
-	public void setColumn(JSONObject clearPacket){
+	public boolean setColumn(JSONObject clearPacket){
         if(clearPacket.has("col"))
         {
             try {
                 column = clearPacket.getInt("col");
-                recievedColFromUp = true;
+                return true;
             } catch (JSONException e) {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
 
         }
+        return false;
     }
 	public void repair(JSONObject<?, ?> clearPacket) throws JSONException {
 	    JSONObject outPacket = new JSONObject();
@@ -724,18 +745,30 @@ public class NetworkThread extends Thread{
 		
 	}
 
-    public void openServerSocket() {
+    public void openServerSocket()
+    {
         try {
             down.serverSock = service.openServerSocket(down.port);
+            upLeft.serverSock = service.openServerSocket(upLeft.port);
+            upRight.serverSock = service .openServerSocket(upRight.port);
+
+            upLeft.serverSock.listen(new PeerServerAdapter(this,upLeft));
+            upLeft.serverSock.setConnectionAcceptor(ConnectionAcceptor.ALLOW);
+
+            upRight.serverSock.listen(new PeerServerAdapter(this,upRight));
+            upRight.serverSock.setConnectionAcceptor(ConnectionAcceptor.ALLOW);
+
+            down.serverSock.listen(new PeerServerAdapter(this,down));
+            down.serverSock.setConnectionAcceptor(ConnectionAcceptor.ALLOW);
+
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
 
-        prepSockets.add(down);
-        prepSockets.add(upRight);
-        prepSockets.add(upLeft);
 
-        down.serverSock.listen(new PeerServerAdapter(this,prepSockets));
-        down.serverSock.setConnectionAcceptor(ConnectionAcceptor.ALLOW);
+        //prepSockets.add(upRight);
+        //prepSockets.add(upLeft);
+
+
     }
 }

@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Decent/Decent.iml" filepath="$PROJECT_DIR$/Decent/Decent.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Decent/sbbi/Sbbi.iml" filepath="$PROJECT_DIR$/Decent/sbbi/Sbbi.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Decent.iml" filepath="$PROJECT_DIR$/Decent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sbbi/Sbbi.iml" filepath="$PROJECT_DIR$/sbbi/Sbbi.iml" />
     </modules>
   </component>
 </project>

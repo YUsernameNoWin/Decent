@@ -15,6 +15,7 @@ import java.util.Queue;
 		public PublicKey publicKey;
 		public String address;
 		private byte[] aesKey;
+        private byte[] peerAesKey;
 		public NIOSocket socket;
 		public NIOServerSocket serverSock;
 		public int port;
@@ -66,12 +67,20 @@ import java.util.Queue;
 	        }	       
 		public void setAesKey(byte[] aesKey2) {
 		    this.aesKey = aesKey2;
-            
+
         }
 		public byte[] getAesKey()
 		{
 		    return aesKey;
 		}
+        public void setPeerAesKey(byte[] aesKey2) {
+            this.peerAesKey = aesKey2;
+
+        }
+        public byte[] getPeerAesKey()
+        {
+            return peerAesKey;
+        }
         public Peer(byte[] aesKey,String ID,String col,String row){
 			this.setAesKey(aesKey);
 			this.ID = ID;
@@ -96,16 +105,16 @@ import java.util.Queue;
 		    return "X: " + x + " Y: " + y;
 		}
 		/**
-		 * 
+		 *
 		 * @return AES key in decoded mode.
 		 */
         public byte[] getAesKeyInBase64() {
 
                     return Base64.encodeBytesToBytes(aesKey);
-            
+
         }
         /**
-         * 
+         *
          * @param aesKey stored as Base64
          */
         public void setAesKeyFromBase64(byte[] aesKey) {
@@ -115,9 +124,29 @@ import java.util.Queue;
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-  
+
         }
-			
+        /**
+         *
+         * @return AES key in decoded mode.
+         */
+        public byte[] getPeerAesKeyInBase64() {
+
+            return Base64.encodeBytesToBytes(peerAesKey);
+
+        }
+        /**
+         *
+         * @param aesKey stored as Base64
+         */
+        public void setPeerAesKeyFromBase64(byte[] aesKey) {
+            try {
+                this.peerAesKey = Base64.decode(aesKey);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
 		
 		
 	}
