@@ -37,7 +37,8 @@ public class runner extends Thread{
            //saveKey2(news.getPublic(),news.getPrivate());
            sleep(200);
            int temp = 4;
-        for(int i=1;i<=7;i++)
+
+        for(int i=1;i<=3;i++)
         {
           peers.add(new NetworkThread(i*10+500,temp,keys1,(keys1 = e.generateKey()),top));
           temp++;
@@ -48,23 +49,23 @@ public class runner extends Thread{
 
         }
         
-        
-
+        System.out.println("start spawning");
+        int time = 2000;
         for(int i = 0; i < peers.size(); i++)
         {
             if(i%3 == 0)
-                scan.next();
+            {
+                //sleep(time);
+                time+= 1000;
+            }
             NetworkThread a  =  peers.get(i);
             a.start();
-            sleep(1000);
+
            // scan.next();
             //System.out.print(a.port + " ");
 
         }
         scan.next();
-        for (int i = 0; i < master.map.size(); i++)
-            for(int j = 1; j < master.map.get(i).size(); j++)
-                master.sendKeyList(master.map.get(i).get(j));
         for(NetworkThread a:peers)
         {
 

@@ -44,7 +44,7 @@ public class Master extends Thread{
 	public InetAddress leftAd,rightAd,downAd;
 	public HashMap<PublicKey,Peer> keyMap = new HashMap<PublicKey,Peer>();
 	public int peerNum = 0;
-	public final int MAX_PEER = 100;
+	public final int MAX_PEER = 300;
 	String clearText;
 	String AESKEY;
 	char type;
@@ -223,7 +223,7 @@ public class Master extends Thread{
                     Peer current = (Peer)peerList.get((String)peerList.names().get(i));
                     if(current.publicKey != null && current.getAesKey() != null)
                     {
-                        sendKeyList(current);
+                        current.needsUpdate = true;
                     }
             }
 
@@ -464,5 +464,24 @@ public class Master extends Thread{
         return false;
     }
 
-	
+
+    public void heartBeat(Peer hashed) {
+        JSONObject outPacket = new JSONObject();
+        try {
+            outPacket.put("beat", true);
+            if(hashed.needsUpdate)
+            {
+                update(hashed);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        outPacket = addHeader(encryption.AESencryptJSON(outPacket,hashed.getAesKey()), 2, hashed);
+        forwardMessage(hashed,outPacket.toString(),"heartbeat from top");
+    }
+
+    private void update(Peer hashed)
+    {
+        sendKeyList(hashed);
+    }
 }

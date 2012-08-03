@@ -14,10 +14,7 @@ import java.nio.channels.ClosedSelectorException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Scanner;
-import java.util.UUID;
+import java.util.*;
 
 /* Handles message parsing in function Parse().
  * Equivalent of Master for ServerAdapter
@@ -43,9 +40,12 @@ public class NetworkThread extends Thread{
 	public int column;
 	public UUID ID = UUID.randomUUID();
 	public int id;
+    Hashtable <String, TimerTask> timerTasks = new Hashtable<String, TimerTask>();
+    Timer timer = new Timer();
 	public NIOServerSocket leftServer,downServer,rightServer;
 	ServerSocket serverSocket = null;
     int port =0;
+    final NetworkThread owner = this;
 	public NetworkThread(int port,int id, KeyPair keys,KeyPair newKeys, KeyPair topKeys) throws Exception{
 	    this.port = port;
 		this.id = id;
@@ -68,8 +68,22 @@ public class NetworkThread extends Thread{
                 
                 e.printStackTrace();
             }
+            timerTasks.put("connecttoup", new TimerTask() {
+                @Override
+                public void run() {
+                    try {
+                        up.socket = service.openSocket(up.address, port);
+                        up.socket.setPacketReader(new AsciiLinePacketReader());
+                        up.socket.setPacketWriter(new RawPacketWriter());
+                        up.socket.listen(new NetworkProtocol(owner,up));
+                    } catch (IOException e) {
+                        e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    }
 
-            
+                }
+            });
+            timer.schedule(timerTasks.get("connecttoup"), 0, 3000);
+
 
             upLeft = new Peer("127.0.0.1", port + 5000,"upLeft");
 
@@ -82,16 +96,13 @@ public class NetworkThread extends Thread{
             downRight= new Peer("127.0.0.1", port+5011,"downRight");
            
             downLeft = new Peer("127.0.0.1", port+5010,"downLeft");
-         
+
 
             
             //getKey();
            
-            up.socket = service.openSocket(up.address,port);
-            up.socket.setPacketReader(new AsciiLinePacketReader());
-            up.socket.setPacketWriter(new RawPacketWriter());
-            up.socket.listen(new NetworkProtocol(this,up));
-            up.setActive(true);
+
+
 
             down = new Peer("127.0.0.1", port + 10,"down");
 
@@ -99,7 +110,7 @@ public class NetworkThread extends Thread{
 
 
             //masterKeyExchange();
-            sleep((int)(Math.random() * 500) + 200);
+            //sleep((int)(Math.random() * 500) + 200);
 
             while(true){
                 try {
@@ -172,26 +183,30 @@ public class NetworkThread extends Thread{
 	{
         JSONObject<?, ?> clearPacket = new JSONObject<Object, Object>();
         clearPacket =  clearPacket.put("needkeylist",true);
-        clearPacket= encryption.AESencryptJSON(clearPacket,up.getAesKey());
+        clearPacket= encryption.AESencryptJSON(clearPacket,top.getAesKey());
         clearPacket = addHeader(clearPacket,1,top);
        forwardMessage(up,clearPacket.toString(),"getkeylist");
 	}
 
     
-    public void getColumn(Peer sender) throws JSONException
+    public void getColumn(Peer sender)
 	{     
 	
-	    JSONObject<?, ?> clearPacket = new JSONObject<Object, Object>(); 
-	   clearPacket =  clearPacket.put("needcol",true); 
-	   clearPacket= encryption.AESencryptJSON(clearPacket,sender.getAesKey());
+	    JSONObject<?, ?> clearPacket = new JSONObject<Object, Object>();
+        try {
+            clearPacket =  clearPacket.put("needcol",true);
+        } catch (JSONException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        clearPacket= encryption.AESencryptJSON(clearPacket,sender.getAesKey());
 	   clearPacket = addHeader(clearPacket,1,sender);
 	
 	    forwardMessage(sender,clearPacket.toString(),"getcolumn");
 	}
-	public void keyExchange(Peer peer) throws Exception
+	public void keyExchange(Peer peer)
     {
     	JSONObject<?, ?> clearPacket;
-    	
+    	try{
         peer.setAesKey(encryption.generateSymmetricKey());
         clearPacket = new JSONObject<Object, Object>();
         clearPacket.put("publickey", encryption.getKeyAsString(publicKey));
@@ -201,7 +216,10 @@ public class NetworkThread extends Thread{
         clearPacket = addHeader(clearPacket,1,peer);
 
        forwardMessage(up,clearPacket.toString(),"keyexchange from "+ this.id+" to " + peer.name);
-        
+        }catch(Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public String parse(String input, Peer sender)throws Exception
@@ -261,12 +279,17 @@ public class NetworkThread extends Thread{
             }
             if( clearPacket.has("keylist"))
             {
-                processKeyList(clearPacket);
+                setKeyList(clearPacket);
+
+            }
+            if( clearPacket.has("beat"))
+            {
+                resetTimeout();
 
             }
             if(clearPacket.has("response"))
             {
-                System.out.println("RESPONSE " + id);
+                //System.out.println("RESPONSE " + id);
                 //saveHTML(clearPacket.getString("response"));
             }
         }
@@ -302,6 +325,22 @@ public class NetworkThread extends Thread{
         }
     }
 
+    private void resetTimeout() {
+        timerTasks.put("timeout",new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("LOST CONNECTION");
+                try {
+                    getKeyList();
+                } catch (JSONException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+            }
+        });
+
+        timer.schedule(timerTasks.get("timeout"),30000);
+    }
+
     private void parseDownStream(JSONObject encryptedPacket, Peer sender) throws JSONException {
         JSONObject clearPacket = new JSONObject();
         if(!sender.isActive())
@@ -332,7 +371,14 @@ public class NetworkThread extends Thread{
                 if(clearPacket.has("gotpubkey"))
                 {
                     exchangedKeysWithUp = true;
-                    getColumn(up);
+                    timerTasks.get("upkeyexchange").cancel();
+                    timerTasks.put("getcolumn", new TimerTask() {
+                        @Override
+                        public void run() {
+                            getColumn(up);
+                        }
+                    });
+                    timer.schedule( timerTasks.get("getcolumn"), 0, 3000);
                 }
 
             }
@@ -342,20 +388,35 @@ public class NetworkThread extends Thread{
 
                 recievedColFromUp = setColumn(clearPacket);
                 if(recievedColFromUp)
-                    keyExchange(top);
+                {
+
+                    timerTasks.get("getcolumn").cancel();
+                    timerTasks.put("topkeyexchange",new TimerTask() {
+                        @Override
+                        public void run() {
+                            keyExchange(top);
+                        }
+                    });
+                    timer.schedule(timerTasks.get("topkeyexchange"),0 , 3000);
+                }
             }
             else if(!exchangedKeysWithTop)
             {
                 JSONObject clearPacket = encryption.AESdecryptJSON(encryptedPacket,top.getAesKey());
-
                  if(clearPacket.has("gotpubkey"))
                  {
                      exchangedKeysWithTop = true;
-
+                     timerTasks.get("topkeyexchange").cancel();
                  }
 
 
-
+                timerTasks.put("heartbeat", new TimerTask() {
+                    @Override
+                    public void run() {
+                        heartBeat();
+                    }
+                });
+                timer.schedule(timerTasks.get("heartbeat"), 0 , 10000);
 
                 openServerSocket();
                 openedServerSocket = true;
@@ -365,6 +426,8 @@ public class NetworkThread extends Thread{
                 sendRightConnection();
                 SentLeftRightConnections = true;
                 initialized = true;
+
+                getKeyList();
                 get("hello");
                 System.out.println(this.id +" is ready");
             }
@@ -374,6 +437,27 @@ public class NetworkThread extends Thread{
         }
     }
 
+    private void heartBeat() {
+        try{
+            JSONObject outPacket = new JSONObject();
+            outPacket.put("heart", true);
+            outPacket = addHeader(encryption.AESencryptJSON(outPacket,top.getAesKey()),1, top );
+            forwardMessage(up,outPacket.toString(),"heartbeat from " + this.id);
+            //resetTimer("timeout");
+            timer.schedule(timerTasks.get("timeout"), 30);
+        }catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    public void resetTimer(String task, TimerTask actualTask) {
+        timerTasks.get(task).cancel();
+        timerTasks.remove(timerTasks.get(task));
+    }
+
     public void saveHTML(String html)
     {
           try
@@ -381,7 +465,7 @@ public class NetworkThread extends Thread{
               // Create file 
                   FileWriter fstream = new FileWriter("success.html",false);
                   BufferedWriter out = new BufferedWriter(fstream);
-                  System.out.println(html);
+                  //System.out.println(html);
                   out.write(html);
                   out.close();
                   //Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler C://users/quinn/workspace/webserver/success.html");
@@ -391,7 +475,7 @@ public class NetworkThread extends Thread{
           
         
     }
-    private void processKeyList(JSONObject<?, ?> clearPacket) throws Exception {
+    private void setKeyList(JSONObject<?, ?> clearPacket) throws Exception {
         if(clearPacket.has("left"))
             left.publicKey = encryption.getPublicKeyFromString((String) clearPacket.get("left"));
         if(clearPacket.has("upleft"))
@@ -408,7 +492,10 @@ public class NetworkThread extends Thread{
             down.publicKey = encryption.getPublicKeyFromString((String) clearPacket.get("down"));
         if(clearPacket.has("up"))
             up.publicKey = encryption.getPublicKeyFromString((String) clearPacket.get("up"));
-        
+        clearPacket = new JSONObject<>();
+        clearPacket.put("gotkeylist", true);
+        clearPacket = addHeader(encryption.AESencryptJSON(clearPacket,top.getAesKey()),1,top);
+        forwardMessage(up, clearPacket.toString(),"gotkeylist");
         
     }
     private void connectToPeer(JSONObject<?, ?> clearPacket) throws JSONException, IOException, Exception {
@@ -460,7 +547,7 @@ public class NetworkThread extends Thread{
 
             }
             else if(clearPacket.has("response")){
-                System.out.println("RESPONSE:" + clearPacket.getString("response"));
+                //System.out.println("RESPONSE:" + clearPacket.getString("response"));
             }
 
         }catch(Exception e)
@@ -623,8 +710,7 @@ public class NetworkThread extends Thread{
 	}
     public JSONObject<?, ?> addHeader(JSONObject<?, ?> json,int type, Peer dest)
     {
-    	if(dest.publicKey == null)
-    		System.out.println(json + " " + dest);
+
         try {
             return(json
             		.put("col", Integer.toString(column))
@@ -666,9 +752,9 @@ public class NetworkThread extends Thread{
 	}
 
 	public boolean forwardMessage(Peer dest,String content , String type){
-        if(!dest.isActive())
+        if(!dest.isActive() && dest.socket == null)
         {
-            System.out.println(content);
+            System.out.println("DESTINATION NOT ACTIVE DEBUG: " + type);
             return false;
         }
 	    try {

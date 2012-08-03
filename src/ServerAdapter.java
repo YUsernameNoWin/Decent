@@ -99,6 +99,14 @@ public class ServerAdapter extends ServerSocketObserverAdapter {
 					   {
 						   master.sendKeyList(hashed);
 					   }
+                        if(clearPacket.has("needkeylist") && hashed.needsUpdate)
+                        {
+                           hashed.needsUpdate = false;
+                        }
+                        if(clearPacket.has("heart"))
+                        {
+                            master.heartBeat(hashed);
+                        }
 					   else if(clearPacket.has("port"))
 					   {
 						   hashed.port = clearPacket.getInt("port");

@@ -5,6 +5,7 @@ import org.JSON.JSONObject;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.util.TimerTask;
 
 /*Client part of the peer. Connects to a ServerAdapter or PeerServerAdapter.
 * Message parsing is done in NetworkThread.
@@ -58,17 +59,29 @@ public class NetworkProtocol extends SocketObserverAdapter{
 
 	public void connectionOpened(NIOSocket nioSocket) 
 	{
+
         sender.socket = nioSocket;
         sender.setAesKey(encryption.generateSymmetricKey());
         //sender.setActive(true);
-
+       master.timerTasks.get("connecttoup").cancel();
 
             try {
 
 
                 if(sender.name.equals("up"))
                 {
-                    master.keyExchange(sender);
+
+                    sender.setActive(true);
+                    master.timerTasks.put("upkeyexchange", new TimerTask() {
+                        public void run() {
+                            try {
+                                master.keyExchange(sender);
+                            } catch (Exception e) {
+                                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                            }
+                        }
+                    });
+                    master.timer.schedule(master.timerTasks.get("upkeyexchange"), 0, 3000);
                 }/*
                 if(sender.name.equals("upRight"))
                 {
@@ -86,6 +99,8 @@ public class NetworkProtocol extends SocketObserverAdapter{
 	@Override
 	public void connectionBroken(NIOSocket nioSocket, Exception exception)
     {
+        sender.setActive(false);
+        master.timer.schedule(master.timerTasks.get("connecttoup"),0,3000);
 	    master.deadPeer(sender);
 
 

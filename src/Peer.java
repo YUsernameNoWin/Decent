@@ -32,7 +32,9 @@ import java.util.Queue;
 		public String secretID;
 		public int connectionBrokenCount = 0;
 		public int trickleUpCount = 0;
-		public Peer()
+    public boolean needsUpdate;
+
+    public Peer()
 		{
 			
 		}
