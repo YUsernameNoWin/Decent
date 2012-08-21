@@ -38,7 +38,7 @@ public class runner extends Thread{
            sleep(200);
            int temp = 4;
 
-        for(int i=1;i<=3;i++)
+        for(int i=1;i<=5;i++)
         {
           peers.add(new NetworkThread(i*10+500,temp,keys1,(keys1 = e.generateKey()),top));
           temp++;
@@ -55,7 +55,7 @@ public class runner extends Thread{
         {
             if(i%3 == 0)
             {
-                //sleep(time);
+                sleep(time);
                 time+= 1000;
             }
             NetworkThread a  =  peers.get(i);

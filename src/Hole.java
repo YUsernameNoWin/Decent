@@ -1,5 +1,3 @@
-import java.util.List;
-
 /*
  * Holes represent places in the peer map where new peers should be placed when they connect.
  */

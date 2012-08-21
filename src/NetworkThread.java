@@ -15,6 +15,8 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.*;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /* Handles message parsing in function Parse().
  * Equivalent of Master for ServerAdapter
@@ -30,9 +32,9 @@ public class NetworkThread extends Thread{
     public boolean exchangedKeysWithUp, recievedColFromUp, exchangedKeysWithTop, openedServerSocket, SentLeftRightConnections, initialized;
 	public PrivateKey privateKey;
 	public PublicKey publicKey;
-    private LinkedList <Peer> prepSockets =  new LinkedList<Peer>();
+    private LinkedList<Peer> prepSockets =  new LinkedList<Peer>();
 	public ArrayList<UUID> leftList = new ArrayList<UUID>();
-	public ArrayList<UUID> downList = new ArrayList<UUID>();
+	public ArrayList<UUID> downList;
 	public ArrayList<UUID> rightList = new ArrayList<UUID>();
 	protected PrintWriter response;
 	protected BufferedReader send;
@@ -40,11 +42,13 @@ public class NetworkThread extends Thread{
 	public int column;
 	public UUID ID = UUID.randomUUID();
 	public int id;
-    Hashtable <String, TimerTask> timerTasks = new Hashtable<String, TimerTask>();
-    Timer timer = new Timer();
+    public String state = "initializing";
+    Hashtable<String, Runnable> timerTasks = new Hashtable<String, Runnable>();
+    ScheduledThreadPoolExecutor timer = new ScheduledThreadPoolExecutor(2);
 	public NIOServerSocket leftServer,downServer,rightServer;
 	ServerSocket serverSocket = null;
     int port =0;
+    boolean alive;
     final NetworkThread owner = this;
 	public NetworkThread(int port,int id, KeyPair keys,KeyPair newKeys, KeyPair topKeys) throws Exception{
 	    this.port = port;
@@ -56,7 +60,8 @@ public class NetworkThread extends Thread{
 		this.privateKey = newKeys.getPrivate();
 		up = new Peer("127.0.0.1", port,"up");
 		up.publicKey = keys.getPublic();
-	}
+        downList = new ArrayList<UUID>();
+    }
 	public void run()
 	{
 	    
@@ -68,21 +73,22 @@ public class NetworkThread extends Thread{
                 
                 e.printStackTrace();
             }
-            timerTasks.put("connecttoup", new TimerTask() {
+            up.port = port;
+            timerTasks.put("connecttoup", new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        up.socket = service.openSocket(up.address, port);
+                        up.socket = service.openSocket(up.address, up.port);
                         up.socket.setPacketReader(new AsciiLinePacketReader());
                         up.socket.setPacketWriter(new RawPacketWriter());
-                        up.socket.listen(new NetworkProtocol(owner,up));
+                        up.socket.listen(new NetworkProtocol(owner, up));
                     } catch (IOException e) {
                         e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                     }
 
                 }
             });
-            timer.schedule(timerTasks.get("connecttoup"), 0, 3000);
+            timer.scheduleAtFixedRate(timerTasks.get("connecttoup"), 0, 10, TimeUnit.SECONDS);
 
 
             upLeft = new Peer("127.0.0.1", port + 5000,"upLeft");
@@ -326,19 +332,10 @@ public class NetworkThread extends Thread{
     }
 
     private void resetTimeout() {
-        timerTasks.put("timeout",new TimerTask() {
-            @Override
-            public void run() {
-                System.out.println("LOST CONNECTION");
-                try {
-                    getKeyList();
-                } catch (JSONException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
-            }
-        });
 
-        timer.schedule(timerTasks.get("timeout"),30000);
+        alive = true;
+
+
     }
 
     private void parseDownStream(JSONObject encryptedPacket, Peer sender) throws JSONException {
@@ -371,14 +368,15 @@ public class NetworkThread extends Thread{
                 if(clearPacket.has("gotpubkey"))
                 {
                     exchangedKeysWithUp = true;
-                    timerTasks.get("upkeyexchange").cancel();
-                    timerTasks.put("getcolumn", new TimerTask() {
+                    timer.remove(timerTasks.get("upkeyexchange"));
+                    timerTasks.put("getcolumn", new Runnable() {
                         @Override
                         public void run() {
-                            getColumn(up);
+                           if(!recievedColFromUp)
+                               getColumn(up);
                         }
                     });
-                    timer.schedule( timerTasks.get("getcolumn"), 0, 3000);
+                    timer.scheduleAtFixedRate( timerTasks.get("getcolumn"), 0, 10, TimeUnit.SECONDS);
                 }
 
             }
@@ -390,14 +388,15 @@ public class NetworkThread extends Thread{
                 if(recievedColFromUp)
                 {
 
-                    timerTasks.get("getcolumn").cancel();
-                    timerTasks.put("topkeyexchange",new TimerTask() {
+                    System.out.println(timer.remove(timerTasks.get("getcolumn")));
+                    timerTasks.put("topkeyexchange",new Runnable() {
                         @Override
                         public void run() {
-                            keyExchange(top);
+                            if(!exchangedKeysWithTop)
+                                keyExchange(top);
                         }
                     });
-                    timer.schedule(timerTasks.get("topkeyexchange"),0 , 3000);
+                    timer.scheduleAtFixedRate(timerTasks.get("topkeyexchange"),0 , 10,TimeUnit.SECONDS);
                 }
             }
             else if(!exchangedKeysWithTop)
@@ -406,18 +405,38 @@ public class NetworkThread extends Thread{
                  if(clearPacket.has("gotpubkey"))
                  {
                      exchangedKeysWithTop = true;
-                     timerTasks.get("topkeyexchange").cancel();
+                     timer.remove(timerTasks.get("topkeyexchange"));
+                 }
+                 if(clearPacket.has("repair"))
+                 {
+                     repair(clearPacket);
+                     return;
                  }
 
-
-                timerTasks.put("heartbeat", new TimerTask() {
+                timerTasks.put("heartbeat", new Runnable() {
                     @Override
                     public void run() {
                         heartBeat();
                     }
                 });
-                timer.schedule(timerTasks.get("heartbeat"), 0 , 10000);
+                //timer.scheduleAtFixedRate(timerTasks.get("heartbeat"), 10, 10, TimeUnit.SECONDS);
 
+                timerTasks.put("timeout",new Runnable() {
+                    @Override
+                    public void run() {
+                        if(!alive)
+                            System.out.println("LOST CONNECTION");
+                        else
+                            alive = false;
+                        try {
+                            getKeyList();
+                        } catch (JSONException e) {
+                            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                        }
+                    }
+                });
+
+                //timer.scheduleAtFixedRate(timerTasks.get("timeout"), 0, 30, TimeUnit.SECONDS);
                 openServerSocket();
                 openedServerSocket = true;
 
@@ -440,11 +459,13 @@ public class NetworkThread extends Thread{
     private void heartBeat() {
         try{
             JSONObject outPacket = new JSONObject();
+            getKeyList();
             outPacket.put("heart", true);
             outPacket = addHeader(encryption.AESencryptJSON(outPacket,top.getAesKey()),1, top );
             forwardMessage(up,outPacket.toString(),"heartbeat from " + this.id);
-            //resetTimer("timeout");
-            timer.schedule(timerTasks.get("timeout"), 30);
+            System.out.println("heartbeat " + id);
+
+            //resetTimeout();
         }catch(Exception e)
         {
             e.printStackTrace();
@@ -453,10 +474,7 @@ public class NetworkThread extends Thread{
 
     }
 
-    public void resetTimer(String task, TimerTask actualTask) {
-        timerTasks.get(task).cancel();
-        timerTasks.remove(timerTasks.get(task));
-    }
+
 
     public void saveHTML(String html)
     {
@@ -526,10 +544,11 @@ public class NetworkThread extends Thread{
     private void processMessageForSelf(JSONObject<?, ?> clearPacket,JSONObject<?, ?> encryptedPacket,Peer sender) {
         try 
         {
-
+            String src =  encryptedPacket.getString("src");
+            String downPublicKey =  encryption.getKeyAsString(down.publicKey);
         	if(encryptedPacket.getString("src").equals(encryption.getKeyAsString(top.publicKey)))
             	clearPacket =  encryption.AESdecryptJSON(encryptedPacket,top.getAesKey());
-            else if(down.isReady() && encryptedPacket.getString("src").equals(encryption.getKeyAsString(down.publicKey)))
+            else if(down.isReady() && src.equals(downPublicKey))
             	clearPacket =  encryption.AESdecryptJSON(encryptedPacket,down.getAesKey());
             if(clearPacket.has("publickey"))
                 sender.publicKey = encryption.getPublicKeyFromString(clearPacket.getString("publickey"));
@@ -646,23 +665,52 @@ public class NetworkThread extends Thread{
         return false;
     }
 	public void repair(JSONObject<?, ?> clearPacket) throws JSONException {
-	    JSONObject outPacket = new JSONObject();
-	    try {
-	    String publicKey = clearPacket.getString("repair");
-	       futureUp = new Peer();
-	       futureUp.publicKey = encryption.getPublicKeyFromString(publicKey);
-	       futureUp.setAesKey(encryption.generateSymmetricKey());
-	    outPacket.put("bounce", encryption.encryptRSA(futureUp.publicKey, futureUp.getAesKeyInBase64()));
-	    outPacket.put("peerkey", publicKey);
-	    outPacket = encryption.AESdecryptJSON(outPacket, top.getAesKey());
-	    outPacket =  addHeader(outPacket,1,top);
-	    }catch(Exception e)
-	    {
-	        e.printStackTrace();
-	    }
-        
+        state = "repairing";
+	    Peer newPeer = new Peer();
+        newPeer.setActive(true);
+        newPeer.setAesKey(encryption.generateSymmetricKey());
+        try {
+            newPeer.publicKey = encryption.getPublicKeyFromString(clearPacket.getString("publickey"));
+            newPeer.port = clearPacket.getInt("port");
+            newPeer.address = clearPacket.getString("ip");
+            newPeer.name = "up";
+            up.socket.closeAfterWrite();
+            up = newPeer;
+            top.setAesKey(null);
+
+            timer.scheduleAtFixedRate(timerTasks.get("connecttoup"),0,10,TimeUnit.SECONDS);
+            resetSetup();
+        } catch (Exception e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
     }
-	public void bounceParse(JSONObject encryptedPacket, Peer bouncer)
+
+    private void resetSetup() {
+        exchangedKeysWithUp = false;
+        recievedColFromUp = false;
+        exchangedKeysWithTop = false;
+        openedServerSocket = false;
+        SentLeftRightConnections = false;
+        initialized = false;
+
+        upLeft = new Peer("127.0.0.1", port + 5000,"upLeft");
+
+        upRight = new Peer("127.0.0.1", port + 5001,"upRight");
+
+        right = new Peer("127.0.0.1", port,"right");
+
+        left = new Peer("127.0.0.1", port,"left");
+
+        downRight= new Peer("127.0.0.1", port+5011,"downRight");
+
+        downLeft = new Peer("127.0.0.1", port+5010,"downLeft");
+
+        timer.shutdownNow();
+        timer = new ScheduledThreadPoolExecutor(2);
+    }
+
+    public void bounceParse(JSONObject encryptedPacket, Peer bouncer)
 	{
 	    JSONObject outPacket = new JSONObject();
 	    JSONObject containerPacket = new JSONObject();

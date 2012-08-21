@@ -5,7 +5,8 @@ import org.JSON.JSONObject;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.util.TimerTask;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /*Client part of the peer. Connects to a ServerAdapter or PeerServerAdapter.
 * Message parsing is done in NetworkThread.
@@ -63,7 +64,7 @@ public class NetworkProtocol extends SocketObserverAdapter{
         sender.socket = nioSocket;
         sender.setAesKey(encryption.generateSymmetricKey());
         //sender.setActive(true);
-       master.timerTasks.get("connecttoup").cancel();
+       master.timer.remove(master.timerTasks.get("connecttoup"));
 
             try {
 
@@ -72,16 +73,17 @@ public class NetworkProtocol extends SocketObserverAdapter{
                 {
 
                     sender.setActive(true);
-                    master.timerTasks.put("upkeyexchange", new TimerTask() {
+                    master.timerTasks.put("upkeyexchange", new Runnable() {
                         public void run() {
                             try {
-                                master.keyExchange(sender);
+                                if(!master.exchangedKeysWithUp)
+                                    master.keyExchange(sender);
                             } catch (Exception e) {
                                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                             }
                         }
                     });
-                    master.timer.schedule(master.timerTasks.get("upkeyexchange"), 0, 3000);
+                    master.timer.scheduleAtFixedRate(master.timerTasks.get("upkeyexchange"), 0, 3, TimeUnit.SECONDS);
                 }/*
                 if(sender.name.equals("upRight"))
                 {
@@ -99,9 +101,14 @@ public class NetworkProtocol extends SocketObserverAdapter{
 	@Override
 	public void connectionBroken(NIOSocket nioSocket, Exception exception)
     {
-        sender.setActive(false);
-        master.timer.schedule(master.timerTasks.get("connecttoup"),0,3000);
-	    master.deadPeer(sender);
+        if(!master.state.equals("repairing"))
+        {
+            sender.setActive(false);
+            //master.timer.shutdown();
+            //master.timer = new ScheduledThreadPoolExecutor(2);
+            //master.timer.scheduleAtFixedRate(master.timerTasks.get("connecttoup"),0,3,TimeUnit.SECONDS);
+            master.deadPeer(sender);
+        }
 
 
     }
