@@ -1,0 +1,18 @@
+<component name="libraryTable">
+  <library name="net">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/sbbi-bootstrap-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bcprov-jdk16-146.jar!/" />
+      <root url="jar://$PROJECT_DIR$/naga-debug-2_1-r42.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/sbbi.jar!/sbbi/docs/api" />
+      <root url="jar://$PROJECT_DIR$/naga-debug-2_1-r42.jar!/docs/api" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/net.jar!/" />
+      <root url="jar://$PROJECT_DIR$/sbbi.jar!/sbbi/src" />
+      <root url="jar://$PROJECT_DIR$/naga-debug-2_1-r42.jar!/src" />
+    </SOURCES>
+  </library>
+</component>
