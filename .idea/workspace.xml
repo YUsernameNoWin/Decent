@@ -1,18 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AnalysisUIOptions">
+    <option name="SCOPE_TYPE" value="3" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="2d79ae8d-7477-4e41-ba70-64c186e9fecf" name="Default" comment="">
+      <change type="DELETED" beforePath="C:\Users\Quinn\workspace\webserver\bin\PeerServerAdapter$1.class" afterPath="" />
+      <change type="DELETED" beforePath="C:\Users\Quinn\workspace\webserver\out\production\Decent\NetworkProtocol$1.class" afterPath="" />
+      <change type="DELETED" beforePath="C:\Users\Quinn\workspace\webserver\out\production\Sbbi\net\sbbi\upnp\version.properties" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.settings/org.eclipse.jdt.core.prefs" afterPath="$PROJECT_DIR$/.settings/org.eclipse.jdt.core.prefs" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/Base64$1.class" afterPath="$PROJECT_DIR$/bin/Base64$1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/Base64$InputStream.class" afterPath="$PROJECT_DIR$/bin/Base64$InputStream.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/Base64$OutputStream.class" afterPath="$PROJECT_DIR$/bin/Base64$OutputStream.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/Base64.class" afterPath="$PROJECT_DIR$/bin/Base64.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/CountableArrayList.class" afterPath="$PROJECT_DIR$/bin/CountableArrayList.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/Encryption.class" afterPath="$PROJECT_DIR$/bin/Encryption.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/FakePeer.class" afterPath="$PROJECT_DIR$/bin/FakePeer.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/Hole.class" afterPath="$PROJECT_DIR$/bin/Hole.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/JettyTestServer$1.class" afterPath="$PROJECT_DIR$/bin/JettyTestServer$1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/JettyTestServer.class" afterPath="$PROJECT_DIR$/bin/JettyTestServer.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/Master.class" afterPath="$PROJECT_DIR$/bin/Master.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/NetworkProtocol.class" afterPath="$PROJECT_DIR$/bin/NetworkProtocol.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/NetworkThread.class" afterPath="$PROJECT_DIR$/bin/NetworkThread.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/Peer.class" afterPath="$PROJECT_DIR$/bin/Peer.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/PeerServerAdapter.class" afterPath="$PROJECT_DIR$/bin/PeerServerAdapter.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/ServerAdapter$1.class" afterPath="$PROJECT_DIR$/bin/ServerAdapter$1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/ServerAdapter.class" afterPath="$PROJECT_DIR$/bin/ServerAdapter.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/internalSocket.class" afterPath="$PROJECT_DIR$/bin/internalSocket.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/org/JSON/JSONArray.class" afterPath="$PROJECT_DIR$/bin/org/JSON/JSONArray.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/org/JSON/JSONException.class" afterPath="$PROJECT_DIR$/bin/org/JSON/JSONException.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/org/JSON/JSONObject$Null.class" afterPath="$PROJECT_DIR$/bin/org/JSON/JSONObject$Null.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/org/JSON/JSONObject.class" afterPath="$PROJECT_DIR$/bin/org/JSON/JSONObject.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/org/JSON/JSONString.class" afterPath="$PROJECT_DIR$/bin/org/JSON/JSONString.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/org/JSON/JSONTokener.class" afterPath="$PROJECT_DIR$/bin/org/JSON/JSONTokener.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/org/webserver/helloworld.class" afterPath="$PROJECT_DIR$/bin/org/webserver/helloworld.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/runner.class" afterPath="$PROJECT_DIR$/bin/runner.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Decent/Base64.class" afterPath="$PROJECT_DIR$/out/production/Decent/Base64.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Decent/Encryption.class" afterPath="$PROJECT_DIR$/out/production/Decent/Encryption.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Decent/Hole.class" afterPath="$PROJECT_DIR$/out/production/Decent/Hole.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Decent/JettyTestServer.class" afterPath="$PROJECT_DIR$/out/production/Decent/JettyTestServer.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Decent/Master.class" afterPath="$PROJECT_DIR$/out/production/Decent/Master.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Decent/NetworkProtocol.class" afterPath="$PROJECT_DIR$/out/production/Decent/NetworkProtocol.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Decent/NetworkThread$1.class" afterPath="$PROJECT_DIR$/out/production/Decent/NetworkThread$1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Decent/NetworkThread$2.class" afterPath="$PROJECT_DIR$/out/production/Decent/NetworkThread$2.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Decent/NetworkThread$3.class" afterPath="$PROJECT_DIR$/out/production/Decent/NetworkThread$3.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Decent/NetworkThread$4.class" afterPath="$PROJECT_DIR$/out/production/Decent/NetworkThread$4.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Decent/NetworkThread$5.class" afterPath="$PROJECT_DIR$/out/production/Decent/NetworkThread$5.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Decent/NetworkThread.class" afterPath="$PROJECT_DIR$/out/production/Decent/NetworkThread.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Decent/Peer.class" afterPath="$PROJECT_DIR$/out/production/Decent/Peer.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Decent/PeerServerAdapter.class" afterPath="$PROJECT_DIR$/out/production/Decent/PeerServerAdapter.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Decent/ServerAdapter.class" afterPath="$PROJECT_DIR$/out/production/Decent/ServerAdapter.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Decent/internalSocket.class" afterPath="$PROJECT_DIR$/out/production/Decent/internalSocket.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Decent/runner.class" afterPath="$PROJECT_DIR$/out/production/Decent/runner.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/CountableArrayList.java" afterPath="$PROJECT_DIR$/src/CountableArrayList.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Decent.iml" afterPath="$PROJECT_DIR$/Decent.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Encryption.java" afterPath="$PROJECT_DIR$/src/Encryption.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Hole.java" afterPath="$PROJECT_DIR$/src/Hole.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/JettyTestServer.java" afterPath="$PROJECT_DIR$/src/JettyTestServer.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Master.java" afterPath="$PROJECT_DIR$/src/Master.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/NetworkProtocol.java" afterPath="$PROJECT_DIR$/src/NetworkProtocol.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/NetworkThread.java" afterPath="$PROJECT_DIR$/src/NetworkThread.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Peer.java" afterPath="$PROJECT_DIR$/src/Peer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/PeerServerAdapter.java" afterPath="$PROJECT_DIR$/src/PeerServerAdapter.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ServerAdapter.java" afterPath="$PROJECT_DIR$/src/ServerAdapter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/JSON/JSONObject.java" afterPath="$PROJECT_DIR$/src/org/JSON/JSONObject.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/JSON/JSONTokener.java" afterPath="$PROJECT_DIR$/src/org/JSON/JSONTokener.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/webserver/helloworld.java" afterPath="$PROJECT_DIR$/src/org/webserver/helloworld.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/runner.java" afterPath="$PROJECT_DIR$/src/runner.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test.txt" afterPath="$PROJECT_DIR$/test.txt" />
     </list>
@@ -38,7 +88,7 @@
   </component>
   <component name="DebuggerManager">
     <line_breakpoints>
-      <breakpoint url="file://$PROJECT_DIR$/src/NetworkThread.java" line="680" class="NetworkThread" package="">
+      <breakpoint url="file://$PROJECT_DIR$/src/NetworkThread.java" line="714" class="NetworkThread" package="">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -51,7 +101,111 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/Master.java" line="407" class="Master" package="">
+      <breakpoint url="file://$PROJECT_DIR$/src/NetworkThread.java" line="711" class="NetworkThread" package="">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/NetworkThread.java" line="227" class="NetworkThread" package="">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/Master.java" line="828" class="Master" package="">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/Master.java" line="841" class="Master" package="">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/Master.java" line="381" class="Master" package="">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/Encryption.java" line="125" class="Encryption" package="">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/Master.java" line="279" class="Master" package="">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/NetworkProtocol.java" line="55" class="NetworkProtocol" package="">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/NetworkThread.java" line="304" class="NetworkThread" package="">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -112,8 +266,8 @@
       <property name="field_breakpoints_groupByClasses" value="true" />
       <property name="method_breakpoints_groupByClasses" value="true" />
       <property name="exception_breakpoints_viewId" value="TABLE" />
-      <property name="field_breakpoints_viewId" value="TABLE" />
       <property name="exception_breakpoints_groupByClasses" value="true" />
+      <property name="field_breakpoints_viewId" value="TABLE" />
       <property name="method_breakpoints_groupByMethods" value="false" />
     </ui_properties>
   </component>
@@ -122,30 +276,37 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Master.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/Master.java">
+      <file leaf-file-name="NetworkThread.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/NetworkThread.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="406" column="36" selection-start="14425" selection-end="14425" vertical-scroll-proportion="0.66774195">
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#1115#1121#0" expanded="true" />
-                <element signature="e#1173#1179#0" expanded="true" />
-                <element signature="e#1232#1238#0" expanded="true" />
-                <element signature="e#1314#1331#0" expanded="true" />
-                <element signature="e#1377#1383#0" expanded="true" />
-                <element signature="e#1433#1439#0" expanded="true" />
-                <element signature="e#1492#1505#0" expanded="true" />
-                <element signature="e#1738#1754#0" expanded="true" />
-                <element signature="e#12273#12286#0" expanded="true" />
-              </folding>
+            <state line="301" column="22" selection-start="11504" selection-end="11504" vertical-scroll-proportion="0.0">
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="NetworkThread.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/NetworkThread.java">
+      <file leaf-file-name="Encryption.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/Encryption.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="680" column="0" selection-start="25605" selection-end="25605" vertical-scroll-proportion="0.0">
+            <state line="146" column="95" selection-start="5448" selection-end="5448" vertical-scroll-proportion="0.56071967">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="WindowsSelectorImpl.class" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar://C:/Program Files/Java/jdk1.7.0_06/jre/lib/rt.jar!/sun/nio/ch/WindowsSelectorImpl.class">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="132" column="27" selection-start="5253" selection-end="5253" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="NIOService.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar://$PROJECT_DIR$/naga-debug-2_1-r42.jar!/src/naga/NIOService.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="109" column="29" selection-start="3446" selection-end="3446" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -154,11 +315,8 @@
       <file leaf-file-name="NetworkProtocol.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/NetworkProtocol.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="82" column="36" selection-start="2452" selection-end="2452" vertical-scroll-proportion="0.0">
-              <folding>
-                <element signature="e#2020#2500#0" expanded="true" />
-                <element signature="e#2477#2478#0" expanded="true" />
-              </folding>
+            <state line="58" column="32" selection-start="1498" selection-end="1498" vertical-scroll-proportion="0.0">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -166,7 +324,34 @@
       <file leaf-file-name="runner.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/runner.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="45" column="34" selection-start="1608" selection-end="1608" vertical-scroll-proportion="0.0">
+            <state line="45" column="5" selection-start="1709" selection-end="1709" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Message.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/Message.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="22" column="60" selection-start="505" selection-end="505" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ServerAdapter.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/ServerAdapter.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="52" column="0" selection-start="1485" selection-end="1485" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Master.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/Master.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="107" column="0" selection-start="3255" selection-end="3370" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -186,6 +371,22 @@
   <component name="GitLogSettings">
     <option name="myStructureFilterPaths" />
   </component>
+  <component name="GotoClassSymbolConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="AIDL" />
+      <filtered-out-file-type name="DTD" />
+      <filtered-out-file-type name="Groovy" />
+      <filtered-out-file-type name="HTML" />
+      <filtered-out-file-type name="Properties" />
+      <filtered-out-file-type name="RELAX-NG" />
+      <filtered-out-file-type name="RegExp" />
+      <filtered-out-file-type name="TEXT" />
+      <filtered-out-file-type name="XHTML" />
+      <filtered-out-file-type name="XML" />
+      <filtered-out-file-type name="XPath" />
+      <filtered-out-file-type name="XPath2" />
+    </file-type-list>
+  </component>
   <component name="GradleLocalSettings">
     <option name="expandStates">
       <map>
@@ -199,14 +400,18 @@
         <option value="$PROJECT_DIR$/Decent/src/runner.java" />
         <option value="$PROJECT_DIR$/Decent/src/NetworkThread.java" />
         <option value="$PROJECT_DIR$/src/JettyTestServer.java" />
-        <option value="$PROJECT_DIR$/src/Encryption.java" />
         <option value="$PROJECT_DIR$/src/PeerServerAdapter.java" />
+        <option value="$PROJECT_DIR$/src/org/webserver/helloworld.java" />
+        <option value="$PROJECT_DIR$/src/BridgeServer.java" />
+        <option value="$PROJECT_DIR$/src/Hole.java" />
         <option value="$PROJECT_DIR$/src/Peer.java" />
-        <option value="$PROJECT_DIR$/src/ServerAdapter.java" />
         <option value="$PROJECT_DIR$/src/runner.java" />
         <option value="$PROJECT_DIR$/src/NetworkProtocol.java" />
-        <option value="$PROJECT_DIR$/src/NetworkThread.java" />
+        <option value="$PROJECT_DIR$/src/ServerAdapter.java" />
+        <option value="$PROJECT_DIR$/src/Encryption.java" />
+        <option value="$PROJECT_DIR$/src/Message.java" />
         <option value="$PROJECT_DIR$/src/Master.java" />
+        <option value="$PROJECT_DIR$/src/NetworkThread.java" />
       </list>
     </option>
   </component>
@@ -216,8 +421,8 @@
   <component name="ProjectFrameBounds">
     <option name="x" value="-8" />
     <option name="y" value="-8" />
-    <option name="width" value="1040" />
-    <option name="height" value="744" />
+    <option name="width" value="1616" />
+    <option name="height" value="876" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <OptionsSetting value="true" id="Add" />
@@ -233,8 +438,8 @@
     <option name="STATE" value="0" />
   </component>
   <component name="ProjectView">
-    <navigator currentView="ProjectPane" proportions="" version="1" splitterProportion="0.5">
-      <flattenPackages />
+    <navigator proportions="" version="1" splitterProportion="0.5">
+      <flattenPackages ProjectPane="true" />
       <showMembers />
       <showModules />
       <showLibraryContents />
@@ -244,101 +449,25 @@
       <autoscrollFromSource />
       <sortByType />
     </navigator>
-    <panes>
-      <pane id="ProjectPane">
-        <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Decent" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="External Libraries" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ExternalLibrariesNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Decent" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Decent" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Decent" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Decent" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ServerAdapter.java" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.ClassesTreeStructureProvider$PsiClassOwnerTreeNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Decent" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Decent" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
-      <pane id="Scope">
-        <subPane subId="Project Files">
-          <PATH>
-            <PATH_ELEMENT USER_OBJECT="Root">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
-      <pane id="PackagesPane">
-        <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Decent" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
-    </panes>
+    <panes />
   </component>
   <component name="PropertiesComponent">
-    <property name="project.structure.last.edited" value="Libraries" />
+    <property name="project.structure.last.edited" value="Modules" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth0" value="72" />
-    <property name="OverrideImplement.combined" value="true" />
-    <property name="project.structure.proportion" value="0.15" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth1" value="72" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="OverrideImplement.combined" value="true" />
     <property name="options.splitter.main.proportions" value="0.3" />
-    <property name="MemberChooser.sorted" value="false" />
-    <property name="recentsLimit" value="5" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder1" value="1" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth0" value="72" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder1" value="1" />
+    <property name="recentsLimit" value="5" />
+    <property name="MemberChooser.sorted" value="false" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder0" value="0" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth2" value="72" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth3" value="717" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth3" value="716" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth2" value="72" />
+    <property name="GoToClass.includeJavaFiles" value="false" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth1" value="71" />
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder2" value="2" />
@@ -351,11 +480,11 @@
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder3" value="3" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder1" value="1" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder2" value="2" />
-    <property name="options.lastSelected" value="project.propVCSSupport.Mappings" />
+    <property name="options.lastSelected" value="fileTemplates" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="MemberChooser.copyJavadoc" value="false" />
-    <property name="options.searchVisible" value="true" />
     <property name="dynamic.classpath" value="false" />
+    <property name="options.searchVisible" value="true" />
   </component>
   <component name="RunManager" selected="Application.runner">
     <configuration default="false" name="runner" type="Application" factoryName="Application" temporary="true">
@@ -425,45 +554,6 @@
         <option name="Maven.BeforeRunTask" enabled="false" />
       </method>
     </configuration>
-    <configuration default="true" type="XSLT" factoryName="XSLT">
-      <option name="myOutputFile" />
-      <option name="myOpenOutputFile" value="false" />
-      <option name="myOpenInBrowser" value="false" />
-      <option name="mySmartErrorHandling" value="true" />
-      <option name="myRunnerPort" value="34873" />
-      <option name="myVmArguments" />
-      <option name="myWorkingDirectory" />
-      <option name="myModule" />
-      <option name="myJdk" />
-      <parameters />
-      <OutputType value="CONSOLE" save-to-file="false" />
-      <FileType name="XML" />
-      <JdkChoice value="FROM_MODULE" />
-      <method>
-        <option name="AntTarget" enabled="false" />
-        <option name="BuildArtifacts" enabled="false" />
-        <option name="Make" enabled="true" />
-        <option name="Maven.BeforeRunTask" enabled="false" />
-      </method>
-    </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <method>
-        <option name="AntTarget" enabled="false" />
-        <option name="BuildArtifacts" enabled="false" />
-        <option name="Make" enabled="true" />
-        <option name="Maven.BeforeRunTask" enabled="false" />
-      </method>
-    </configuration>
     <configuration default="true" type="TestNG" factoryName="TestNG">
       <module name="" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
@@ -489,6 +579,45 @@
       <envs />
       <properties />
       <listeners />
+      <method>
+        <option name="AntTarget" enabled="false" />
+        <option name="BuildArtifacts" enabled="false" />
+        <option name="Make" enabled="true" />
+        <option name="Maven.BeforeRunTask" enabled="false" />
+      </method>
+    </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <method>
+        <option name="AntTarget" enabled="false" />
+        <option name="BuildArtifacts" enabled="false" />
+        <option name="Make" enabled="true" />
+        <option name="Maven.BeforeRunTask" enabled="false" />
+      </method>
+    </configuration>
+    <configuration default="true" type="XSLT" factoryName="XSLT">
+      <option name="myOutputFile" />
+      <option name="myOpenOutputFile" value="false" />
+      <option name="myOpenInBrowser" value="false" />
+      <option name="mySmartErrorHandling" value="true" />
+      <option name="myRunnerPort" value="34873" />
+      <option name="myVmArguments" />
+      <option name="myWorkingDirectory" />
+      <option name="myModule" />
+      <option name="myJdk" />
+      <parameters />
+      <OutputType value="CONSOLE" save-to-file="false" />
+      <FileType name="XML" />
+      <JdkChoice value="FROM_MODULE" />
       <method>
         <option name="AntTarget" enabled="false" />
         <option name="BuildArtifacts" enabled="false" />
@@ -610,27 +739,27 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1040" height="744" extended-state="6" />
+    <frame x="-8" y="-8" width="1616" height="876" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32876712" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32923076" sideWeight="0.8184931" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.40068492" sideWeight="0.48820513" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4520548" sideWeight="0.50461537" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4036313" sideWeight="0.48820513" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4520548" sideWeight="0.50461537" order="10" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32923076" sideWeight="0.6900685" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32876712" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.29623288" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32876712" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32876712" sideWeight="0.4923077" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.23487179" sideWeight="0.59931505" order="1" side_tool="true" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.7208904" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.23179488" sideWeight="0.510274" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2791096" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.243069" sideWeight="0.6773743" order="1" side_tool="true" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3997421" sideWeight="0.53651685" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.23146357" sideWeight="0.66853935" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3226257" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2932961" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
@@ -696,123 +825,85 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://C:/glassfish3/jdk7/jre/lib/rt.jar!/java/io/FileInputStream.class">
+    <entry file="jar://C:/Program Files/Java/jdk1.7.0_06/src.zip!/java/lang/Math.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="28" column="15" selection-start="1208" selection-end="1208" vertical-scroll-proportion="0.25095785" />
+        <state line="441" column="25" selection-start="17013" selection-end="17013" vertical-scroll-proportion="0.56682026" />
       </provider>
     </entry>
-    <entry file="jar://$PROJECT_DIR$/naga-debug-2_1-r42.jar!/src/naga/NIOSocket.java">
+    <entry file="jar://C:/Program Files/Java/jdk1.7.0_06/src.zip!/java/util/HashMap.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="119" column="9" selection-start="3452" selection-end="3452" vertical-scroll-proportion="0.0" />
+        <state line="401" column="13" selection-start="14975" selection-end="14975" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="jar://C:/glassfish3/jdk7/jre/lib/rt.jar!/java/util/concurrent/Executors.class">
+    <entry file="jar://C:/Program Files/Java/jdk1.7.0_06/jre/lib/rt.jar!/sun/misc/Unsafe.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="147" column="17" selection-start="8955" selection-end="8955" vertical-scroll-proportion="0.6023392" />
+        <state line="318" column="23" selection-start="10477" selection-end="10477" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="jar://$PROJECT_DIR$/naga-debug-2_1-r42.jar!/src/naga/NIOService.java">
+    <entry file="file://$PROJECT_DIR$/bin/Master.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="109" column="29" selection-start="3446" selection-end="3446" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bin/runner.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.7.0_06/src.zip!/java/util/concurrent/ScheduledThreadPoolExecutor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="545" column="30" selection-start="20049" selection-end="20049" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/org/JSON/JSONObject.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="631" column="0" selection-start="22240" selection-end="22240" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Encryption.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="175" column="0" selection-start="6168" selection-end="6168" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Base64.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="517" column="0" selection-start="27098" selection-end="27098" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Peer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="64" column="0" selection-start="1459" selection-end="1459" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://C:/glassfish3/jdk7/jre/lib/rt.jar!/sun/nio/ch/WindowsSelectorImpl.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="132" column="27" selection-start="5253" selection-end="5253" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ServerAdapter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="43" column="28" selection-start="1160" selection-end="1161" vertical-scroll-proportion="0.31179774">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://C:/glassfish3/jdk7/jre/lib/rt.jar!/sun/nio/ch/ServerSocketChannelImpl.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="61" column="23" selection-start="3033" selection-end="3033" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://C:/glassfish3/jdk7/jre/lib/rt.jar!/java/lang/Runnable.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="7" column="9" selection-start="177" selection-end="177" vertical-scroll-proportion="0.26912928">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/runner.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="45" column="34" selection-start="1608" selection-end="1608" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/NetworkProtocol.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="82" column="36" selection-start="2452" selection-end="2452" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#2020#2500#0" expanded="true" />
-            <element signature="e#2477#2478#0" expanded="true" />
-          </folding>
-        </state>
+        <state line="1045" column="22" selection-start="35069" selection-end="35069" vertical-scroll-proportion="0.47619048" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/NetworkThread.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="680" column="0" selection-start="25605" selection-end="25605" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="301" column="22" selection-start="11504" selection-end="11504" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.7.0_06/jre/lib/rt.jar!/sun/nio/ch/WindowsSelectorImpl.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="132" column="27" selection-start="5253" selection-end="5253" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/naga-debug-2_1-r42.jar!/src/naga/NIOService.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="109" column="29" selection-start="3446" selection-end="3446" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/NetworkProtocol.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="58" column="32" selection-start="1498" selection-end="1498" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/runner.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="45" column="5" selection-start="1709" selection-end="1709" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Message.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="22" column="60" selection-start="505" selection-end="505" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ServerAdapter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="52" column="0" selection-start="1485" selection-end="1485" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Master.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="406" column="36" selection-start="14425" selection-end="14425" vertical-scroll-proportion="0.66774195">
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#1115#1121#0" expanded="true" />
-            <element signature="e#1173#1179#0" expanded="true" />
-            <element signature="e#1232#1238#0" expanded="true" />
-            <element signature="e#1314#1331#0" expanded="true" />
-            <element signature="e#1377#1383#0" expanded="true" />
-            <element signature="e#1433#1439#0" expanded="true" />
-            <element signature="e#1492#1505#0" expanded="true" />
-            <element signature="e#1738#1754#0" expanded="true" />
-            <element signature="e#12273#12286#0" expanded="true" />
-          </folding>
+        <state line="107" column="0" selection-start="3255" selection-end="3370" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Encryption.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="146" column="95" selection-start="5448" selection-end="5448" vertical-scroll-proportion="0.56071967">
+          <folding />
         </state>
       </provider>
     </entry>

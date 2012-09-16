@@ -1,4 +1,5 @@
 import org.JSON.JSONArray;
+import org.JSON.JSONException;
 import org.JSON.JSONObject;
 
 import javax.crypto.Cipher;
@@ -74,38 +75,41 @@ public class Encryption {
                e.printStackTrace();
            }
        }
+
        return encrypted;
    }
 	public JSONObject<?, ?> AESencryptJSON(JSONObject<?, ?> decrypted,byte[] aesKey)
-{
-    JSONObject<?, ?> encrypted = new JSONObject<Object, Object>();
-    if(decrypted.names() == null)
-        return decrypted;
-    for(int a=0;a<decrypted.names().length();a++){
-        try {
-            encrypted.put(new String(encryptAES(aesKey, decrypted.names().getString(a).getBytes())),
-            		new String(encryptAES(aesKey, decrypted.get(decrypted.names().getString(a)).toString().getBytes())));
-        } catch (Exception e) {
-            e.printStackTrace();
+    {
+        JSONObject<?, ?> encrypted = new JSONObject<Object, Object>();
+        if(decrypted.names() == null)
+            return decrypted;
+        for(int a=0;a<decrypted.names().length();a++){
+            try {
+                encrypted.put(new String(encryptAES(aesKey, decrypted.names().getString(a).getBytes())),
+                        new String(encryptAES(aesKey, decrypted.get(decrypted.names().getString(a)).toString().getBytes())));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-    }
-    return encrypted;
+
+
+        return encrypted;
 }
 /* Main encryption class. Encrypts with AES or RSA
 * 
  */
 
-public JSONObject<?, ?> AESdecryptJSON(JSONObject<?, ?> encrypted, byte[] AESkey)
-{  
+public JSONObject<?, ?> AESdecryptJSON(JSONObject<?, ?> encrypted, byte[] AESkey) throws JSONException {
     //Disable for debugging
     JSONObject<?, ?> clearPacket = new JSONObject<Object, Object>();
-    try {
+
         clearPacket.putOpt("dest", encrypted.remove("dest"));
         clearPacket.putOpt("src", encrypted.remove("src"));
         clearPacket.putOpt("type", encrypted.remove("type"));
         clearPacket.putOpt("col", encrypted.remove("col"));
         clearPacket.putOpt("debug", encrypted.remove("debug"));
         clearPacket.putOpt("name", encrypted.remove("name"));
+      clearPacket.putOpt("messageid", encrypted.remove("messageid"));
         JSONArray names = encrypted.names();
         if(names == null)
             return clearPacket;
@@ -114,11 +118,11 @@ public JSONObject<?, ?> AESdecryptJSON(JSONObject<?, ?> encrypted, byte[] AESkey
         for(int i =0;i<names.length();i++)
         {
             try {
-            	decryptedName= new String(decryptAES(AESkey, names.getString(i).getBytes()));
+            	decryptedName = new String(decryptAES(AESkey, names.getString(i).getBytes()));
             	decryptedContent = new String(decryptAES(AESkey, encrypted.getString(names.getString(i)).getBytes()));
             	clearPacket.put(decryptedName, decryptedContent);
             }catch(Exception e) {
-                System.out.println("ERROR WITH " + clearPacket.getString("debug") + " " + decryptedName);
+                System.out.println("ERROR WITH " + clearPacket.getString("debug") + " " + names.getString(i));
                 e.printStackTrace();
                 writeToFile(names.getString(i));
             }
@@ -126,12 +130,8 @@ public JSONObject<?, ?> AESdecryptJSON(JSONObject<?, ?> encrypted, byte[] AESkey
 
 
         }
-    }
-    catch(Exception e)
-    {
-    	e.printStackTrace();
-        writeToFile(new String (AESkey)  + " " + encrypted.toString());
-    }
+
+
     return clearPacket;
     
 }

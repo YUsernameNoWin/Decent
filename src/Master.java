@@ -38,6 +38,8 @@ public class Master extends Thread{
 	public Queue <Hole>holes = new LinkedList<Hole>();
 	public Queue<Hole> openSlots = new LinkedList<Hole>();
 	public HashMap<String,Peer> IDMap =  new HashMap<String,Peer>();
+    public HashMap<String,Message> tcpStateTracker = new HashMap<>();
+    public HashMap<String,Message> peerTcpStateTracker = new HashMap<>();
 	public PublicKey publicKey= null;
 	public PrivateKey privateKey = null;
 	public KeyPair peerKeys = null;
@@ -45,7 +47,8 @@ public class Master extends Thread{
 	public InetAddress leftAd,rightAd,downAd;
 	public HashMap<PublicKey,Peer> keyMap = new HashMap<PublicKey,Peer>();
 	public int peerNum = 0;
-	public final int MAX_PEER = 3;
+    public int port = 510;
+	public final int MAX_PEER = 100, NUM_COL = 5;
 	String clearText;
 	String AESKEY;
 	char type;
@@ -63,29 +66,28 @@ public class Master extends Thread{
 
 	public void run()
 	{
-	    map.add(new CountableArrayList<Peer>(MAX_PEER));
-        map.add(new CountableArrayList<Peer>(MAX_PEER));
-        map.add(new CountableArrayList<Peer>(MAX_PEER));
-        //map.add(new CountableArrayList<Peer>(MAX_PEER));
-           map.get(0).add(new Peer(0,0));
-           map.get(1).add(new Peer(1,0));
-           map.get(2).add(new Peer(2,0));
-           
-           map.get(0).get(0).ID = "1";
-           map.get(1).get(0).ID = "2";
-           map.get(2).get(0).ID = "3";
-           
-           map.get(0).get(0).publicKey = peerKeys.getPublic();
-           map.get(1).get(0).publicKey = peerKeys.getPublic();
-           map.get(2).get(0).publicKey = peerKeys.getPublic();
+
           //  map.get(3).add(new Peer());
-        
+
+
+        for(int i = 0; i < NUM_COL; i++)
+        {
+            map.add(new CountableArrayList<Peer>(MAX_PEER));
+            map.get(i).add(new Peer(i,0));
+            map.get(i).get(0).ID = Integer.toString(i);
+            map.get(i).get(0).publicKey = peerKeys.getPublic();
+            holes.add(new Hole(i, 1));
+        }
         //getKey();
         try {
            service = new NIOService();
            addBasePeer(map.get(0),0);
            addBasePeer(map.get(1),1);
            addBasePeer(map.get(2),2);
+           addBasePeer(map.get(3),3);
+           addBasePeer(map.get(4),4);
+           addBasePeer(map.get(5),5);
+
 
 
 
@@ -93,6 +95,7 @@ public class Master extends Thread{
                   while (true)
                   {
                         service.selectBlocking(1000);
+                        processACKs();
                   }
         } catch (IOException e1) {
             
@@ -100,7 +103,38 @@ public class Master extends Thread{
         }
 
 	}
-	public void parse(String input, ServerAdapter from)
+
+    private void processACKs() {
+        for(Object test: tcpStateTracker.values().toArray())
+        {
+            Message message = (Message)test;
+            message.updateTime();
+            if(message.time > 10000)
+            {
+                sendACK(message,message.owner);
+                message.resetTime();
+            }
+            if(message.timeout > 30000)
+            {
+                tcpStateTracker.remove(message.id);
+            }
+        }
+        for(Object test: peerTcpStateTracker.values().toArray())
+        {
+            Message message = (Message)test;
+            message.updateTime();
+            if(message.time > 10000)
+            {
+                message.fromServer.sendACK(message,message.owner);
+                message.resetTime();
+            }
+        }
+    }
+
+
+
+
+    public void parse(String input, ServerAdapter from)
     {
 
         try {
@@ -111,6 +145,7 @@ public class Master extends Thread{
             //if(UUID.fromString(encryptedPacket.getString("src")) == null)
             //  return;
             String id = encryptedPacket.getString("src");
+            String messageID = "";
             String name  =  (String) encryptedPacket.remove("name");
             Peer hashed = IDMap.get(encryptedPacket.getString("src"));
 
@@ -129,75 +164,68 @@ public class Master extends Thread{
             {
                 if(hashed.getAesKey() == null)
                 {
-                    if(encryptedPacket.has("aeskey"))
+                    addPeer(hashed,encryptedPacket,from);
+
+                }
+
+                else
+                {
+                    clearPacket = encryption.AESdecryptJSON(encryptedPacket,hashed.getAesKey());
+                    ACK(clearPacket,hashed);
+                    if(clearPacket.has("connectionbroken"))
                     {
+                        from.peerConnectionBroken(clearPacket, hashed);
+                    }
+                    if(clearPacket.has("bounce"))
+                    {
+                        from.bounceMessage(encryption.getPublicKeyFromString(clearPacket.getString("peerkey")),clearPacket.getString("bounce"));
+                    }
+                    if(clearPacket.has("needkeylist"))
+                    {
+                        sendKeyList(hashed);
+                    }
+                    if(clearPacket.has("needkeylist") && hashed.needsUpdate)
+                    {
+                        hashed.needsUpdate = false;
+                    }
+                    if(clearPacket.has("heart"))
+                    {
+                        heartBeat(hashed);
+                    }
+                    else if(clearPacket.has("port"))
+                    {
+                        hashed.port = clearPacket.getInt("port");
+                    }
+                    else if(clearPacket.has("dc"))
+                    {
+                        removePeer(hashed);
+                    }
+                    else if(clearPacket.has("publickey"))
+                    {
+                        from.peerAddPublicKey(hashed, clearPacket, from.socket);
+                    }
+                    else if(clearPacket.has("get"))
+                    {
+                        NIOSocket sock = null;
+                        try {
+                            sock = service.openSocket("127.0.0.1",1337);
+                            sock.listen(new internalSocket(hashed,clearPacket.getString("get"),this));
 
-                        if(registerPeer(encryptedPacket,hashed, from.socket, id))
-                        {
-                            hashed.name =  name;
-                            outPacket = new JSONObject();
-                            outPacket.put("gotpubkey",true);
-                            outPacket = addHeader(
-                                    encryption.AESencryptJSON(outPacket,hashed.getAesKey()),2,hashed);
-                            forwardMessage(hashed,outPacket.toString(),"topkeyreceived");
+                        } catch (IOException e) {
+
+                            e.printStackTrace();
                         }
+
+                    }
+                    if(clearPacket.has("uprightip") && clearPacket.has("uprightport"))
+                    {
+                        sendUpRightConnection(hashed, clearPacket);
+                    }
+                    if(clearPacket.has("upleftip") && clearPacket.has("upleftport"))
+                    {
+                        sendUpLeftConnection(hashed,clearPacket);
                     }
                 }
-                clearPacket = encryption.AESdecryptJSON(encryptedPacket,hashed.getAesKey());
-                if(clearPacket.has("connectionbroken"))
-                {
-                    from.peerConnectionBroken(clearPacket, hashed);
-                }
-                if(clearPacket.has("bounce"))
-                {
-                    from.bounceMessage(encryption.getPublicKeyFromString(clearPacket.getString("peerkey")),clearPacket.getString("bounce"));
-                }
-                if(clearPacket.has("needkeylist"))
-                {
-                    sendKeyList(hashed);
-                }
-                if(clearPacket.has("needkeylist") && hashed.needsUpdate)
-                {
-                    hashed.needsUpdate = false;
-                }
-                if(clearPacket.has("heart"))
-                {
-                    heartBeat(hashed);
-                }
-                else if(clearPacket.has("port"))
-                {
-                    hashed.port = clearPacket.getInt("port");
-                }
-                else if(clearPacket.has("dc"))
-                {
-                    removePeer(hashed);
-                }
-                else if(clearPacket.has("publickey"))
-                {
-                    from.peerAddPublicKey(hashed, clearPacket, from.socket);
-                }
-                else if(clearPacket.has("get"))
-                {
-                    NIOSocket sock = null;
-                    try {
-                        sock = service.openSocket("127.0.0.1",1337);
-                        sock.listen(new internalSocket(hashed,clearPacket.getString("get"),this));
-
-                    } catch (IOException e) {
-
-                        e.printStackTrace();
-                    }
-
-                }
-                if(clearPacket.has("uprightip") && clearPacket.has("uprightport"))
-                {
-                    sendUpRightConnection(hashed, clearPacket);
-                }
-                if(clearPacket.has("upleftip") && clearPacket.has("upleftport"))
-                {
-                    sendUpLeftConnection(hashed,clearPacket);
-                }
-
 
             }
             //System.out.println("Server: "+"SENT PACKET " + outPacket.toString());
@@ -208,6 +236,93 @@ public class Master extends Thread{
 
             e.printStackTrace();
         }
+    }
+
+    public void ACK(JSONObject clearPacket, Peer sender)
+    {
+        try{
+            String messageID = clearPacket.getString("messageid");
+            Message message = tcpStateTracker.get(messageID);
+            if(clearPacket.has("ack") &&  message != null)
+            {
+                tcpStateTracker.remove(messageID);
+                if(clearPacket.getInt("ack") < 2)
+                    sendACK(message,sender);
+            }
+            else if(tcpStateTracker.get(messageID) == null)
+            {
+                message = new Message(clearPacket,sender);
+                tcpStateTracker.put(messageID,message);
+                sendACK(message,sender);
+            }
+
+
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendACK(Message message, Peer hashed) {
+        JSONObject outPacket = new JSONObject();
+        try {
+            if(message.contents.has("ack"))
+                outPacket.put("ack", message.contents.getInt("ack") + 1 );
+            else
+                outPacket.put("ack", 0);
+
+                outPacket = encryption.AESencryptJSON(outPacket,hashed.getAesKey());
+                outPacket.put("messageid",message.id);
+                outPacket = addHeader(outPacket,2,hashed);
+
+            forwardMessage(hashed,outPacket.toString(),"ack " + message.id);
+        } catch (JSONException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
+    }
+
+    private void bridgeParse(JSONObject<?,?> encryptedPacket, Peer hashed) {
+
+    }
+    private void addAESKey( JSONObject encryptedPacket, Peer hashed, ServerAdapter from)
+    {
+        JSONObject outPacket = new JSONObject();
+        JSONObject clearPacket = null;
+            try{
+
+
+                if(encryptedPacket.has("aeskey"))
+                {
+                    byte[] key = Base64.decode(encryption.decryptRSA(privateKey, encryptedPacket.getString("aeskey").getBytes()));
+                    hashed.setAesKey(key);
+                    encryptedPacket.remove("aeskey");
+                }
+            }catch(Exception e)
+            {
+                e.printStackTrace();
+            }
+
+    }
+    public void addPublicKey( JSONObject encryptedPacket, Peer hashed, ServerAdapter from,JSONObject clearPacket)
+    {
+        JSONObject outPacket = new JSONObject();
+
+        try {
+
+            if(clearPacket.has("publickey"))
+            {
+                hashed.publicKey = encryption.getPublicKeyFromString(clearPacket.getString("src"));
+                outPacket.put("gotpubkey",true);
+                outPacket = encryption.AESencryptJSON(outPacket,hashed.getAesKey());
+                outPacket = addHeader(outPacket,2,hashed);
+                forwardMessage(hashed,outPacket.toString(),"topgotpubkey");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
     }
     private void sendUpLeftConnection(Peer hashed, JSONObject<?, ?> clearPacket) {
         // printMap();
@@ -262,7 +377,7 @@ public class Master extends Thread{
         }
 
     }
-    private boolean registerPeer(JSONObject<?, ?> encryptedPacket, Peer hashed, NIOSocket socket,String id) {
+    private boolean registerPeerKeys(JSONObject<?, ?> encryptedPacket, Peer hashed, NIOSocket socket, String id) {
         try {
             JSONObject<?, ?> outPacket = new JSONObject<Object, Object>();
             JSONObject<?, ?> clearPacket = new JSONObject<Object, Object>();
@@ -275,7 +390,7 @@ public class Master extends Thread{
             hashed.socket = socket;
             hashed.setActive(true);
             hashed.x = Integer.parseInt(clearPacket.getString("col"));
-            int added = addPeer(hashed);
+
             JSONObject<String,Peer> peers = getPeers(hashed);
 
             //Notify user that they are connected
@@ -334,6 +449,7 @@ public class Master extends Thread{
 	    	//System.out.println("WTF");
 	        JSONObject<String,Peer> output = new JSONObject<String,Peer>();
 	        try {
+
 	            output.put("right", map.get(peer.x+1).get(peer.y));
 	            output.put("left", map.get(peer.x-1).get(peer.y));
 	
@@ -357,6 +473,14 @@ public class Master extends Thread{
 	                   output.put("downRight", map.get(peer.x + 1).get(peer.y + 1));
 	                   output.put("down", map.get(peer.x).get(peer.y + 1));
 	            }
+                if(peer.y ==  1)
+                {
+                    output.put("upRight", map.get(peer.x + 2).get(1));
+                    output.put("downLeft", map.get(peer.x -2).get(1));
+
+                    output.put("upLeft", map.get(peer.x + 1).get(1));
+                    output.put("downRight", map.get(peer.x + 1).get(1));
+                }
 	        }
 	        catch(JSONException e)
 	        {
@@ -369,22 +493,47 @@ public class Master extends Thread{
 
 
 
-	public int addPeer(Peer peer)
+	public void addPeer(Peer hashed, JSONObject encryptedPacket, ServerAdapter from)
 	{
+        JSONObject clearPacket = null;
+        addAESKey(encryptedPacket,hashed,from);
+        hashed.socket = from.socket;
+        try{
+            clearPacket = encryption.AESdecryptJSON(encryptedPacket,hashed.getAesKey());
+            ACK(clearPacket,hashed);
+            addPublicKey(encryptedPacket,hashed,from,clearPacket);
+            addPeerToMap(hashed);
+            /*if(hashed.ordersGiven)
 
-		if(!holes.isEmpty())
-		{
-			Hole hole = holes.remove();
-			peer.y  = hole.y;
-			peer.x  = hole.x;
-			if(map.get(peer.x).get(0).socket != null)
-			    peer.socket = map.get(peer.x).get(0).socket;
-			peer.setActive(true);
-			map.get(hole.x).set(hole.y, peer);
-			openSlots.add(new Hole(hole.x,hole.y+1,peer));
-		}
-		else
-		{
+            else
+                giveOrders(hashed,clearPacket,from);*/
+
+
+            hashed.setActive(true);
+            hashed.x = Integer.parseInt(clearPacket.getString("col"));
+        }catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        JSONObject<String,Peer> peers = getPeers(hashed);
+    }
+
+    public void giveOrders(Peer peer, JSONObject clearPacket, ServerAdapter from) {
+        if(!holes.isEmpty())
+        {
+            Hole hole = holes.remove();
+            peer.y  = hole.y;
+            peer.x  = hole.x;
+            repair(peer,map.get(peer.x).get(peer.y).port,peer.x,peer.y);
+            if(map.get(peer.x).size() == peer.y)
+                holes.add(new Hole(peer.x, peer.y + 1));
+            peer.ordersGiven = true;
+        }
+    }
+
+    public boolean addPeerToMap(Peer peer)
+    {
+
             peer.y = map.get(peer.x).size();
 
 
@@ -407,33 +556,33 @@ public class Master extends Thread{
                 int repairPort = 500 +(peer.y * 10) + map.activeSize-1;
                 repair(peer,repairPort ,map.activeSize-1,peer.y);
                 IDMap.remove(peer.publicKey);
-                return -1;
+                return false;
 
 
             }
             map.get(peer.x).add(peer);
-        peerNum++;
-	     //printMap();
-        JSONObject peerList =  getPeers(peer);
-        JSONObject peerPubKey =  new JSONObject();
-        try{
-            for(int i = 0; i < peerList.length();i++)
-            {
+            peerNum++;
+            //printMap();
+            JSONObject peerList =  getPeers(peer);
+            JSONObject peerPubKey =  new JSONObject();
+            try{
+                for(int i = 0; i < peerList.length();i++)
+                {
                     Peer current = (Peer)peerList.get((String)peerList.names().get(i));
                     if(current.publicKey != null && current.getAesKey() != null)
                     {
                         current.needsUpdate = true;
                     }
+                }
+
+            }catch(Exception e)
+            {
+                e.printStackTrace();
             }
 
-        }catch(Exception e)
-        {
-            e.printStackTrace();
-        }}
-		return peer.x;
+        return true;
 
     }
-
     public void repair(Peer peer, int port, int x, int y) {
         JSONObject outPacket = new JSONObject();
         try {
@@ -443,6 +592,8 @@ public class Master extends Thread{
             outPacket.put("publickey",encryption.getKeyAsString(map.get(x).get(y-1).publicKey));
             outPacket = addHeader(encryption.AESencryptJSON(outPacket,peer.getAesKey()),2,peer);
             forwardMessage(peer,outPacket.toString(),"repair");
+            peer.setActive(false);
+            peer.setAesKey(null);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -472,7 +623,7 @@ public class Master extends Thread{
 	public void removePeer(Peer hashed) {
 	   JSONObject<String, Peer> peers = getPeers(hashed);
 	   Peer replacement = null;
-	   int maxTrickleUp = 0;
+	   int maxTrickleUp = 99999999;
 	   try{
     	   if(peers.has("down") && ((Peer)peers.get("down")).trickleUpCount < maxTrickleUp)
     	   {
@@ -501,7 +652,7 @@ public class Master extends Thread{
 	   {
 	       e.printStackTrace();
 	   }
-       holes.add(new Hole(hashed.y,hashed.x,map.get(hashed.y).get(hashed.x-1)));
+       holes.add(new Hole(hashed.y,hashed.x));
        map.get(hashed.x).remove(hashed.y);
        IDMap.remove(hashed.ID);
        peerNum--;
@@ -525,16 +676,29 @@ public class Master extends Thread{
 		return index;
 	}
 	public JSONObject<?, ?> addHeader(JSONObject<?, ?> json,int type,Peer peer )
-	{
+	{   String random = "";
+        try {
+            if(!json.has("messageid"))
+            {
+                random = Integer.toString((int) (Math.random() * 1000000));
 
-		try {
-		    return(json
-		    		.put("col", Integer.toString(peer.x))
-		    		.put("src", encryption.getKeyAsString(publicKey))
-            		.put("dest", encryption.getKeyAsString(peer.publicKey))
-		    		.put("type", Integer.toString(type)));
+                    json.put("messageid",random);
+                    tcpStateTracker.put(random,new Message(json,peer));
+                    json.remove("messageid");
+            }
+            else
+            {
+                random = json.getString("messageid");
+            }
 
-		} catch (JSONException e) {
+                json.put(new String(encryption.encryptAES(peer.getAesKey(),"messageid".getBytes())),new String(encryption.encryptAES(peer.getAesKey(),random.getBytes())));
+                return(json
+                        .put("col", Integer.toString(peer.x))
+                        .put("src", encryption.getKeyAsString(publicKey))
+                        .put("dest", encryption.getKeyAsString(peer.publicKey))
+                        .put("type", Integer.toString(type)));
+
+		} catch (Exception e) {
 			
 			e.printStackTrace();
 		}
@@ -670,6 +834,7 @@ public class Master extends Thread{
         try {
             JSONObject<?, ?> temp = new JSONObject<Object, Object>(content);
             temp.put("debug", debug);
+
             return dest.socket.write((temp.toString()+"\n").getBytes());
 
         } catch (Exception e) {

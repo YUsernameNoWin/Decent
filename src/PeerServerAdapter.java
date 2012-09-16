@@ -13,7 +13,6 @@ import java.io.IOException;
  * Message parsing is done in NetworkThread.*/
 public class PeerServerAdapter extends ServerSocketObserverAdapter{
 	public NetworkThread master;
-	//public Peer sender;
 	Encryption encryption  =  new Encryption();
     Peer sender;
     private int currentSender = 0;
@@ -37,9 +36,9 @@ public class PeerServerAdapter extends ServerSocketObserverAdapter{
     	nioSocket.setPacketReader(new AsciiLinePacketReader());
 		nioSocket.setPacketWriter(new RawPacketWriter());
       // Set our socket observer to listen to the new socket.
-
-		nioSocket.listen(new NetworkProtocol(master,sender));
-
+		if(!sender.isActive())
+		    nioSocket.listen(new NetworkProtocol(master,sender));
+		    
 
 				
 
