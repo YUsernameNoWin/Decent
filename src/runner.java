@@ -31,7 +31,7 @@ public class runner extends Thread{
         KeyPair keys1 = getKey();
         KeyPair keys2 = getKey();
         KeyPair keys3 = getKey();
-        int port = 529;
+        int port = 210;
         master =new Master(top,keys1);
         ArrayList<NetworkThread> peers = new ArrayList<NetworkThread>();
            master.start();
@@ -39,8 +39,7 @@ public class runner extends Thread{
            //saveKey2(news.getPublic(),news.getPrivate());
            sleep(200);
            int temp = 7;
-        NetworkThread invitor = new NetworkThread(master.port ,temp,keys1,(keys1 = e.generateKey()),top);
-        invitor.bridging = false;
+        NetworkThread invitor = new NetworkThread(210 ,temp,keys1,(keys1 = e.generateKey()),top);
         invitor.start();
         temp++;
     }
@@ -55,7 +54,7 @@ public class runner extends Thread{
             }
 
         }
-
+        /*
         for(int i=1;i<=3;i++)
         {
             peers.add(new NetworkThread(i*10+500,temp,keys1,(keys1 = e.generateKey()),top));

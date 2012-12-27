@@ -65,6 +65,7 @@ public class Encryption {
 	public JSONObject<?, ?> RSAencryptJSON(JSONObject<?, ?> decrypted,PublicKey publicKey)
    {
        JSONObject<?, ?> encrypted = new JSONObject<Object, Object>();
+
        if(decrypted.names() == null)
            return decrypted;
        for(int a=0;a<decrypted.names().length();a++){
@@ -109,6 +110,10 @@ public JSONObject<?, ?> AESdecryptJSON(JSONObject<?, ?> encrypted, byte[] AESkey
         clearPacket.putOpt("col", encrypted.remove("col"));
         clearPacket.putOpt("debug", encrypted.remove("debug"));
         clearPacket.putOpt("name", encrypted.remove("name"));
+        clearPacket.putOpt("bridge", encrypted.remove("bridge"));
+        clearPacket.putOpt("bridging", encrypted.remove("bridging"));
+        clearPacket.putOpt("ack", encrypted.remove("ack"));
+        clearPacket.putOpt("ackstate", encrypted.remove("ackstate"));
       clearPacket.putOpt("messageid", encrypted.remove("messageid"));
         JSONArray names = encrypted.names();
         if(names == null)
